@@ -22,6 +22,7 @@ DOCUMENTS = [
     ('analysis/state_machines.md', 'State machines', 'Research'),
     ('analysis/vm_report.md', 'VM / dispatcher scan', 'Research'),
     ('analysis/CODEX_ANIMATION_MAP.md', 'Original animation logic', 'Animation'),
+    ('analysis/CODEX_PARTICLE_MAP.md', 'Particles and fall contacts', 'Research'),
     ('docs/CODEX_NSBCA_HANDOFF.md', 'Joint-animation decoder', 'Animation'),
     ('docs/CODEX_NSBTP_HANDOFF.md', 'Face-pattern decoder', 'Animation'),
     ('docs/CODEX_ROM_BUILD_WORKFLOW.md', 'Future ROM workflow', 'Project notes'),

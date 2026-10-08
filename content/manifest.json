@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-08 18:35 UTC",
+  "updated": "2026-10-08 20:11 UTC",
   "documents": [
     {
       "path": "docs/NEXT_GOALS.md",
@@ -77,6 +77,12 @@
       "path": "analysis/CODEX_ANIMATION_MAP.md",
       "title": "Original animation logic",
       "group": "Animation",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "analysis/CODEX_PARTICLE_MAP.md",
+      "title": "Particles and fall contacts",
+      "group": "Research",
       "modified": "2026-10-08"
     },
     {

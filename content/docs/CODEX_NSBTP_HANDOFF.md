@@ -1,7 +1,8 @@
 # Texture-pattern decoder handoff
 
 `vm_model/src/nitro_pattern.rs` parses BTP0/PAT0 animation dictionaries and M\0PT
-tracks, targeting materials by name. No renderer files were changed.
+tracks, targeting materials by name. Renderer integration now lives in
+`game/src/driver_animation.rs` (2026-10-08).
 
 ```rust
 use vm_model::nitro_pattern::PatternAnimation;
@@ -21,4 +22,8 @@ isolated capture; `compare_pattern_capture` compares captured RAM files.
 
 Use `nitro_playback::AnimationClock` for ordinary original-game playback timing.
 The driver drive pose is explicitly controlled by steering, as documented in
-`analysis/CODEX_ANIMATION_MAP.md`. The modules still require renderer integration.
+`analysis/CODEX_ANIMATION_MAP.md`. The renderer loads the shared face pattern
+from `KartModelMain/character/common`, preserves palette sentinel behavior,
+and switches detailed-driver materials to frame 1 during spin/lose and frame 0
+otherwise. This follows `sub_207B708` and `sub_2068A64`; live expression-transition
+timing still needs capture. No invented blink timer is added.

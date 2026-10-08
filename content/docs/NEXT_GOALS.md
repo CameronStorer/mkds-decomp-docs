@@ -37,7 +37,7 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - Visual fixes (user reports 2026-10-08): duplicate wheels (kart bodies carry low-detail
   `kart_tire` wheels; detailed karts hide them), texture matrices applied, pivot rotations
   transposed (fixed skinned/rotated models), detailed drivers `KartModelSub/P_*` for the player
-  (rest pose: needs NSBCA `P_*_drive` etc.), spinning/steering tire pivots, drift sparks
+  (now animated through NSBCA `P_*_drive` etc.), spinning/steering tire pivots, drift sparks
   (approximate; real ones in `MainEffect/RaceEffect.spa`), wall sounds by material
   (`sub_210BAFC` table), crash SE 232 only for blown karts.
 
@@ -61,11 +61,25 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   face forward without the 180-degree turn, back faces render right.
 - Object lifts (item box 12, pipe 13, wooden box / Piranha Plant 10 x scale) for model and body.
 
+## Codex visual-fidelity progress (2026-10-08)
+- Detailed driver joint poses now reach SBC skinning through `nitro::Model::parse_all_with_poses`.
+  `nitro_driver` implements steering-controlled drive and original clip clock/blend increment;
+  `game/src/driver_animation.rs` selects drive/spin/ordinary win/lose and normal/closed faces.
+  Engine screenshot comparison confirms Mario's arms moved inward into the driving pose.
+  All 48 detailed-driver clips pass integer-frame skinning/topology checks.
+- SPA resource decoder: both race particle archives parse; main archive has 156 emitters,
+  47 decoded textures. Original blue flare 126, red flares 22/23 and smoke/red families
+  mapped from C. Full particle simulation and replacement of approximate cubes remain pending.
+- Fall detection now uses accepted movement-contact flags, matching `sub_1FFA4B4`, and
+  suppresses type 10 during wall contact as the original does. ROM regression exercises
+  186 Rainbow Road backfaces falsely accepted by the former second unswept probe.
+  Seed-1 native comparison over 6,000 render frames still produces four identical type-11
+  falls before/after; remaining autopilot falls need diagnosis. See `analysis/CODEX_PARTICLE_MAP.md`.
+
 ## Open user reports
-- Characters not animated: port NSBCA joint animation (suggested to Codex: `vm_model/src/nitro_anim.rs`)
-  and apply drive/spin/win/lose + face `P_faceanim.nsbtp`.
-- Mario model: arms outside the kart (rest pose until NSBCA; Codex is on the animation).
-- Rainbow Road spiral falls; drift sparks from `RaceEffect.spa`.
+- Driver presentation: victory idle alternation, complete special-mode results and one-shot
+  return logic; capture spin/win/lose, face changes and crossfades against the emulator.
+- Rainbow Road spiral falls; original drift particle simulation from `RaceEffect.spa`.
 - Object reactions not ported: the object's own side (`sub_20D2668`: Goombas squashed, crabs
   knocked), moving-object shove (handler flag 1), handler 9/10 exact damage (taken as blown).
 

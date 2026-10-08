@@ -82,3 +82,42 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_2087F84: selects joint clip immediately, clears prior blend and initializes playback clock (C confirmed)
 - sub_2015B9C: applies NSBTP texture/palette pattern to material; index 255 preserves palette (C/SDK confirmed)
 - sub_2014C5C: NSBCA joint evaluator; Mario drive decoder matched 1687 live node results; other clips not runtime verified
+
+## Driver presentation callers (Codex; C and ARM, 2026-10-08)
+
+- sub_207B6C0: driver clip selector wrapper: crossfade via sub_2087E90 when requested, otherwise immediate selection via sub_2087F84
+- sub_207B708: selects face-pattern frame from fx12 table 0x021551A4: normal=0, closed=4096
+- sub_2068A64: selects detailed driver clip and face: spin=1 with closed face; result flags force win=2 or lose=3 (closed); handles one-shot return state
+- sub_207B054: starts one-shot driver clip, saves return clip at driver +60, disables its looping and marks +56 active
+- sub_207B354: victory presentation alternates win/drive after random 150..349 ticks when enabled; kart +124 bit 0x40 forces drive (not yet ported)
+- sub_207B44C: chooses finished driver presentation by mode/team/place; normal eight-racer table at 0x021551DC gives win for 1..3, unchanged for 4..6, lose for 7..8
+- sub_208823C: allocates 56-byte animation wrapper and per-clip arrays, binds SDK animation; crossfade increment literal at 0x020882F8 is 410 fx12
+- sub_2010AB4: attaches SDK animation to render object by category J/M/V and inserts into its animation list
+- sub_2015274: NSBCA node-evaluation wrapper: clamps fx12 frame to [0, duration-1] and calls sub_2014C5C
+
+## Drift particles / SPL resources (Codex; analysis/CODEX_PARTICLE_MAP.md)
+
+- sub_20681F0: mini-turbo countersteer charge transitions: stage 2 blue flare 126 and SE 210; stage 3 switches wheel effects and starts red flares 22/23 when drift contact allows
+- sub_208C5B8: gets the racer-indexed 136-byte wheel-particle controller
+- sub_208C884: starts blue charge flare emitter 126 twice, one per rear wheel, after stopping prior flares
+- sub_208CACC: starts red charge flares 22 and 23 at both rear wheels, resets red-flare timer
+- sub_208D758: allocates per-racer wheel controllers: detailed smoke/red resources 20/17/18, low-detail CPU resources 21/19, red flares 22/23
+- sub_208C520: enables continuous drift wheel effect and resets timer
+- sub_208C534: disables drift wheel effect, stops/detaches active wheel emitters and invokes cleanup callback when active
+- sub_208D650: stops and detaches the two continuous wheel emitters by setting emitter +36 bit 1
+- sub_208B7BC: game particle factory: converts world position to SPL units with fx12 right shift 4, selects resource, spawns emitter and applies resource rendering flags
+- sub_208B710: immediately destroys a game particle emitter via sub_20184E4
+- sub_2018600: allocates and initializes SPL emitter from free pool, links active list; one-shot resource flag 0x4000 returns null despite successful creation
+- sub_20184E4: recycles primary/child particles, unlinks emitter and returns it to free pool
+- sub_2018A1C: SPA 1.2 resource loader: 88-byte emitter bases plus flag-selected blocks; TPS texture records traverse by record length at +28
+- sub_2018D94: allocates SPL manager and emitter/particle pools (76/156/68-byte structures) and initializes free lists
+- sub_2019B28: initializes emitter from resource and supplied position: rate, size, lifetime, frequency, opacity, texture parameters and other state
+- sub_2019DF8: converts SPA texture flags to GX texture parameters; palette-zero transparency comes from resource flag bit 16
+- sub_201873C: ticks active SPL emitters, honors start delay/alternating update flags, recycles expired empty emitters
+- sub_20192E0: emitter and particle simulation tick: spawn cadence, animated size/color/alpha/texture, behaviors, integration, death and child emission (not yet ported)
+- sub_201CA6C: allocates primary particles from fractional fx12 emission-rate accumulator, initializes positions by emission shape and remaining particle state (not yet ported)
+
+## Fall contact provenance (Codex; C and ARM, 2026-10-08)
+
+- sub_1FFA4B4: movement terrain contact query; passes the same accepted swept sphere flags to sub_206FF50 at 0x01FFA868..0x01FFA894; suppresses type 10 while wall-contact flag is set unless type 11 also hit
+- sub_206FF50: handles accepted fall/cannon terrain contact; flags 0xC00 begin fall state, signed type-15 flag routes cannon/off-course handling; caller's second argument omitted by C cast but retained in ARM r1

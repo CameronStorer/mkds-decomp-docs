@@ -7,9 +7,9 @@ addresses, not offsets in the ROM. This is an isolated supplement to Claude's
 
 ## Existing documentation
 
-- `docs/FUNCTION_MAP.md`: generated semantic index; currently 299 identified
-  routines out of 10,035 plan0 exports. Counts describe that snapshot, not full
-  verified coverage. Generator: `tools/function_map.py`.
+- `docs/FUNCTION_MAP.md`: generated semantic index; counts are regenerated from
+  current source comments and notes, not a claim of full verified coverage.
+  Generator: `tools/function_map.py`.
 - `docs/function_notes.md`: manually named routines, including object collision
   factories, shape tests, kart hit reactions and object drawing.
 - `analysis/race_logic_map.md`: input and race logic, with confidence labels.
@@ -55,7 +55,8 @@ In `sub_207B734`, driver record +36 approaches ±(+44), at steps 4096 or 8192
 according to kart flags. When clip index is zero, its frame is +36 plus +44 and
 only blend weights advance. Do not treat this clip as an ordinary looping pose.
 The shared face clip contains two expression selections; it does not establish a
-blink timer. Event-to-expression mappings need further caller analysis.
+blink timer. `sub_207B708` reads fx12 frames [0, 4096] at 0x021551A4.
+`sub_2068A64` uses the closed selection for spin and lose, normal otherwise.
 
 ## Clock layout and boundary behavior
 
@@ -87,12 +88,29 @@ preserved in the Rust port.
 - Clock: 541 live before/after transitions, 419 unique fixtures, zero mismatches.
   Live capture exercised mode 1; modes 0/2 and reverse/large-step edges are
   instruction-derived unit tests, not live coverage.
-- All seven decoder/clock integration tests passed. Full core run: 72 passed,
-  one ignored, one failed (`obj_collision::tests::pipe_stops_a_kart_where_the_game_does`,
-  missing pipe class). Collision files were not modified by this work.
-- New modules are engine-independent and not yet wired into the visible game.
-  Preserve animated local TRS before SBC hierarchy/skinning; do not animate an
-  already-flattened mesh by multiplying a single driver transform.
+- Joint and face decoders are now wired into the visible game through
+  `nitro_driver.rs` and `game/src/driver_animation.rs`; animated local TRS is
+  applied before SBC hierarchy/skinning. All 48 detailed-driver clips retain
+  topology and finite geometry at every integer frame. The earlier pipe test
+  failure has since been fixed by Claude; the subsequent core suite passes.
+- Figure-8 engine screenshots confirm the centered drive pose brings Mario's
+  arms inward. Spin/win/lose, blending and closed-face timing remain
+  instruction-derived behavior awaiting live transition captures.
 
-Next trace callers that choose spin/win/lose and expression frames, then integrate
-the local pose decoder with the renderer in coordination with Claude.
+## Additional caller findings and integration limits
+
+`sub_206BF88` immediately selects spin through `sub_2068A64(kart, 1, 0)`.
+`sub_207B6C0` chooses immediate or blended switching. `sub_208823C` initializes
+the blend increment to 410 (ARM literal 0x020882F8), reaching 4096 in ten ticks.
+The SDK blends weighted basis components, then rebuilds orthogonal axes; the
+port uses that basis operation, not quaternion interpolation.
+
+`sub_207B44C` reads finish classifications from 0x021551DC with a 16-byte row
+stride. For eight racers, the row is [0,0,0,1,1,1,2,2]: 0 selects win, 1 keeps
+the prior pose, 2 selects lose. The renderer implements the ordinary race
+case; team, time trial and battle cases remain pending. `sub_207B354` alternates
+win and drive every random 150..349 ticks; this is mapped but not implemented.
+`sub_207B054` handles one-shot clips and a saved return clip; that path and the
+mode-6 steering guard remain pending too.
+
+SDK basis reference: [original animation assembly](https://github.com/pret/pokediamond/blob/master/arm9/asm/NNS_G3D_anm.s).

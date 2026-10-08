@@ -1,8 +1,9 @@
 # NSBCA decoder handoff to Claude
 
-Implemented 2026-10-08. The decoder is ready for renderer integration; the running
-game does not yet consume it. No edits were made to `nitro.rs`, `game/src/`, or the
-shared progress notes.
+Implemented and integrated 2026-10-08. The running game now samples detailed
+driver joint poses before SBC hierarchy and skinning. The decoder remains
+engine-independent; `nitro_driver.rs` controls presentation and
+`game/src/driver_animation.rs` updates the renderer.
 
 ## Files
 
@@ -47,20 +48,26 @@ wrap the frame by `num_frames * ONE` when appropriate. Animation flag bit 0
 enables fractional sampling; bit 1 permits final-to-first interpolation.
 Integer samples on step-two/step-four tracks still interpolate.
 
-## Integration work remaining
+## Renderer integration
 
-1. Load a character's drive/spin/win/lose NSBCA from `KartModelSub` once.
-2. Retain each NSBMD node's local rest TRS (including scale information).
-3. Sample animated local transforms before walking the SBC hierarchy and
-   constructing the skinning matrix stack. The decoder returns local poses,
-   not already skinned vertices.
-4. Preserve the detailed driver's outer 180-degree correction and existing
-   model/world scale. Do not fold either into animation-local matrices.
-5. Select and advance clips from race state. The decoder does not determine
-   the game's original clip rates, start frames, blending, or state transitions.
+`Model::local_poses` retains local rest TRS and inverse scale;
+`Model::parse_all_with_poses` applies sampled nodes before the existing SBC walk.
+The game loads four clips once per detailed driver, updates positions/normals
+on changed poses, and leaves topology, UVs and outer model transforms intact.
+Claude's pivot correction already makes detailed drivers face forward; do not
+reintroduce the obsolete 180-degree correction from the earlier handoff.
 
-`P_faceanim.nsbtp` is texture/palette pattern animation and is not covered by
-this joint-animation module.
+Drive frames follow steering (one frame per tick, two while drifting), then
+recenter. Damage selects spin immediately. Ordinary eight-racer finishes select
+win for places 1..3 and lose for 7..8; other places retain drive. Non-immediate
+transitions use the original 410/fx12 blend increment. Face patterns from
+`KartModelMain/character/common/P_faceanim.nsbtp` use normal frame 0 and closed
+frame 1 for spin/lose. Missing detailed models retain the existing fallback.
+
+Remaining: victory idle alternation (`sub_207B354`), complete team/battle/time
+trial result logic, one-shot return transitions, special mode-6 steering guard,
+and runtime captures for crossfade and expression transitions. Ghosts use a
+centered drive pose because the current recording does not expose steering.
 
 ## Evidence and limits
 
@@ -78,14 +85,20 @@ this joint-animation module.
 - The 203 unique joint/frame combinations (7 joints x 29 frames) are retained
   as a regression fixture, without embedding the animation asset. The test
   reads the local extracted asset and requires exact integer equality.
-- Latest suite: 68 passed, 0 failed, 1 existing ignored test.
+- Renderer corpus: 48 driver clips skinned at every integer frame; finite
+  vertices/normals and unchanged topology/UVs/materials. Explicit rest poses
+  exactly reproduce the static parser. Mario drive pulls arms inward.
+- The release game builds. Engine screenshots before/after at the Figure-8
+  start show Mario's arms moved inward into the driving pose. Spin and result
+  presentation still need equivalent visual/runtime checks.
 
 The runtime comparison covers the drive clip's animated rotation and translation
 channels. Identity channels have unwritten fields in SDK output; those fields
 are excluded. This capture has no model-default channels or animated scales.
 Fractional sampling, reduced-rate tracks, other clips, reciprocal scale, and
-model-default channels still need runtime captures. Renderer integration needs
-visual checks; this result verifies local sampler output, not final skinned meshes.
+model-default channels still need runtime captures. The SDK comparison verifies
+local sampler output; corpus tests and the engine screenshot separately verify
+that animated poses reach the rendered mesh.
 Unsupported byte orders, file versions, step-eight tracks, unknown animation
 flags, and nonzero reserved curve bits return an explicit error.
 
