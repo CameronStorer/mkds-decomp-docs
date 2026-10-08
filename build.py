@@ -3,6 +3,7 @@ from pathlib import Path
 from collections import Counter
 import csv
 import html
+import hashlib
 import json
 import re
 import shutil
@@ -18,6 +19,8 @@ def slug(path):
 
 
 def frame(title, body, active=''):
+    versions = {name: hashlib.sha256((ROOT / 'assets' / name).read_bytes()).hexdigest()[:10]
+                for name in ('style.css', 'theme.css', 'site.js')}
     manifest = json.loads((ROOT / 'content/manifest.json').read_text(encoding='utf-8'))
     links = []
     for group in ('Progress', 'Function maps', 'Research', 'Animation', 'Project notes'):
@@ -32,7 +35,7 @@ def frame(title, body, active=''):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} · MKDS Research</title><meta name="description" content="A public research log of Mario Kart DS decompilation and its native Windows Rust port.">
 <link rel="icon" type="image/png" href="assets/mkds-icon.png">
-<link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/theme.css"><script src="assets/site.js" defer></script></head>
+<link rel="stylesheet" href="assets/style.css?v={versions['style.css']}"><link rel="stylesheet" href="assets/theme.css?v={versions['theme.css']}"><script src="assets/site.js?v={versions['site.js']}" defer></script></head>
 <body><a class="skip" href="#main">Skip to content</a>
 <header><a class="brand" href="index.html"><img class="brand-icon" src="assets/mkds-icon.png" width="48" height="48" alt=""><span class="brand-name">MARIO KART <span class="ds">DS</span><b>DECOMPILATION RESEARCH</b></span></a>
 <nav aria-label="Primary"><a href="index.html">Overview</a><a href="functions.html">Function explorer</a>
@@ -110,14 +113,20 @@ def build():
 <div class="notice">This site publishes reviewed documentation snapshots. Changes become live after documentation is synced and pushed to the repository; it does not read the developer's PC automatically.</div>'''
     (OUT / 'index.html').write_text(frame('Overview', overview), encoding='utf-8')
     explorer = '''<div class="eyebrow">Code inventory / Search & inspect</div><h1>Function explorer</h1>
-<p class="lead">Find a routine by address, meaning, subsystem or Rust counterpart. Open a row to inspect its evidence and references.</p>
+<p class="lead">Find a routine by address, meaning, subsystem or Rust counterpart. Click a column heading to sort; click it again to reverse. Scroll to load 200 more rows.</p>
 <div class="explorer-controls"><label class="search-label">Search functions<input id="function-search" type="search" placeholder="Try sub_2087B78, steering, animation…" autocomplete="off"></label>
 <label>Status<select id="status-filter"><option value="">All statuses</option><option>known</option><option>inferred</option><option>sdk</option><option>unknown</option></select></label>
 <label>Area<select id="area-filter"><option value="">All areas</option></select></label></div>
 <p class="caption">Known = a recorded meaning; inferred = a candidate area; SDK = a library classification; unknown = unmapped. None alone proves frame-exact behavior.</p>
 <div id="function-count" role="status" aria-live="polite">Loading function inventory…</div>
-<div class="table-scroll"><table class="function-table"><thead><tr><th>Function / address</th><th>Status</th><th>Area</th><th>Meaning</th></tr></thead><tbody id="function-rows"></tbody></table></div>
-<div class="pagination"><button id="prev-page">← Previous</button><span id="page-label"></span><button id="next-page">Next →</button></div>
+<div class="table-scroll"><table class="function-table"><thead><tr>
+<th scope="col" aria-sort="none"><button class="column-sort" data-sort="name" data-label="function">Function <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+<th scope="col" aria-sort="none"><button class="column-sort" data-sort="ea" data-label="address">Address / segment <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+<th scope="col" aria-sort="none"><button class="column-sort" data-sort="status" data-label="status">Status <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+<th scope="col" aria-sort="none"><button class="column-sort" data-sort="area" data-label="area">Area <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+<th scope="col" aria-sort="none"><button class="column-sort" data-sort="meaning" data-label="meaning">Meaning <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+</tr></thead><tbody id="function-rows"></tbody></table></div>
+<div id="scroll-sentinel" class="load-more-panel"><p id="load-status">Loading function inventory…</p><button id="load-more" class="button" hidden>Load 200 more functions ↓</button></div>
 <dialog id="function-detail"><button id="close-detail" class="dialog-close" aria-label="Close function detail">×</button><div id="detail-body"></div></dialog>
 <noscript><p>The interactive explorer needs JavaScript. <a href="docs--function_map.html">Read the function map</a> instead.</p></noscript>'''
     (OUT / 'functions.html').write_text(frame('Function explorer', explorer), encoding='utf-8')

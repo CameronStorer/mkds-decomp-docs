@@ -27,7 +27,9 @@ coverage, not game completion or universal runtime verification.
   [face-pattern decoder](content/docs/CODEX_NSBTP_HANDOFF.md).
 
 The website adds a searchable function explorer with status and subsystem
-filters. These documents are snapshots of the active research workspace;
+filters, sortable column headings, and scrolling that reveals 200 rows at a
+time. A Load more button also supports keyboard navigation. Sorting and filters
+apply to the complete inventory. These documents are snapshots of the active research workspace;
 individual findings record their evidence and remaining limitations.
 
 ## Build locally
@@ -41,6 +43,9 @@ python -m http.server 8000 --directory _site
 
 Open http://localhost:8000. The builder outputs static HTML, CSS, JavaScript and
 function metadata. GitHub Actions builds and publishes every push to `main`.
+
+After building, run `node tests/explorer.cjs` to check sorting, filters, incremental
+loading, and function details against the generated inventory.
 
 ## Update from the game research workspace
 

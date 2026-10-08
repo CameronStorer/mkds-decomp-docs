@@ -12,12 +12,14 @@ if (document.querySelector("#function-search")) {
   const area = document.querySelector("#area-filter");
   const rows = document.querySelector("#function-rows");
   const count = document.querySelector("#function-count");
-  const prev = document.querySelector("#prev-page");
-  const next = document.querySelector("#next-page");
-  const pageLabel = document.querySelector("#page-label");
+  const loadMore = document.querySelector("#load-more");
+  const sentinel = document.querySelector("#scroll-sentinel");
+  const loadStatus = document.querySelector("#load-status");
+  const sortButtons = [...document.querySelectorAll("button[data-sort]")];
   const dialog = document.querySelector("#function-detail");
-  const pageSize = 60;
-  let records = [], filtered = [], page = 0;
+  const batchSize = 200;
+  const collator = new Intl.Collator("en", {numeric: true, sensitivity: "base"});
+  let records = [], filtered = [], shown = 0, sortKey = null, ascending = true;
 
   function detail(index, updateHash = true) {
     const r = records[index];
@@ -27,24 +29,66 @@ if (document.querySelector("#function-search")) {
     if (updateHash) history.replaceState(null, "", `#${encodeURIComponent(r.segment)}:${encodeURIComponent(r.name)}`);
   }
 
-  function render() {
-    const max = Math.max(1, Math.ceil(filtered.length / pageSize));
-    page = Math.min(page, max - 1);
-    const subset = filtered.slice(page * pageSize, (page + 1) * pageSize);
-    rows.innerHTML = subset.length ? subset.map(r => `<tr><td><button class="function-open" data-index="${r.index}">${escape(r.name)}</button><span class="address">${escape(r.ea)} · ${escape(r.segment)}</span></td><td><span class="badge ${escape(r.status)}">${escape(r.status)}</span></td><td>${escape(r.area || "—")}</td><td>${escape(r.meaning || "No meaning recorded")}</td></tr>`).join("") : '<tr><td colspan="4">No functions match these filters.</td></tr>';
-    count.textContent = `${filtered.length.toLocaleString()} of ${records.length.toLocaleString()} functions`;
-    pageLabel.textContent = `Page ${page + 1} of ${max}`;
-    prev.disabled = page === 0; next.disabled = page + 1 >= max;
+  function updateCount() {
+    count.textContent = `Showing ${shown.toLocaleString()} of ${filtered.length.toLocaleString()} matching functions (${records.length.toLocaleString()} total)`;
+    loadMore.hidden = shown >= filtered.length;
+    loadStatus.textContent = shown < filtered.length
+      ? "Scroll for the next 200 functions, or use Load more."
+      : (filtered.length ? "All matching functions are shown." : "Try another search or filter.");
+  }
+
+  function loadNextBatch() {
+    if (shown >= filtered.length) return;
+    const subset = filtered.slice(shown, shown + batchSize);
+    rows.insertAdjacentHTML("beforeend", subset.map(r => `<tr><td><button class="function-open" data-index="${r.index}">${escape(r.name)}</button></td><td><span class="address">${escape(r.ea)}<br>${escape(r.segment)}</span></td><td><span class="badge ${escape(r.status)}">${escape(r.status)}</span></td><td>${escape(r.area || "—")}</td><td>${escape(r.meaning || "No meaning recorded")}</td></tr>`).join(""));
+    shown += subset.length;
+    updateCount();
+  }
+
+  function sortAndRender() {
+    if (sortKey) {
+      filtered.sort((a, b) => {
+        const av = a[sortKey] || "", bv = b[sortKey] || "";
+        // Keep unmapped attributes at the end in either direction.
+        if (!av !== !bv) return av ? -1 : 1;
+        const comparison = sortKey === "ea"
+          ? parseInt(av, 16) - parseInt(bv, 16)
+          : collator.compare(av, bv);
+        return (ascending ? comparison : -comparison)
+          || collator.compare(a.segment, b.segment)
+          || collator.compare(a.name, b.name) || a.index - b.index;
+      });
+    }
+    sortButtons.forEach(button => {
+      const selected = button.dataset.sort === sortKey;
+      button.closest("th").setAttribute("aria-sort", selected ? (ascending ? "ascending" : "descending") : "none");
+      button.querySelector(".sort-indicator").textContent = selected ? (ascending ? "▲" : "▼") : "↕";
+      button.setAttribute("aria-label", `Sort by ${button.dataset.label}, ${selected && ascending ? "descending" : "ascending"}`);
+    });
+    shown = 0;
+    rows.innerHTML = filtered.length ? "" : '<tr><td colspan="5">No functions match these filters.</td></tr>';
+    loadNextBatch();
+    updateCount();
   }
 
   function filter() {
     const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
     filtered = records.filter(r => (!status.value || r.status === status.value) && (!area.value || r.area === area.value) && terms.every(t => r.search.includes(t)));
-    page = 0; render();
+    sortAndRender();
   }
   search.addEventListener("input", filter); status.addEventListener("change", filter); area.addEventListener("change", filter);
-  prev.addEventListener("click", () => { page--; render(); });
-  next.addEventListener("click", () => { page++; render(); });
+  sortButtons.forEach(button => button.addEventListener("click", () => {
+    ascending = sortKey === button.dataset.sort ? !ascending : true;
+    sortKey = button.dataset.sort;
+    sortAndRender();
+  }));
+  loadMore.addEventListener("click", loadNextBatch);
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) loadNextBatch();
+    }, {rootMargin: "400px 0px"});
+    observer.observe(sentinel);
+  }
   rows.addEventListener("click", e => { const button = e.target.closest("button[data-index]"); if (button) detail(Number(button.dataset.index)); });
   document.querySelector("#close-detail").addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => history.replaceState(null, "", location.pathname + location.search));
