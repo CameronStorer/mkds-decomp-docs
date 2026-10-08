@@ -136,5 +136,7 @@ the observed falls require further CPU path/steering or course-contact analysis;
 this correction did not reduce them. The run is a native comparison, not an
 emulator comparison. Summary data: `analysis/rainbow_fall_comparison.csv`.
 
-Validation after integration: release game build passes; core library and
-integration suites total 89 passed, zero failed, one existing ignored test.
+Validation: the driver/fall release build passed; the native game compiles with
+the new particle module. Current core library and integration suites total
+98 passed, zero failed, one existing ignored test, including Claude's concurrent
+object-behavior additions and the new particle-channel tests.
