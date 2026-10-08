@@ -48,5 +48,5 @@ GitHub Pages is configured to inherit `docs.cameronstorer.com` from the account'
 user site. One Cloudflare DNS record is needed: CNAME `docs` ->
 `cameronstorer.github.io` (DNS only, automatic TTL). Other project repositories
 can then use paths below the same hostname without separate DNS records.
-The DNS record is pending at the time of this setup; HTTPS provisioning follows
-DNS validation. The main website's DNS is unchanged.
+The DNS record is configured and GitHub's domain health check passes. HTTP serving
+is verified; the HTTPS certificate is provisioning. The main website's DNS is unchanged.
