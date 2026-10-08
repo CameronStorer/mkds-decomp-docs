@@ -4,18 +4,39 @@ Public documentation of Cameron Storer's Mario Kart DS research and native
 Windows Rust port. Includes progress notes, function meanings, runtime
 correlations, structure maps, state machines and animation research.
 
-Site: https://docs.cameronstorer.com/mkds-decomp-docs/
+Site: [MKDS research documentation](http://docs.cameronstorer.com/mkds-decomp-docs/)
+
+The custom domain is configured and HTTP serving is verified. GitHub Pages is
+still provisioning its HTTPS certificate; the intended permanent address is
+https://docs.cameronstorer.com/mkds-decomp-docs/.
 
 The interactive function explorer is built from the research inventory. Known,
 inferred, SDK and unknown classifications are distinct. Counts describe mapping
 coverage, not game completion or universal runtime verification.
 
+## Explore the research
+
+- [Current progress](content/docs/NEXT_GOALS.md) and [roadmap](content/docs/ROADMAP.md).
+- [Function inventory coverage](content/docs/FUNCTION_TABLE.md),
+  [identified functions](content/docs/FUNCTION_MAP.md), and
+  [function meanings](content/docs/function_notes.md).
+- [Kart port findings](content/docs/KART_PORT.md),
+  [race logic](content/analysis/race_logic_map.md), and
+  [runtime correlations](content/analysis/kart_runtime.md).
+- [Original animation logic](content/analysis/CODEX_ANIMATION_MAP.md),
+  [joint-animation decoder](content/docs/CODEX_NSBCA_HANDOFF.md), and
+  [face-pattern decoder](content/docs/CODEX_NSBTP_HANDOFF.md).
+
+The website adds a searchable function explorer with status and subsystem
+filters. These documents are snapshots of the active research workspace;
+individual findings record their evidence and remaining limitations.
+
 ## Build locally
 
 ```powershell
 python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt
-.venv/Scripts/python.exe build.py
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe build.py
 python -m http.server 8000 --directory _site
 ```
 
@@ -24,18 +45,40 @@ function metadata. GitHub Actions builds and publishes every push to `main`.
 
 ## Update from the game research workspace
 
+When function meanings change, run these commands from the game workspace:
+
 ```powershell
-./publish.ps1 -SourceDirectory "C:\path\to\My_NDS_GAME"
+python tools/function_map.py
+python tools/function_table.py
 ```
 
-Regenerate `docs/FUNCTION_MAP.md` and `docs/FUNCTION_TABLE.csv` in that workspace
-when meanings change. `sync.py` copies only explicitly listed documentation and
-the metadata CSV. Review the diff before adding new paths to the allowlist.
-For a separate clone, first install `requirements.txt` locally.
+Then, from this documentation repository, publish the latest snapshot:
+
+```powershell
+.\publish.ps1 -SourceDirectory "C:\path\to\My_NDS_GAME"
+```
+
+Install `requirements.txt` first using the local build instructions above.
+`publish.ps1` synchronizes the selected documents, builds the site, commits the
+content changes, and pushes them to GitHub. GitHub Actions deploys the new site.
+It requires Python, Git, and permission to push to this repository.
+
+To review the snapshot before publishing, run:
+
+```powershell
+python sync.py --source "C:\path\to\My_NDS_GAME"
+git diff -- content
+```
+
+`sync.py` copies only explicitly listed documentation, the function metadata
+CSV, and the selected research figure. Review additions to its allowlist before
+including more workspace files.
 
 Local workspace changes are not automatically public. They become live after
 syncing and pushing this repository. Snapshots retain source-file names and
 update dates; references to unpublished local code are shown as local references.
+
+## Repository scope
 
 This repository contains research documentation and site tooling. ROMs, game
 assets, extracted code binaries, decompiled source exports, save states and IDA
@@ -45,8 +88,13 @@ implied. This independent project is not affiliated with Nintendo.
 ## Shared hostname
 
 GitHub Pages is configured to inherit `docs.cameronstorer.com` from the account's
-user site. One Cloudflare DNS record is needed: CNAME `docs` ->
-`cameronstorer.github.io` (DNS only, automatic TTL). Other project repositories
-can then use paths below the same hostname without separate DNS records.
-The DNS record is configured and GitHub's domain health check passes. HTTP serving
-is verified; the HTTPS certificate is provisioning. The main website's DNS is unchanged.
+user site. This Cloudflare record is already configured:
+
+| Type | Name | Target | Proxy | TTL |
+| --- | --- | --- | --- | --- |
+| CNAME | `docs` | `cameronstorer.github.io` | DNS only | Automatic |
+
+Other GitHub Pages project repositories under this account can use
+`docs.cameronstorer.com/<repository>/` without separate DNS records, provided
+they inherit the user site's domain. Enable Pages and deployment for each new
+repository. The main website's DNS is unchanged.
