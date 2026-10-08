@@ -199,3 +199,12 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_208C5D0: resets wheel particle controller: detaches continuous effects, destroys red/blue flares, clears timers and callbacks' active state
 - sub_208CCF0: clears continuous wheel effect via cleanup callback and resets activation/expiry timers
 - sub_208D1EC: clears active continuous wheel effect via cleanup callback and resets timers only when active
+
+## NPC and traffic presentation (Codex; 2026-10-08)
+
+- sub_20DB050: Goomba draw: texture-pattern frame is step counter 0..19; counters >=20 mirror X and subtract 20; squash scales Y and widens X; native gait presentation now uses the simulation counter
+- sub_20DA384: Goomba renderer loader: loads three shared resources into object-manager slots +372/+376/+380, after common render setup
+- sub_20E20A8: traffic renderer setup: loads body, tire, shadow and pattern resources; binds per-body texture-pattern wrappers and configures material rendering
+- sub_20E2A74: traffic draw: publishes body pattern frame from object +304, draws body/shadow and separate tire model twice with mirrored axle offset; tire angle from +268
+- sub_20E2630: traffic tick includes orientation easing and tire angle +268 increment of 1536 units each tick; tire clock port matches 899 original bus transitions; stationary/collision body poses still pending
+- sub_20E1E98: traffic path/reset setup: initializes travel direction, heading quaternion, transform, timers and surface-effect state

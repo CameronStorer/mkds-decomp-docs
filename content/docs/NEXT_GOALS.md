@@ -74,6 +74,12 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   885 unique BizHawk calls match exactly, including RNG state; blue/red attachment
   timers and all six SPA behavior callbacks mapped. Native particle creation/motion
   and wheel-controller integration remain pending; see `analysis/CODEX_PARTICLE_MAP.md`.
+- Goomba walking presentation now uses `kuribo.nsbtp` and the original step counter:
+  20-frame texture selection plus mirrored second step (`sub_20DB050`), independent
+  materials per actor. Close-up engine captures show changing gait frames.
+  Squash/recovery states remain pending. Traffic tire clock matches 899 original bus
+  transitions; separate tire geometry and body presentation remain pending.
+  See `analysis/CODEX_NPC_MAP.md`.
 - Fall detection now uses accepted movement-contact flags, matching `sub_1FFA4B4`, and
   suppresses type 10 during wall contact as the original does. ROM regression exercises
   186 Rainbow Road backfaces falsely accepted by the former second unswept probe.

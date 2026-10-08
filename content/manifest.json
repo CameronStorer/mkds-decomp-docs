@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-08 22:49 UTC",
+  "updated": "2026-10-08 23:19 UTC",
   "documents": [
     {
       "path": "docs/NEXT_GOALS.md",
@@ -82,6 +82,12 @@
     {
       "path": "analysis/CODEX_PARTICLE_MAP.md",
       "title": "Particles and fall contacts",
+      "group": "Research",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "analysis/CODEX_NPC_MAP.md",
+      "title": "NPC and traffic animation",
       "group": "Research",
       "modified": "2026-10-08"
     },

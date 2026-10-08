@@ -2781,7 +2781,7 @@ sub_2075D08,arm9_main,0x02075D08,408,known,"kart update / draw / init (0x0206383
 sub_2075EB8,arm9_main,0x02075EB8,272,known,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)","activates camera record at *0x02175600+204 (goal camera), flag +552 = 1, resets smoothing",2,sub_203C880 sub_207A974 sub_207BD6C sub_207BE40,,
 sub_2075FE0,arm9_main,0x02075FE0,260,known,camera,race camera slope height offset,1,,,vm_model/src/camera.rs:9 vm_model/src/camera.rs:164
 sub_20760EC,arm9_main,0x020760EC,1024,known,camera,race camera eye vs course (KCL),1,sub_1FFDEE4 sub_2039828 sub_2039860 sub_21482CC sub_214848C sub_21484D0 sub_2148504,,vm_model/src/camera.rs:11 vm_model/src/camera.rs:212
-sub_2076528,arm9_main,0x02076528,1308,known,camera,race camera update (per tick),1,sub_2063B10 sub_2063B30 sub_2073EB8 sub_20741A0 sub_20745D4 sub_2075FE0 sub_20760EC sub_20D3DF4 sub_20D3E18 sub_21484D0 sub_2148504,,vm_model/src/camera.rs:1 game/src/main.rs:119
+sub_2076528,arm9_main,0x02076528,1308,known,camera,race camera update (per tick),1,sub_2063B10 sub_2063B30 sub_2073EB8 sub_20741A0 sub_20745D4 sub_2075FE0 sub_20760EC sub_20D3DF4 sub_20D3E18 sub_21484D0 sub_2148504,,vm_model/src/camera.rs:1 game/src/main.rs:120
 sub_2076A5C,arm9_main,0x02076A5C,348,known,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)","camera init for the viewed kart: places eye behind kart (offset by view axis), sets fov constants, starts camera, sets target height",2,sub_1FFCCD0 sub_207729C sub_207A974 sub_20D4F94 sub_20D50C4 sub_2148504,,
 sub_2076BCC,arm9_main,0x02076BCC,112,known,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",stores camera eye/target/up into global vectors and builds view matrix (NNS lookAt sub_214ABB4) for 3D draw,1,sub_214ABB4,,
 sub_2076C50,arm9_main,0x02076C50,108,known,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",applies camera projection: perspective (sub_214B048) with fov/aspect/near/far from camera struct; a2 chooses alternate fov,1,sub_214B048,,
@@ -3090,7 +3090,7 @@ sub_2084968,arm9_main,0x02084968,56,unknown,,,14,sub_20130D4 sub_20131AC sub_201
 sub_20849A0,arm9_main,0x020849A0,12,unknown,,,4,sub_20131F4,,
 sub_20849B0,arm9_main,0x020849B0,12,unknown,,,5,sub_20131AC,,
 sub_20849C0,arm9_main,0x020849C0,12,inferred,"kart/character select screen (struct at 0x0217ace8; files /data/kartmodelmenu/*, kart/select/select.nsbmd)","guess: near kart/character select screen (struct at 0x0217ace8; files /data/kartmodelmenu/*, kart/select/select.nsbmd) code (call graph)",12,sub_20130D4,,
-sub_20849D0,arm9_main,0x020849D0,36,inferred,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)","guess: near kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct) code (call graph)",6,,,
+sub_20849D0,arm9_main,0x020849D0,36,unknown,,,6,,,
 sub_20849F8,arm9_main,0x020849F8,140,inferred,graphics,guess: sends geometry commands (draws),5,sub_1FF9048,,
 sub_2084A88,arm9_main,0x02084A88,80,unknown,,,4,sub_2013468 sub_20134B0 sub_20134F8,,
 sub_2084AD8,arm9_main,0x02084AD8,84,unknown,,,4,sub_2013468 sub_20134B0 sub_20134F8,,
@@ -3218,7 +3218,7 @@ sub_208A69C,arm9_main,0x0208A69C,900,inferred,graphics,"guess: allocates 56 byte
 sub_208AA30,arm9_main,0x0208AA30,184,inferred,graphics,guess: touches 3D geometry engine; allocates memory from the heap,1,sub_2036BEC sub_208A460 sub_214AD4C,,
 sub_208AB00,arm9_main,0x0208AB00,68,inferred,graphics,guess: sends geometry commands (draws),1,sub_1FF9048,,
 sub_208AB4C,arm9_main,0x0208AB4C,76,inferred,graphics,guess: sends geometry commands (draws),6,sub_1FF9048,,
-sub_208AB98,arm9_main,0x0208AB98,472,inferred,effects,guess: near effects code (call graph),4,,,
+sub_208AB98,arm9_main,0x0208AB98,472,unknown,,,4,,,
 sub_208AD74,arm9_main,0x0208AD74,80,unknown,,,2,,,
 sub_208ADC8,arm9_main,0x0208ADC8,148,unknown,,,9,,,
 sub_208AE60,arm9_main,0x0208AE60,16,inferred,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",guess: getter: field +0x8,1,,,
@@ -4909,7 +4909,7 @@ sub_20D7734,arm9_main,0x020D7734,168,inferred,map objects,guess: part of the map
 sub_20D77E0,arm9_main,0x020D77E0,168,inferred,map objects,guess: part of the map objects code (address neighbours),1,,,
 sub_20D788C,arm9_main,0x020D788C,168,inferred,map objects,guess: near map objects code (call graph),1,,,
 sub_20D7938,arm9_main,0x020D7938,120,inferred,map objects,guess: near map objects code (call graph),3,,,
-sub_20D79B0,arm9_main,0x020D79B0,136,unknown,,,2,,,
+sub_20D79B0,arm9_main,0x020D79B0,136,inferred,npc and traffic presentation (codex; 2026-10-08),guess: near npc and traffic presentation (codex; 2026-10-08) code (call graph),2,,,
 sub_20D7A3C,arm9_main,0x020D7A3C,236,inferred,math,guess: touches hardware divide / square root,4,sub_2147D88 sub_2147DC0 sub_2147E28,,
 sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:425
 sub_20D7B88,arm9_main,0x020D7B88,100,inferred,,guess: calls sub_2147E8C (`FX_Sqrt` (`sub_2147E8C`): hardware squa),7,sub_2147D88 sub_2147E28 sub_2147E8C,,
@@ -4937,7 +4937,7 @@ sub_20D8828,arm9_main,0x020D8828,200,inferred,math,guess: touches hardware divid
 sub_20D88FC,arm9_main,0x020D88FC,28,unknown,,,2,,,
 sub_20D8918,arm9_main,0x020D8918,324,inferred,map objects,guess: near map objects code (call graph),6,sub_21484D0,,
 sub_20D8A5C,arm9_main,0x020D8A5C,188,known,map objects,follower position on the straight segment,6,,,vm_model/src/mapobj/path.rs:9 vm_model/src/mapobj/path.rs:268
-sub_20D8B18,arm9_main,0x020D8B18,112,inferred,misc,guess: near misc code (call graph),2,sub_20D9270,,
+sub_20D8B18,arm9_main,0x020D8B18,112,inferred,map objects,guess: part of the map objects code (address neighbours),2,sub_20D9270,,
 sub_20D8B88,arm9_main,0x020D8B88,56,known,map objects,follower x/z on the Bezier segment,3,sub_20D9340,,vm_model/src/mapobj/path.rs:288
 sub_20D8BC0,arm9_main,0x020D8BC0,56,inferred,misc,"guess: wrapper of sub_20D91DC (`sub_20D91DC`: x and z on the segment's Bezier curve, y straight between its ends.)",2,sub_20D91DC,,
 sub_20D8BF8,arm9_main,0x020D8BF8,124,inferred,map objects,guess: near map objects code (call graph),6,sub_20D939C,,
@@ -4986,7 +4986,7 @@ sub_20DADE8,arm9_main,0x020DADE8,20,known,goomba (kuribo),resets scale +0xC4 to 
 sub_20DADFC,arm9_main,0x020DADFC,260,known,map objects,Goomba walking state (stepping gait along its path),0,sub_20D8C74 sub_20D8CC8,,vm_model/src/mapobj/goomba.rs:1
 sub_20DAF0C,arm9_main,0x020DAF0C,20,known,goomba (kuribo),resets scale +0xC4 to 4096 and +0xC8 to 0,0,,,
 sub_20DAF20,arm9_main,0x020DAF20,288,known,map objects,"Goomba tick (step counter, state machine)",0,sub_2046B40 sub_20D4EF4 sub_210B7A8,,vm_model/src/mapobj/goomba.rs:1 vm_model/src/mapobj/goomba.rs:57
-sub_20DB050,arm9_main,0x020DB050,316,known,goomba (kuribo),"Goomba draw callback: builds matrix from orientation or path follower, squash scale (+0xC4), animation frame, draws model (sub_20E67C4)",0,sub_1FFCCD0 sub_20D7938 sub_20D88FC sub_20E67C4 sub_20E6D34,,
+sub_20DB050,arm9_main,0x020DB050,316,known,goomba (kuribo),"Goomba draw callback: builds matrix from orientation or path follower, squash scale (+0xC4), animation frame, draws model (sub_20E67C4)",0,sub_1FFCCD0 sub_20D7938 sub_20D88FC sub_20E67C4 sub_20E6D34,,vm_model/src/mapobj/presentation.rs:10 game/src/object_animation.rs:2
 sub_20DB1B0,arm9_main,0x020DB1B0,84,known,goomba (kuribo),"Goomba logic class record factory (40 bytes, tick = sub_20DAF20), global 0x0217B664",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,
 sub_20DB20C,arm9_main,0x020DB20C,84,known,goomba (kuribo),"Goomba draw class record factory (44 bytes, loader = sub_20DA5F0, draw = sub_20DB050), global 0x0217B660",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20D49D8,,
 sub_20DB268,arm9_main,0x020DB268,76,known,goomba (kuribo),"Goomba collision record factory (64 bytes, kart-hit handlers sub_20DA73C/sub_20DA684, shape 2, id 0x184/0x185)",0,sub_20364E0 sub_20364E8 sub_2036BEC,,
@@ -5114,16 +5114,16 @@ sub_20E1D10,arm9_main,0x020E1D10,176,unknown,,,1,sub_20E0764 sub_20E0BAC,,
 sub_20E1DC0,arm9_main,0x020E1DC0,44,inferred,items,guess: near items code (call graph),2,,,
 sub_20E1DEC,arm9_main,0x020E1DEC,76,inferred,items,guess: part of the items code (address neighbours),0,sub_20EA8A8,,
 sub_20E1E38,arm9_main,0x020E1E38,96,inferred,items,guess: near items code (call graph),3,,,
-sub_20E1E98,arm9_main,0x020E1E98,154,inferred,,"guess: calls sub_1FFCCD0 (quaternion (x,y,z,w) to 3x3 rotation mat); sub_20D90A8 (path follower start (point, direction)); sub_2148538 (`FX_Atan2(y, x)` in fx12 radians (`sub_2)",2,sub_1FFCCD0 sub_208ADC8 sub_20D79B0 sub_20D8B18 sub_20D90A8 sub_2133048 sub_2148538,,
+sub_20E1E98,arm9_main,0x020E1E98,154,known,npc and traffic presentation (codex; 2026-10-08),"traffic path/reset setup: initializes travel direction, heading quaternion, transform, timers and surface-effect state",2,sub_1FFCCD0 sub_208ADC8 sub_20D79B0 sub_20D8B18 sub_20D90A8 sub_2133048 sub_2148538,,
 sub_20E1F54,arm9_main,0x020E1F54,270,known,misc,(init `sub_20E1F54`). They drive their path at a constant 12288 x setting 0's low half / 100,0,sub_2042044 sub_20D286C sub_20D7DA8 sub_20E1E98 sub_210B850 sub_2133048 sub_2133068 sub_2133274,,vm_model/src/mapobj/vehicle.rs:2
-sub_20E20A8,arm9_main,0x020E20A8,512,inferred,graphics,"guess: uses bus_a.nsbmd, bus_a_shadow.nsbmd, car_a.nsbmd",0,sub_20134B0 sub_203C5E4 sub_2084968 sub_20849B0 sub_20D21EC sub_20EA4BC sub_20EA55C sub_20EA588,bus_a.nsbmd | bus_a_shadow.nsbmd | car_a.nsbmd | car_a.nsbtp | car_a_shadow.nsbmd | car_tire.nsbmd,
+sub_20E20A8,arm9_main,0x020E20A8,512,known,npc and traffic presentation (codex; 2026-10-08),"traffic renderer setup: loads body, tire, shadow and pattern resources; binds per-body texture-pattern wrappers and configures material rendering",0,sub_20134B0 sub_203C5E4 sub_2084968 sub_20849B0 sub_20D21EC sub_20EA4BC sub_20EA55C sub_20EA588,bus_a.nsbmd | bus_a_shadow.nsbmd | car_a.nsbmd | car_a.nsbtp | car_a_shadow.nsbmd | car_tire.nsbmd,
 sub_20E230C,arm9_main,0x020E230C,220,inferred,course data (course_map.nkm) lookups and section loaders; course data object at *0x02175600 (0x2040fd8-0x20429b8),guess: calls sub_2042044 (returns element a2 of the 20-byte-stride),0,sub_2042044 sub_2131234 sub_21322C8 sub_2132440 sub_21329F8 sub_2133048,,
 sub_20E2400,arm9_main,0x020E2400,108,known,map objects,"0x19C, `sub_20E2400`) is taken as an upright cylinder of its radius, the others (clock",0,sub_20EAFC4,,vm_model/src/obj_collision.rs:26
 sub_20E246C,arm9_main,0x020E246C,40,unknown,,,0,sub_20E24D0,,
 sub_20E2494,arm9_main,0x020E2494,60,unknown,,,0,sub_20D26F8 sub_20E24D0,,
 sub_20E24D0,arm9_main,0x020E24D0,348,inferred,kart,"guess: calls sub_2039828 (Dot product, truncated (`VEC_DotProduct`); sub_2039860 (Unit vector and length (`VEC_Normalize`,)",2,sub_2039828 sub_2039860 sub_20D7B88 sub_21484D0,,
-sub_20E2630,arm9_main,0x020E2630,1060,inferred,collision (KCL),guess: sphere test against the course (KCL); walks an object path,0,sub_1FFCCD0 sub_1FFDEE4 sub_2061F90 sub_208AB98 sub_20D275C sub_20D2774 sub_20D759C sub_20D79B0 sub_20D7B88 sub_20D8BC0 sub_20D8CC8 sub_20E1E98,,
-sub_20E2A74,arm9_main,0x020E2A74,584,inferred,graphics,guess: sends geometry commands (draws),0,sub_1FF9048 sub_2039828 sub_203C5E4 sub_20849D0 sub_208AB4C sub_20EA868 sub_20EA8A8 sub_2147230,,
+sub_20E2630,arm9_main,0x020E2630,1060,known,npc and traffic presentation (codex; 2026-10-08),traffic tick includes orientation easing and tire angle +268 increment of 1536 units each tick; tire clock port matches 899 original bus transitions; stationary/collision body poses still pending,0,sub_1FFCCD0 sub_1FFDEE4 sub_2061F90 sub_208AB98 sub_20D275C sub_20D2774 sub_20D759C sub_20D79B0 sub_20D7B88 sub_20D8BC0 sub_20D8CC8 sub_20E1E98,,vm_model/src/mapobj/presentation.rs:27
+sub_20E2A74,arm9_main,0x020E2A74,584,known,npc and traffic presentation (codex; 2026-10-08),"traffic draw: publishes body pattern frame from object +304, draws body/shadow and separate tire model twice with mirrored axle offset; tire angle from +268",0,sub_1FF9048 sub_2039828 sub_203C5E4 sub_20849D0 sub_208AB4C sub_20EA868 sub_20EA8A8 sub_2147230,,vm_model/src/mapobj/presentation.rs:29
 sub_20E2CCC,arm9_main,0x020E2CCC,136,inferred,kart,"guess: calls sub_2039828 (Dot product, truncated (`VEC_DotProduct`)",0,sub_2039828 sub_20E6B14 sub_20F3678,,
 sub_20E2D5C,arm9_main,0x020E2D5C,84,inferred,,guess: allocates 40 bytes from the heap,0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,
 sub_20E2DB8,arm9_main,0x020E2DB8,92,inferred,,guess: allocates 64 bytes from the heap,0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20D49D8,,
