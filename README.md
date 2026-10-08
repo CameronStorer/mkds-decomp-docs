@@ -4,11 +4,10 @@ Public documentation of Cameron Storer's Mario Kart DS research and native
 Windows Rust port. Includes progress notes, function meanings, runtime
 correlations, structure maps, state machines and animation research.
 
-Site: [MKDS research documentation](http://docs.cameronstorer.com/mkds-decomp-docs/)
+Site: [MKDS research documentation](https://docs.cameronstorer.com/mkds-decomp-docs/)
 
-The custom domain is configured and HTTP serving is verified. GitHub Pages is
-still provisioning its HTTPS certificate; the intended permanent address is
-https://docs.cameronstorer.com/mkds-decomp-docs/.
+The custom domain and HTTPS certificate are configured. HTTPS serving is
+verified, and GitHub Pages redirects HTTP requests to HTTPS.
 
 The interactive function explorer is built from the research inventory. Known,
 inferred, SDK and unknown classifications are distinct. Counts describe mapping
