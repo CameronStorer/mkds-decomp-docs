@@ -57,6 +57,60 @@ animated channels, behaviors, integration/death and child emission;
 `sub_201CA6C` creates primary particles from an fx12 emission accumulator.
 Those simulation routines are mapped but remain unported.
 
+## Channel evaluators now ported and verified
+
+`vm_model/src/nitro_particle.rs` implements original signed scale, BGR555 color,
+packed opacity and texture-sequence evaluation. An isolated, read-only BizHawk
+capture recorded 956 calls while driving and countersteering from the existing
+Figure-8 start state. Matching resource bases against the local archive produced
+885 unique regression cases, with no unmatched or ambiguous records.
+
+| Evaluator | Unique calls | Resources | Distinct phase bytes |
+|---|---:|---|---:|
+| `sub_201DF30` scale | 599 | 18,20,23,32,47,59,126 | 43 |
+| `sub_201DC88` opacity | 248 | 20,23,47,59,126 | 35 |
+| `sub_201DD64` color | 22 | 59,126 | 12 |
+| `sub_201DC24` texture | 16 | 126 | 8 |
+
+All outputs and RNG states match exactly. The opacity routine consumes one SPL
+RNG draw even when randomness is zero. Its generator at 0x02173254 uses
+state * 0x5EEDF715 + 0x1B0CB173 with 32-bit wrapping. ARM at 0x0201DCA4..0x0201DCC0
+confirms the first opacity segment starts
+at the packed low-five-bit value, contrary to C's misleading temporary name.
+Texture evaluation preserves the prior texture when phase lies beyond the
+sequence, rather than clamping. These details are retained by the port.
+
+Reproduce with `tools/bizhawk/codex_particles/run.ps1`, then `make_fixture.py`.
+The fixture `vm_model/tests/data/particle_channels.csv` contains input/output
+numbers and resource indices; complete resource bytes remain in the user's ROM.
+The Rust integration test reloads the local SPA and compares every fixture.
+This verifies channel functions for the captured inputs, not every phase or
+the complete particle simulation. Native effects still use approximate cubes.
+
+## Wheel timers and simulation behavior findings
+
+`sub_208C6DC` updates blue emitter positions and directions from wheel vectors
+for eight ticks, pausing existing continuous wheel emitters. Tick nine destroys
+the flares and resumes continuous effects. `sub_208C930` similarly attaches
+red flare pairs for ten ticks and destroys them on tick eleven.
+`sub_208CB8C` delays continuous drift-effect activation by ten ticks and selects
+callbacks based on grounded/airborne state. These controller paths remain
+to be integrated alongside particle creation and motion.
+
+SPA behavior pointers at ARM9 0x02018D7C..0x02018D90 establish:
+
+| Flag | Routine | Behavior |
+|---|---|---|
+| 0x01000000 | `sub_201E394` | Constant signed-short acceleration |
+| 0x02000000 | `sub_201E2CC` | Periodic random acceleration |
+| 0x04000000 | `sub_201E248` | Attraction acceleration using position and velocity |
+| 0x08000000 | `sub_201E170` | Rotate local position around selected axis |
+| 0x10000000 | `sub_201E054` | Horizontal-plane kill or damped bounce |
+| 0x20000000 | `sub_201DFC0` | Rounded position convergence toward target |
+
+The behavior meanings come from each local C routine; the pointer table fixes
+their correspondence to archive flags. They are mapped, not yet implemented.
+
 An independent author's [SPA parser](https://github.com/RHY3756547/mkjs/blob/master/code/formats/spa.js)
 was used for navigation; record layout and drift resource IDs above come from
 the local game's C. No reference implementation was copied into the project.

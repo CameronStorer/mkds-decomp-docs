@@ -121,3 +121,81 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 
 - sub_1FFA4B4: movement terrain contact query; passes the same accepted swept sphere flags to sub_206FF50 at 0x01FFA868..0x01FFA894; suppresses type 10 while wall-contact flag is set unless type 11 also hit
 - sub_206FF50: handles accepted fall/cannon terrain contact; flags 0xC00 begin fall state, signed type-15 flag routes cannon/off-course handling; caller's second argument omitted by C cast but retained in ARM r1
+
+## Map object framework and behaviours
+
+- sub_20D4C28: object manager: calls the kind's +0x10 callback (draw) for each live instance
+- sub_2046BE8: object state machine init (+0x80: table of (enter, update) pairs, count, owner)
+- sub_2046BCC: object state machine: request a state (applied next tick)
+- sub_2046B40: object state machine tick: runs a pending state's enter, then the update
+- sub_20D7E44: builds a path's 84-byte Bezier segment records
+- sub_20D80E4: one path segment: control points, curve and straight lengths and inverses
+- sub_20D70AC: unit vector and rounded length with the hardware divider and sqrt
+- sub_20D90A8: path follower start (point, direction)
+- sub_20D8CC8: path follower advance (24-bit progress, carry, loop / turn back)
+- sub_20D8A5C: follower position on the straight segment
+- sub_20D8620: follower reverse
+- sub_20D8CAC: follower fraction through the segment (0..4096)
+- sub_20D7D4C: eased follower init (unit speed / 100, object speed)
+- sub_20D859C: eased follower start with per-point speeds
+- sub_20D84E4: eased follower advance (speed blends between point speeds)
+- sub_20D8B88: follower x/z on the Bezier segment
+- sub_20D9340: Bezier x/z from a segment and progress
+- sub_20D9480: Bezier x/y/z from a segment and progress
+- sub_20D9810: cubic Bernstein weights (24-bit)
+- sub_20D7D18: single-segment curve build (wander curves)
+- sub_20D7C84: single-segment curve advance to new points (carry)
+- sub_20D849C: single-segment curve progress step
+- sub_20D8474: single-segment curve x/z
+- sub_20D22D0: the objects' random context (NitroSDK MATH_Rand32 at *0x0217B49C)
+- sub_2061FA4: kart slot whose turn it is this tick (round robin)
+- sub_207A974: kart struct by slot (0x5A8 bytes each from *0x0217ACF8)
+- sub_206C0E0: kart cannot be targeted (damaged / invisible / respawning)
+- sub_206A24C: flatten a kart (Thwomp): 600 ticks, pinned 150, size 0.7
+- sub_2069F6C: flattened kart tick: squash, unpin, spring back (25 ticks)
+- sub_20DB2B8: Thwomp init
+- sub_20DB430: Thwomp start on its path
+- sub_20DB760: Thwomp tick (shudder, hop, slam, wait, rise; glide)
+- sub_20DB548: Thwomp class callback (star knock, crush handler 11 for karts below)
+- sub_20D6DC0: handler table lookup for an explicit id group/index
+- sub_20DC11C: path Chain Chomp init (0x1A5)
+- sub_20DC1D8: chained Chain Chomp init (0x196)
+- sub_20DBF7C: Chain Chomp reset to its stake
+- sub_20DD27C: Chain Chomp tick (state machine, hop physics on plane or course)
+- sub_20DD0D8: Chain Chomp state 0 enter (wander curve ahead)
+- sub_20DCCC8: Chain Chomp state 0 wander (random points, lunge trigger)
+- sub_20DCC0C: Chain Chomp state 1 enter (lunge)
+- sub_20DC7C0: Chain Chomp state 1 lunge (chase predicted kart, chain limit)
+- sub_20DC5DC: Chain Chomp state 3 enter
+- sub_20DC474: Chain Chomp state 3 return toward the stake
+- sub_20DC428: Chain Chomp state 5 enter (path)
+- sub_20DC354: Chain Chomp state 5 path walk
+- sub_20DC788: Chain Chomp state 2 enter (hit)
+- sub_20DC608: Chain Chomp state 2 (hit jump)
+- sub_20DA494: Goomba init
+- sub_20DAF20: Goomba tick (step counter, state machine)
+- sub_20DADFC: Goomba walking state (stepping gait along its path)
+- sub_20DA73C: Goomba class callback (run over)
+- sub_20DAA10: Goomba state 5 (spring back after squash)
+- sub_20DAB9C: Goomba state 3 (shrink)
+- sub_20DAC00: Goomba state 2 (squash)
+
+## SPL particle channels and wheel attachment (Codex, 2026-10-08)
+
+- sub_201DF30: signed fx12 particle scale envelope (rise/hold/fall); ported, matched original SPL captures
+- sub_201DD64: BGR555 particle color envelope: start/base/end, optional per-channel integer interpolation; ported, matched original SPL captures
+- sub_201DC88: particle opacity envelope and SPL RNG attenuation; preserves packed base-alpha/upper bits; C first-segment start is misleading, ARM confirms packed low five bits; ported and runtime matched
+- sub_201DC24: particle texture sequence by phase/step; returns unchanged past sequence end rather than clamping; ported, matched blue flare 126 runtime captures
+- sub_201E540: SPL random direction: three signed high-24-bit RNG draws then SDK vector normalization (C confirmed, not yet ported)
+- sub_201E394: SPL constant acceleration behavior: adds three signed shorts to the tick acceleration accumulator
+- sub_201E2CC: SPL random acceleration behavior: every configured particle-age interval draws independent signed perturbation per axis
+- sub_201E248: SPL attraction acceleration toward target minus local position and velocity, scaled by signed fx12 strength
+- sub_201E170: SPL rotates particle local position around selected coordinate axis using angle-indexed SDK rotation matrix
+- sub_201E054: SPL horizontal plane behavior: emitter plane override or resource plane, kill or damped bounce on crossing, mode in low two flag bits
+- sub_201DFC0: SPL converges particle local position toward target with rounded fx12 strength (direct position update)
+- sub_208C6DC: attaches blue-flare pair to rear wheel positions/directions for eight ticks; pauses continuous wheel emitters meanwhile, destroys flares and resumes continuous emitters on tick nine
+- sub_208C930: attaches both red-flare pairs to rear wheel positions/directions for ten ticks, destroys them on tick eleven
+- sub_208CB8C: continuous drift-wheel effect lifecycle: ten-tick activation delay, callback-selected drawing/update and grounded/airborne handling
+- sub_208C5D0: resets wheel particle controller: detaches continuous effects, destroys red/blue flares, clears timers and callbacks' active state
+- sub_208CCF0: clears continuous wheel effect via cleanup callback and resets activation/expiry timers
+- sub_208D1EC: clears active continuous wheel effect via cleanup callback and resets timers only when active

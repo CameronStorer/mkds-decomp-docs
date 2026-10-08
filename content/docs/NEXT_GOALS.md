@@ -70,11 +70,26 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - SPA resource decoder: both race particle archives parse; main archive has 156 emitters,
   47 decoded textures. Original blue flare 126, red flares 22/23 and smoke/red families
   mapped from C. Full particle simulation and replacement of approximate cubes remain pending.
+- Original particle scale/color/opacity/texture evaluators now ported in `nitro_particle`:
+  885 unique BizHawk calls match exactly, including RNG state; blue/red attachment
+  timers and all six SPA behavior callbacks mapped. Native particle creation/motion
+  and wheel-controller integration remain pending; see `analysis/CODEX_PARTICLE_MAP.md`.
 - Fall detection now uses accepted movement-contact flags, matching `sub_1FFA4B4`, and
   suppresses type 10 during wall contact as the original does. ROM regression exercises
   186 Rainbow Road backfaces falsely accepted by the former second unswept probe.
   Seed-1 native comparison over 6,000 render frames still produces four identical type-11
   falls before/after; remaining autopilot falls need diagnosis. See `analysis/CODEX_PARTICLE_MAP.md`.
+
+- Object behaviours from the game's code, each replayed exactly against BizHawk traces
+  (`tools/bizhawk/obj_trace.lua` + `obj_trace_cfg.lua`; fixtures in `vm_model/tests/data`):
+  path follower and segment builder (`vm_model::mapobj::path`), Thwomp (glide / slam,
+  flattens karts: `KartShrink::flatten`), path Chain Chomp 0x1A5, chained Chain Chomp 0x196
+  (wander exact; its lunge aims through an uninitialised word in the game, approximated),
+  Goomba walk. Object RNG `mapobj::ObjRng`, kart turn round-robin (`objects::ObjectWorld`).
+- Function table: tools/infer_functions.py guesses (getters, wrappers, hardware, SEs, effects,
+  state machines) + address-neighbour areas. 11175 functions: known 372, inferred 5750, sdk
+  512, out of scope 2472 (overlay 0 = online play, overlay 3 = Wi-Fi setup utility; the user
+  said to ignore them), unknown 2069. Overlay 1 (race: missions, bosses) C is in export/plan1.
 
 ## Open user reports
 - Driver presentation: victory idle alternation, complete special-mode results and one-shot
@@ -107,9 +122,13 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
 ## Next big goal (in order)
 1. (optional) exact trailing-item handlers (`0x0215524C` table) and player throw direction
    (hold up/down when releasing).
-3. Map objects: remaining behaviours (Chain Chomp 0x1A5 `sub_20DC11C`, walking trees 0x1A3,
-   crabs 0x1AC, iron balls 0x1B0, Thwomps 0x193, Piranha plants, pendulum 0xCF, clock hand
-   0xCD); exact path easing (`sub_20D7DA8`); gear pauses; drawbridge raising.
+3. Map objects: remaining behaviours: rocks 0x192/0x1B1, traffic 0x195/0x19A/0x19C,
+   Bowser blocks 0xCA (still `objects::Mover` approximations), walking trees 0x1A3, crabs
+   0x1AC, Pokeys 0x1B2 walk, iron balls 0x1B0, Piranha plants 0x1A6, Cheep Cheeps 0x19B,
+   Monty Moles 0x199, snowmen 0x19D, bats 0x19F, fire bars/flippers/bumpers, pendulum 0xCF,
+   clock hand 0xCD, gear pauses 0xCB, drawbridge 0xCC; the objects' own reactions to karts
+   (Goomba squash states 2..5, Chomp state 2). Method: obj_trace.lua -> writer pc -> state
+   table (def +0x10 manager record +8 / state machine at +0x80) -> port -> replay test.
 4. Item fidelity: star invincibility/knock, blue shell, bob-omb, blooper, Boo, bullet bill,
    triple/trailing items (record each in BizHawk, write fixture, port).
 5. Sound: kart SEs wired (`game/src/sfx.rs`, SSAR 0 entry = id). Missing: engine sound (not
