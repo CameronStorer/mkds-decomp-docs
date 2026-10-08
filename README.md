@@ -79,8 +79,9 @@ update dates; references to unpublished local code are shown as local references
 
 ## Repository scope
 
-This repository contains research documentation and site tooling. ROMs, game
-assets, extracted code binaries, decompiled source exports, save states and IDA
+This repository contains research documentation, site tooling, and two small
+[theme graphics decoded from the game](assets/ATTRIBUTION.md). ROMs, raw game
+asset archives, extracted code binaries, decompiled source exports, save states and IDA
 databases are not included. No copyright license for third-party material is
 implied. This independent project is not affiliated with Nintendo.
 

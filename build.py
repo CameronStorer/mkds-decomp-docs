@@ -31,16 +31,18 @@ def frame(title, body, active=''):
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} · MKDS Research</title><meta name="description" content="A public research log of Mario Kart DS decompilation and its native Windows Rust port.">
-<link rel="stylesheet" href="assets/style.css"><script src="assets/site.js" defer></script></head>
+<link rel="icon" type="image/png" href="assets/mkds-icon.png">
+<link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/theme.css"><script src="assets/site.js" defer></script></head>
 <body><a class="skip" href="#main">Skip to content</a>
-<header><a class="brand" href="index.html"><span class="brand-mark">M/</span><span>MKDS <b>RESEARCH</b></span></a>
+<header><a class="brand" href="index.html"><img class="brand-icon" src="assets/mkds-icon.png" width="48" height="48" alt=""><span class="brand-name">MARIO KART <span class="ds">DS</span><b>DECOMPILATION RESEARCH</b></span></a>
 <nav aria-label="Primary"><a href="index.html">Overview</a><a href="functions.html">Function explorer</a>
 <a href="https://github.com/CameronStorer/mkds-decomp-docs">GitHub ↗</a></nav>
 <button id="menu-toggle" aria-label="Toggle documentation navigation" aria-expanded="false">☰</button></header>
 <div class="layout"><aside id="sidebar"><a class="explorer-link" href="functions.html">⌕ Explore functions</a>{''.join(links)}
 <div class="snapshot">Documentation snapshot<br><strong>{html.escape(manifest['updated'])}</strong></div></aside>
 <main id="main">{body}<footer>Independent research by Cameron Storer. Documentation of a work in progress.
-<br>Not affiliated with Nintendo. Mario Kart DS and associated names belong to their respective owners.</footer></main></div></body></html>'''
+<br>Not affiliated with Nintendo. Mario Kart DS and associated names belong to their respective owners.
+<br>Title-screen checkerboard and Mario icon decoded from the original game. <a href="https://github.com/CameronStorer/mkds-decomp-docs/blob/main/assets/ATTRIBUTION.md">Visual asset sources</a>.</footer></main></div></body></html>'''
 
 
 def rewrite_links(rendered, source, documents):
@@ -68,7 +70,8 @@ def build():
     OUT.mkdir(exist_ok=True)
     (OUT / 'assets').mkdir(exist_ok=True)
     for p in (ROOT / 'assets').iterdir():
-        shutil.copyfile(p, OUT / 'assets' / p.name)
+        if p.is_file() and p.suffix != '.md':
+            shutil.copyfile(p, OUT / 'assets' / p.name)
     shutil.copyfile(ROOT / 'content/docs/figure8_simulation.png', OUT / 'assets/figure8_simulation.png')
     manifest = json.loads((ROOT / 'content/manifest.json').read_text(encoding='utf-8'))
     documents = {p['path'] for p in manifest['documents']}
@@ -92,10 +95,10 @@ def build():
     (OUT / 'assets/functions.json').write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     counts = Counter(p['status'] for p in functions)
     cards = ''.join(f'<div class="stat"><strong>{counts[s]:,}</strong><span>{label}</span></div>' for s, label in [('known', 'Documented meanings'), ('inferred', 'Inferred areas'), ('sdk', 'SDK classifications'), ('unknown', 'Still unknown')])
-    overview = f'''<div class="eyebrow">Decompilation / Native Windows port</div>
+    overview = f'''<section class="title-screen" aria-label="Mario Kart DS research"><div class="title-screen-copy"><div class="eyebrow">Mario Kart DS / Native Windows port</div>
 <h1>Understand the original.<br><span class="muted">Rebuild its behavior.</span></h1>
 <p class="lead">An open research log documenting Mario Kart DS routines, fixed-point gameplay logic, and a faithful native Rust implementation.</p>
-<div class="hero-actions"><a class="button" href="functions.html">Explore {len(functions):,} functions →</a><a class="text-link" href="{slug('docs/NEXT_GOALS.md')}">Current progress ↗</a></div>
+<div class="hero-actions"><a class="button" href="functions.html">Explore {len(functions):,} functions →</a><a class="text-link" href="{slug('docs/NEXT_GOALS.md')}">Current progress ↗</a></div></div><img class="title-screen-icon" src="assets/mkds-icon.png" width="96" height="96" alt=""></section>
 <section class="stats" aria-label="Function classification counts">{cards}</section>
 <p class="caption">Function classifications from the current export inventory. These are documentation counts, not a percentage of game completion. Inferred and SDK labels still require review.</p>
 <section class="section"><div class="section-heading"><span class="eyebrow">The project</span><h2>From evidence to a playable port</h2></div>
