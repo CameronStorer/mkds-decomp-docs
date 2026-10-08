@@ -1,0 +1,101 @@
+{
+  "updated": "2026-10-08 18:35 UTC",
+  "documents": [
+    {
+      "path": "docs/NEXT_GOALS.md",
+      "title": "Current progress",
+      "group": "Progress",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "title": "Roadmap",
+      "group": "Progress",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/KART_PORT.md",
+      "title": "Kart port findings",
+      "group": "Progress",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/FUNCTION_MAP.md",
+      "title": "Identified functions",
+      "group": "Function maps",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/FUNCTION_TABLE.md",
+      "title": "Inventory coverage",
+      "group": "Function maps",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/function_notes.md",
+      "title": "Function meanings",
+      "group": "Function maps",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "analysis/race_logic_map.md",
+      "title": "Race logic",
+      "group": "Research",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "analysis/kart_struct.md",
+      "title": "Kart structure",
+      "group": "Research",
+      "modified": "2026-10-07"
+    },
+    {
+      "path": "analysis/kart_runtime.md",
+      "title": "Runtime correlations",
+      "group": "Research",
+      "modified": "2026-10-07"
+    },
+    {
+      "path": "analysis/kart_runtime_drift.md",
+      "title": "Drift correlations",
+      "group": "Research",
+      "modified": "2026-10-07"
+    },
+    {
+      "path": "analysis/state_machines.md",
+      "title": "State machines",
+      "group": "Research",
+      "modified": "2026-10-07"
+    },
+    {
+      "path": "analysis/vm_report.md",
+      "title": "VM / dispatcher scan",
+      "group": "Research",
+      "modified": "2026-10-07"
+    },
+    {
+      "path": "analysis/CODEX_ANIMATION_MAP.md",
+      "title": "Original animation logic",
+      "group": "Animation",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/CODEX_NSBCA_HANDOFF.md",
+      "title": "Joint-animation decoder",
+      "group": "Animation",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/CODEX_NSBTP_HANDOFF.md",
+      "title": "Face-pattern decoder",
+      "group": "Animation",
+      "modified": "2026-10-08"
+    },
+    {
+      "path": "docs/CODEX_ROM_BUILD_WORKFLOW.md",
+      "title": "Future ROM workflow",
+      "group": "Project notes",
+      "modified": "2026-10-08"
+    }
+  ]
+}
