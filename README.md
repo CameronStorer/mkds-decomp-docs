@@ -4,7 +4,7 @@ Public documentation of Cameron Storer's Mario Kart DS research and native
 Windows Rust port. Includes progress notes, function meanings, runtime
 correlations, structure maps, state machines and animation research.
 
-Site: https://cameronstorer.github.io/mkds-decomp-docs/
+Site: https://docs.cameronstorer.com/mkds-decomp-docs/
 
 The interactive function explorer is built from the research inventory. Known,
 inferred, SDK and unknown classifications are distinct. Counts describe mapping
@@ -41,3 +41,12 @@ This repository contains research documentation and site tooling. ROMs, game
 assets, extracted code binaries, decompiled source exports, save states and IDA
 databases are not included. No copyright license for third-party material is
 implied. This independent project is not affiliated with Nintendo.
+
+## Shared hostname
+
+GitHub Pages is configured to inherit `docs.cameronstorer.com` from the account's
+user site. One Cloudflare DNS record is needed: CNAME `docs` ->
+`cameronstorer.github.io` (DNS only, automatic TTL). Other project repositories
+can then use paths below the same hostname without separate DNS records.
+The DNS record is pending at the time of this setup; HTTPS provisioning follows
+DNS validation. The main website's DNS is unchanged.
