@@ -433,8 +433,10 @@ passed, zero failed, one existing CPU replay ignored; Windows release build pass
 `nitro_particle_draw.rs` ports smoke's camera billboard (`sub_201C09C`), the
 velocity-aligned flare billboard (`sub_201B560`) and world-oriented spark quad
 (`sub_201A364`). A controlled resource-selection experiment covers all eight drift
-resources and **721 primary draws**. Every captured MTX_MULT matrix and XY/XZ quad
-helper argument matches Rust. Mode3's view LOAD is supplied separately; the
+resources and **721 primary draws**. Every captured MTX_MULT matrix and XY quad
+helper argument matches Rust. All721 captured quads are XY and all selected world
+resources use Y-axis rotation selector0; XZ quads and diagonal-axis rotation are
+source-derived implementations, not runtime-verified by this drift capture. Mode3's view LOAD is supplied separately; the
 capture verifies its local MULT. Velocity alignment uses the original rounded
 cross/normalization/dot operations, and the world path preserves rotation and
 matrix-concatenation order. Source-derived packed color/alpha modulation,
