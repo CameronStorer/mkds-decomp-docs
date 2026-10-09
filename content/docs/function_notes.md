@@ -215,3 +215,10 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20D759C: sign-corrected per-component quaternion easing (negates target if dot product is negative), without normalization; traffic helper matches 899 original bus transitions with recorded tilt/yaw/rate inputs
 - sub_1FF9490: SDK scale-only texture matrix: S/T diagonal from scale, S offset zero, T offset height*(1-scaleT) in texel space; missing T-origin compensation caused duplicated half-wheel textures in native traffic
 - sub_1FF96CC: SDK scale+translation texture matrix: S offset -width*scaleS*translateS, T offset height*(1-scaleT+scaleT*translateT); resource translations are normalized Maya coordinates, not texels
+- sub_20D7B88: traffic terrain tilt: denominator FX_Sqrt(2*(normalY+4096)); quaternion [FX_Div(normalZ,denominator),0,FX_Div(-normalX,denominator),denominator/2]; native KCL probe plus tilt/heading/easing/body matrix matches all 899 bus transitions
+- sub_2061F90: returns shared update slot at scheduler +12; traffic samples its floor normal only when slot equals instance index +212 modulo eight (collision flight bypasses staggering)
+- sub_20D8B18: initializes curved-path position/velocity via sub_20D9270, negates X/Z velocity when following backward; traffic uses this derivative to initialize heading
+- sub_20D9270: curved-path initialization: evaluates cubic Bernstein position and derivative weights, multiplies X/Z derivative by follower step in fx24
+- sub_20D970C: computes cubic Bernstein position and derivative weights in fx24 for initial curved-path velocity
+- sub_1FFCCD0: quaternion-to-3x3 basis with truncated products shifted by 11; preserves unnormalized easing contraction; traffic renderer now applies this affine basis to body/axle globals and collider axes
+- sub_2062464: race scheduler update: derives shared eight-slot terrain-probe phase (+12) from race tick counter (+4 & 7), parity at +16 and kart round-robin index at +20; some race states freeze tick advancement

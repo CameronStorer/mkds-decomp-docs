@@ -24,7 +24,7 @@ checks, not an emulator draw-output comparison. The original-pattern test
 exercises both counter halves and the squash formula. The current game uses
 squash factor 4096 because the Goomba simulation does not yet expose squash/
 recovery states. Hit reactions and that presentation remain pending.
-The current complete core suite passes 103 tests, with one existing ignored test.
+The current complete core suite passes 104 tests, with one existing ignored test.
 
 For a close-up engine capture, set `MKDS_SHOT_GOOMBA=1` alongside the existing
 `MKDS_SHOT` / `MKDS_SHOT_FRAMES` hooks. Use at least 150 render frames to allow
@@ -73,13 +73,60 @@ captures.
 all 899 recorded bus quaternion transitions using recorded terrain tilt,
 heading and rate inputs. Easing negates the target when its dot product with
 the previous quaternion is negative and does not normalize the result. These
-helpers are verified separately; the full terrain tilt/probe and rate producer
-are not integrated into `Vehicle` yet.
+helpers are now integrated into the normal vehicle tick as described below.
 
-Close-up inspection also prompted replacing the renderer's shortest arc from
-Z with explicit yaw/pitch, preserving up during reverse headings. This still
-uses path-gradient pitch and lacks original terrain tilt/easing; it is an
-interim rendering correction, not a verified original body pose.
+## Traffic terrain alignment: integrated normal branch
+
+`Vehicle::tick_on_course` ports the normal-driving orientation branch of
+`sub_20E2630`. It advances the verified path, probes KCL at the resulting
+position with radius 61440 (15 units), flags 8 and no previous-position input,
+then updates terrain tilt only when the hit flags overlap floor mask `001E34EF`.
+The probe occurs when shared slot (`sub_2061F90`) equals instance index +212
+modulo eight; held tilt persists on the other seven ticks or a missed probe.
+`sub_2062464` derives that slot from the race tick counter modulo eight.
+
+`traffic_tilt` follows `sub_20D7B88`: denominator is the SDK square root of
+`2*(normalY+4096)`, X is normalZ divided by it, Z is -normalX divided by it,
+Y is zero and W is half the denominator. SDK fixed-point divider rounding is
+preserved. Heading uses SDK atan2 and the original rounded binary-angle
+conversion; the general radians conversion helper did not reproduce this
+call site's final rounding and is not used for traffic.
+
+Normal easing rate is initialized by `sub_20E1F54` to
+`250 * signed speed setting / 100`. Initial heading follows the Bezier
+derivative from `sub_20D8B18` / `sub_20D9270` / `sub_20D970C`, including the
+reverse-direction sign. The stationary branch eases directly toward held tilt
+rather than recombining the last heading; tires still advance by 1536.
+
+The bus replay now generates tilt and heading from its own KCL and velocity.
+All 899 transitions match original position, tire clock, held tilt, heading,
+eased quaternion and all nine body-matrix words. The test seeds the first
+recorded pose/follower state and starts with phase 2, inferred from the trace's
+normal changes at row indices 6 modulo eight. It does not validate the full
+original race startup sequence or collision/bounce states. The test also
+checks that instance index 8 shares index 0's probe slot and another slot
+holds the old tilt. A stationary-state test protects the unusual heading
+branch and the continuing tire clock.
+
+The native object loop uses its shared tick and traffic spawn index for the
+probe schedule. Exact cross-engine startup phase and the ordering of all
+traffic instances have not been independently captured. Collision axes use
+the fixed-point body basis. The render plugin applies that affine basis to
+the root and direct body/axle mesh globals after Bevy transform propagation,
+preserving the slight contraction from unnormalized quaternion easing. It
+replaces the interim path-gradient pitch; normal driving no longer uses it.
+
+All 104 core tests pass (one existing ignored). Windows release build passes
+and the standard `game/target/release/mkds_game.exe` includes these changes.
+Initial validation used a separate executable while the active game held the
+standard executable open; the standard build was completed after that game
+exited, without stopping it.
+
+Native frame-300 captures on Shroom Ridge and Mushroom Bridge show the bus
+following road tilt and the car/tire assemblies intact. Captures live in
+`%TEMP%/codex-traffic-terrain/{ridge_course,old_kinoko_gc}.png`. These are engine
+visual checks, not emulator frame comparisons; numeric replay coverage is
+the recorded Shroom Ridge bus only.
 
 Native inspection exposed a second, general material-parser issue: traffic's
 quarter-wheel texture rendered as two half-wheels. The decompiled scale-only
@@ -94,7 +141,7 @@ S offset `-width * scaleS * translateS`, T offset
 The original tire UVs become S `0..2`, T `-1..1`; mirror wrapping assembles one
 complete wheel from the quarter texture. This changes other materials using
 these same non-rotated texture matrices. Rotated matrices and texture-matrix
-animation remain unsupported. All 103 core tests pass (one existing ignored).
+animation remain unsupported.
 
 Final Windows release build passes. Native Shroom Ridge inspection at render
 frame 240 shows the upright body and complete wheels at both axles. A Mario
@@ -110,8 +157,9 @@ Add `MKDS_SHOT_TRAFFIC_LIFT=1` to raise only the inspected render root 120 units
 for an unobstructed model view. Simulation/collision position remains unchanged.
 
 `sub_20E1E98` initializes heading and reset state. The current vehicle port
-already follows the verified original path; exact body orientation,
-pattern selection, collision pose, horns and lights remain presentation work.
+already follows the verified original path; collision/bounce orientation,
+pattern selection, horns and lights remain
+presentation work. Normal driving orientation is covered by the replay above.
 
 Other NPCs should be linked to their own state/draw routines in the same way.
 No blanket animation loop has been assigned to unmapped actors.

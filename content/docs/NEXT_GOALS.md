@@ -8,12 +8,13 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - Original traffic tire model now renders both axle assemblies on buses/cars/trucks;
   rotation comes from the vehicle tick (+1536 angle units), with original type-specific
   scale/spacing. Bus clock and render fields agree with the 900-row original trace.
-  Terrain-heading and quaternion-easing helpers also match all 899 bus orientation
-  transitions with recorded inputs; full original tilt/rate production remains pending.
+  Normal terrain probing, heading, tilt, easing and all nine body-matrix words now
+  match all 899 bus transitions using native KCL/velocity inputs. Rendering and
+  collision axes consume that state; collision/bounce poses remain pending.
   Fixed missing SDK T-origin compensation in non-rotated texture matrices, which
   made the quarter-wheel texture appear as two half-wheels.
-  Full core suite: 103 passed, one ignored; release build and bus/driver visual
-  captures pass. See
+  Full core suite: 104 passed, one ignored; standard Windows release build and
+  Shroom Ridge / Mushroom Bridge visual captures pass. See
   `analysis/CODEX_NPC_MAP.md` for evidence and remaining vehicle presentation work.
 - CPU drift fixed (hop-only direction, facing vector while drifting, CPU hop turn x2): no falls.
 - Rubber-banding (`cpu::CpuPace`, `Standings`, `CpuParams` from kartAIparam.bin): 4921/4934 exact.
