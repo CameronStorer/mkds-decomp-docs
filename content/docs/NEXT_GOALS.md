@@ -12,11 +12,14 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   match all 899 bus transitions using native KCL/velocity inputs. Rendering and
   collision axes consume that state. Hit flight/rebound/recovery now additionally
   match 300 original bus updates after one controlled mode-1 overlap; Star/shrunk
-  contacts invoke the own-object reaction in the native game. Exact traffic contact
-  geometry, item-hit dispatch and crash/landing sounds remain pending.
+  contacts invoke the own-object reaction in the native game. Traffic now uses the
+  original asymmetric oriented contact test: all 293 original bus/car/truck calls
+  match scaled extents, axis and push. First flight disables contact until rebound,
+  including subsequent karts in the same update. Item-hit dispatch and crash/landing
+  sounds remain pending.
   Fixed missing SDK T-origin compensation in non-rotated texture matrices, which
   made the quarter-wheel texture appear as two half-wheels.
-  Full core suite: 105 passed, one ignored; standard Windows release build and
+  Full core suite: 107 passed, one ignored; standard Windows release build and
   Shroom Ridge / Mushroom Bridge visual captures pass. See
   `analysis/CODEX_NPC_MAP.md` for evidence and remaining vehicle presentation work.
 - CPU drift fixed (hop-only direction, facing vector while drifting, CPU hop turn x2): no falls.
@@ -115,7 +118,7 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - Driver presentation: victory idle alternation, complete special-mode results and one-shot
   return logic; capture spin/win/lose, face changes and crossfades against the emulator.
 - Rainbow Road spiral falls; original drift particle simulation from `RaceEffect.spa`.
-- Object reactions: traffic hit/bounce ported; exact asymmetric contact geometry next.
+- Object reactions: traffic hit/bounce and asymmetric contact geometry ported; item-hit dispatch next.
   Other own-object callbacks dispatched by `sub_20D6BE0` remain unported (Goomba
   squash, crab knock), moving-object shove (handler flag 1), handler 9/10 exact damage (taken as blown).
 

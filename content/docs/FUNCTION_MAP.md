@@ -6614,7 +6614,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/mod.rs:370](../vm_model/src/kart/mod.rs#L370) Bumped into a solid object this tick (+0x44 bit 0x40, `sub_206E874`).
 - [vm_model/src/kart/movement.rs:660](../vm_model/src/kart/movement.rs#L660) `sub_206F04C` from the object check (`sub_206E874`, flag 8 handlers): bumping into a solid
 - [game/src/objects.rs:8](../game/src/objects.rs#L8) Collision is the game's (`vm_model::obj_collision`, `sub_206E874`): objects with a collision
-- [game/src/objects.rs:466](../game/src/objects.rs#L466) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
+- [game/src/objects.rs:469](../game/src/objects.rs#L469) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
 - [docs/function_notes.md:39](../docs/function_notes.md#L39) kart vs course objects: handler, wall bump (flag 8), speed scale (2), moving-object shove (1), push out
 
 ## sub_206EDAC
@@ -12548,7 +12548,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20D29CC_020D29CC.c`
 
 - [vm_model/src/obj_collision.rs:3](../vm_model/src/obj_collision.rs#L3) `sub_20D29CC`). `sub_20D41E0` tests the kart's sphere against every registered object
-- [vm_model/src/obj_collision.rs:226](../vm_model/src/obj_collision.rs#L226) `sub_20D29CC`: class sizes times the object's scale.
+- [vm_model/src/obj_collision.rs:230](../vm_model/src/obj_collision.rs#L230) `sub_20D29CC`: class sizes times the object's scale.
 - [docs/function_notes.md:16](../docs/function_notes.md#L16) object sizes = class sizes x object scale (+88/+92/+96)
 
 ## sub_20D2C2C
@@ -12560,14 +12560,15 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20D3E34_020D3E34.c`
 
 - [vm_model/src/obj_collision.rs:4](../vm_model/src/obj_collision.rs#L4) (`sub_20D3E34`) and sums the pushes; the object's id picks a hit handler from the per-group
-- [vm_model/src/obj_collision.rs:233](../vm_model/src/obj_collision.rs#L233) `sub_20D3E34`: does a sphere (`p`, radius `r`) touch the object? Returns the push that
-- [docs/function_notes.md:11](../docs/function_notes.md#L11) object shape test by class shape (+152 -> +8): 1 sphere, 2 cylinder, 3 tilted cylinder, 4 box, 5 callback
+- [vm_model/src/obj_collision.rs:225](../vm_model/src/obj_collision.rs#L225) Object flag +2 bit 0; sub_20D3E34 rejects before any shape callback.
+- [vm_model/src/obj_collision.rs:238](../vm_model/src/obj_collision.rs#L238) `sub_20D3E34`: does a sphere (`p`, radius `r`) touch the object? Returns the push that
+- [docs/function_notes.md:11](../docs/function_notes.md#L11) rejects object flag +2 bit 0 before any shape test; then class shape (+152 -> +8): 1 sphere, 2 cylinder, 3 tilted cylinder, 4 box, 5 callback; traffic bounce-pending bit therefore disables contact until first rebound
 
 ## sub_20D41E0
 `export/plan0/arm9_main/sub_20D41E0_020D41E0.c`
 
 - [vm_model/src/obj_collision.rs:3](../vm_model/src/obj_collision.rs#L3) `sub_20D29CC`). `sub_20D41E0` tests the kart's sphere against every registered object
-- [vm_model/src/obj_collision.rs:354](../vm_model/src/obj_collision.rs#L354) `sub_20D41E0`: every object the kart's sphere touches (at most 32), and the combined push:
+- [vm_model/src/obj_collision.rs:379](../vm_model/src/obj_collision.rs#L379) `sub_20D41E0`: every object the kart's sphere touches (at most 32), and the combined push:
 - [docs/function_notes.md:9](../docs/function_notes.md#L9) kart sphere vs every registered object (near list), sums the pushes (min + max per axis)
 
 ## sub_20D4C28
@@ -12625,14 +12626,14 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/obj_collision.rs:5](../vm_model/src/obj_collision.rs#L5) tables at `0x0216B94C` (`sub_20D6BE0`), which decides what the touch does: a wall bump,
 - [vm_model/src/obj_collision.rs:120](../vm_model/src/obj_collision.rs#L120) Hit handler of an object id (`sub_20D6BE0`'s tables at `0x0216B94C`), by id / 100 group,
 - [vm_model/src/obj_collision.rs:141](../vm_model/src/obj_collision.rs#L141) `sub_20D6BE0` (table part): the handler for an object id when the kart is in `mode`;
-- [game/src/objects.rs:469](../game/src/objects.rs#L469) solid ones. Traffic's own reaction is dispatched separately by sub_20D6BE0.
+- [game/src/objects.rs:472](../game/src/objects.rs#L472) solid ones. Traffic's own reaction is dispatched separately by sub_20D6BE0.
 - [docs/function_notes.md:17](../docs/function_notes.md#L17) picks the kart-vs-object hit handler from tables at 0x0216B94C (id/100 group, kart +0x29C mode, id%100)
 - [docs/function_notes.md:231](../docs/function_notes.md#L231) separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers
 
 ## sub_20D6DC0
 `export/plan0/arm9_main/sub_20D6DC0_020D6DC0.c`
 
-- [game/src/objects.rs:517](../game/src/objects.rs#L517) sub_20D6DC0(.., 4, 4): the handler table's group 4, entry 4
+- [game/src/objects.rs:525](../game/src/objects.rs#L525) sub_20D6DC0(.., 4, 4): the handler table's group 4, entry 4
 - [docs/function_notes.md:160](../docs/function_notes.md#L160) handler table lookup for an explicit id group/index
 
 ## sub_20D70AC
@@ -12656,7 +12657,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20D7B34
 `export/plan0/arm9_main/sub_20D7B34_020D7B34.c`
 
-- [game/src/objects.rs:435](../game/src/objects.rs#L435) facing its travel (sub_20D7B34 from the walk's direction)
+- [game/src/objects.rs:438](../game/src/objects.rs#L438) facing its travel (sub_20D7B34 from the walk's direction)
 
 ## sub_20D7B88
 `export/plan0/arm9_main/sub_20D7B88_020D7B88.c`
@@ -13024,7 +13025,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20DB548_020DB548.c`
 
 - [vm_model/src/mapobj/thwomp.rs:10](../vm_model/src/mapobj/thwomp.rs#L10) Not ported: being knocked about by a star / mega kart (`sub_20DB548`, +0xB4 modes 1 and 2),
-- [game/src/objects.rs:491](../game/src/objects.rs#L491) a Thwomp slamming down or just landed crushes karts in the cone under it (`sub_20DB548`)
+- [game/src/objects.rs:494](../game/src/objects.rs#L494) a Thwomp slamming down or just landed crushes karts in the cone under it (`sub_20DB548`)
 - [docs/function_notes.md:159](../docs/function_notes.md#L159) Thwomp class callback (star knock, crush handler 11 for karts below)
 
 ## sub_20DB760
@@ -13556,6 +13557,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20E1F54
 `export/plan0/arm9_main/sub_20E1F54_020E1F54.c`
 
+- [vm_model/src/obj_collision.rs:326](../vm_model/src/obj_collision.rs#L326) sub_20E1F54 type-record collision extents, scaled independently per axis.
 - [vm_model/src/mapobj/presentation.rs:86](../vm_model/src/mapobj/presentation.rs#L86) sub_20E1F54 converts the two translations to model units (>>4).
 - [vm_model/src/mapobj/vehicle.rs:2](../vm_model/src/mapobj/vehicle.rs#L2) (init `sub_20E1F54`). They drive their path at a constant 12288 x setting 0's low half / 100
 - [vm_model/src/mapobj/vehicle.rs:76](../vm_model/src/mapobj/vehicle.rs#L76) sub_20E1F54 type-record height multiplied by the map object's Y scale.
@@ -13574,8 +13576,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20E2400
 `export/plan0/arm9_main/sub_20E2400_020E2400.c`
 
-- [vm_model/src/obj_collision.rs:26](../vm_model/src/obj_collision.rs#L26) 0x19C, `sub_20E2400`) is taken as an upright cylinder of its radius, the others (clock
-- [docs/function_notes.md:235](../docs/function_notes.md#L235) traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; current native traffic sphere/cylinder approximation still needs this exact contact test
+- [vm_model/src/obj_collision.rs:26](../vm_model/src/obj_collision.rs#L26) `sub_20E2400`) uses asymmetric oriented extents; the others (clock hand,
+- [docs/function_notes.md:235](../docs/function_notes.md#L235) traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; native traffic now uses this exact contact test; scaled extents and all 293 original bus/car/truck callback results match
 
 ## sub_20E246C
 `export/plan0/arm9_main/sub_20E246C_020E246C.c`
@@ -13657,25 +13659,25 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20EAD80
 `export/plan0/arm9_main/sub_20EAD80_020EAD80.c`
 
-- [vm_model/src/obj_collision.rs:269](../vm_model/src/obj_collision.rs#L269) sub_20EAD80 with the radius and the half height both ways
+- [vm_model/src/obj_collision.rs:277](../vm_model/src/obj_collision.rs#L277) sub_20EAD80 with the radius and the half height both ways
 - [docs/function_notes.md:14](../docs/function_notes.md#L14) tilted cylinder push-out
 
 ## sub_20EAFC4
 `export/plan0/arm9_main/sub_20EAFC4_020EAFC4.c`
 
-- [vm_model/src/obj_collision.rs:318](../vm_model/src/obj_collision.rs#L318) `sub_20EAFC4`: out of a box along the axis it is least deep in (up only from above).
-- [docs/function_notes.md:15](../docs/function_notes.md#L15) oriented box push-out
+- [vm_model/src/obj_collision.rs:338](../vm_model/src/obj_collision.rs#L338) `sub_20EAFC4`: asymmetric oriented box contact. Radius expands each plane;
+- [docs/function_notes.md:15](../docs/function_notes.md#L15) asymmetric oriented box push-out: strict per-plane radius-expanded bounds, separate positive/negative extents, least penetration with X-before-Z ties, upward response only for positive up projection; horizontal pushes zero world Y; matches 293 original traffic callback results
 
 ## sub_20EB2A0
 `export/plan0/arm9_main/sub_20EB2A0_020EB2A0.c`
 
-- [vm_model/src/obj_collision.rs:301](../vm_model/src/obj_collision.rs#L301) `sub_20EB2A0`: out of an upright cylinder sideways, the push per axis capped by how deep
+- [vm_model/src/obj_collision.rs:309](../vm_model/src/obj_collision.rs#L309) `sub_20EB2A0`: out of an upright cylinder sideways, the push per axis capped by how deep
 - [docs/function_notes.md:13](../docs/function_notes.md#L13) upright cylinder push-out (sideways, capped by vertical depth)
 
 ## sub_20EB3F0
 `export/plan0/arm9_main/sub_20EB3F0_020EB3F0.c`
 
-- [vm_model/src/obj_collision.rs:248](../vm_model/src/obj_collision.rs#L248) sub_20EB3F0: out to the surface along the centre line
+- [vm_model/src/obj_collision.rs:254](../vm_model/src/obj_collision.rs#L254) sub_20EB3F0: out to the surface along the centre line
 - [vm_model/src/kart/traffic.rs:211](../vm_model/src/kart/traffic.rs#L211) sub_20EB3F0: the overlap along the line between the centres
 - [docs/function_notes.md:12](../docs/function_notes.md#L12) sphere push-out
 

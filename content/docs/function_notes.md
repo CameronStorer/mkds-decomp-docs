@@ -8,11 +8,11 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 
 - sub_20D41E0: kart sphere vs every registered object (near list), sums the pushes (min + max per axis)
 - sub_20D5180: builds the near-object list (<=128) from the sorted master array (*0x0217B598, 28-byte entries, object at +24)
-- sub_20D3E34: object shape test by class shape (+152 -> +8): 1 sphere, 2 cylinder, 3 tilted cylinder, 4 box, 5 callback
+- sub_20D3E34: rejects object flag +2 bit 0 before any shape test; then class shape (+152 -> +8): 1 sphere, 2 cylinder, 3 tilted cylinder, 4 box, 5 callback; traffic bounce-pending bit therefore disables contact until first rebound
 - sub_20EB3F0: sphere push-out
 - sub_20EB2A0: upright cylinder push-out (sideways, capped by vertical depth)
 - sub_20EAD80: tilted cylinder push-out
-- sub_20EAFC4: oriented box push-out
+- sub_20EAFC4: asymmetric oriented box push-out: strict per-plane radius-expanded bounds, separate positive/negative extents, least penetration with X-before-Z ties, upward response only for positive up projection; horizontal pushes zero world Y; matches 293 original traffic callback results
 - sub_20D29CC: object sizes = class sizes x object scale (+88/+92/+96)
 - sub_20D6BE0: picks the kart-vs-object hit handler from tables at 0x0216B94C (id/100 group, kart +0x29C mode, id%100)
 - sub_20D69E4: object solid for this kart (same table, non-zero)
@@ -232,4 +232,4 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20E2630: traffic flight uses timer >15, gravity 1434 and path X/Z; probes every flight tick at Y+61440; first floor landing rebounds by 1843+(height-81920)/512 and reverses/eases impact tilt, second sets timer 15 and Y velocity zero; following 15 updates restore normal easing; all 300 original bus updates reproduced including full basis
 - sub_20D2668: object sound-context selection wrapper around sub_2024A28 when class sound entry is enabled; not the own-object reaction dispatcher (earlier project notes attributed reactions here incorrectly)
 - sub_20D26F8: traffic crash sound 232 for kart mode 1 or 3; physics kick itself is dispatched separately through sub_20E2494
-- sub_20E2400: traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; current native traffic sphere/cylinder approximation still needs this exact contact test
+- sub_20E2400: traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; native traffic now uses this exact contact test; scaled extents and all 293 original bus/car/truck callback results match

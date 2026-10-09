@@ -224,10 +224,9 @@ the body and both axle assemblies tilted in flight and settled afterward:
 not emulator image comparisons. Optional inspection: `MKDS_SHOT_TRAFFIC=1`
 and `MKDS_SHOT_TRAFFIC_HIT=1` inject one hit at traffic tick 60.
 
-Contact geometry still uses the existing traffic cylinder approximation.
-The original `sub_20E2400` passes asymmetric oriented extents to
-`sub_20EAFC4`; this contact test is the next fidelity task. Thus exact
-handler/tick replay does not establish identical native collision timing.
+The former cylinder contact approximation has now been replaced with the
+original asymmetric contact test, verified below. Handler/tick and geometry
+replay still do not establish full identical race collision timing.
 Items do not yet dispatch the own-object hit callback. Crash/landing sound,
 wall impacts, repeated-hit branches, below-zero reset and car/truck rebound
 have not been independently captured. The below-zero reset is source-derived.
@@ -235,3 +234,78 @@ have not been independently captured. The below-zero reset is source-derived.
 Earlier notes attributed own reactions to `sub_20D2668`; that function
 selects an object sound context through `sub_2024A28`. The own-reaction
 callback dispatch is `sub_20D6BE0`, as the C and controlled capture show.
+
+## Exact asymmetric traffic contact (2026-10-08)
+
+`sub_20E2400` supplies `sub_20EAFC4` with positive extents [X,height,front]
+and negative extents [X,0,rear]. These are the type-record first four words,
+multiplied by map scale X/Y/Z/Z with truncated fx12 products. At scale one:
+
+| Type | X half-width | Height above base | Front reach | Rear reach |
+| --- | ---: | ---: | ---: | ---: |
+| Bus 0195 | 21 | 55 | 55 | 55 |
+| Car 019A | 12 | 20 | 21 | 19 |
+| Truck 019C | 13 | 40 | 33 | 28 |
+
+Source records: bus 02158A18, car 021589A8, truck 021589E0. These contact
+extents are distinct from tire render translations and the class broad
+radius. The native `Collider` now stores them independently; each vehicle
+uses its simulated fixed-point basis and position for this test.
+
+The test projects sphere-minus-object onto each basis row with truncated
+dot products and expands each positive/negative plane by sphere radius.
+Exact boundary equality rejects. Within the box, it chooses the least
+penetration: X wins a horizontal tie with Z. Up can win only for positive
+up projection and strictly less penetration than the selected horizontal
+axis. X/Z pushes explicitly set world Y to zero even for tilted objects;
+up pushes use the full up basis. Original return codes are 0 rejection,
+1 up, 3 X, 4 Z. Ordinary box classes use the same helper with symmetric
+extents, preserving their previous behavior.
+
+### Geometry capture and regression evidence
+
+`tools/bizhawk/codex_traffic_contact/run.ps1` sweeps a kart through 96
+requested object-relative positions for each of the three traffic types in
+an isolated Shroom Ridge emulator. Hooks record actual `sub_20E2400`
+inputs and output, so points displaced by other race logic are not confused
+with the requested positions. The near-list can omit requested positions.
+The capture produced 293 complete calls without hook errors:
+
+| Type | Rejected | Up | X | Z | Total |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Bus | 40 | 1 | 36 | 17 | 94 |
+| Car | 40 | 3 | 29 | 18 | 90 |
+| Truck | 51 | 2 | 38 | 18 | 109 |
+
+`vm_model/tests/data/traffic_contacts.csv` stores frame, ID, sphere/object
+positions, nine basis words, four extents, three map scale components,
+radius, axis and push. Replay needs no ROM: all 293 calls match computed
+scaled extents, exact return code and all three push components. Captured
+scales are 1.25 for the bus and 1.5 for car/truck; actual sphere radii are
+8 and 18 units. Separate boundary tests cover the asymmetric front/rear,
+base-height bottom, strict plane rejection, X/Z ties and the side boundary
+that the old cylinder falsely accepted.
+
+### Collision-disabled flight bit
+
+Reading the caller exposed another rule: `sub_20D3E34` immediately rejects
+object flag +2 bit 0, before the shape switch. Traffic's hit sets that same
+bit as bounce-pending and its first rebound clears it. Thus first flight
+is also contact-disabled. The native collider now mirrors this bit from
+vehicle state. Dispatching a hit disables the body immediately and also
+the current collision-loop snapshot, so later karts in the same update
+cannot repeatedly relaunch it. First rebound re-enables contact; second
+flight is not disabled by this bit. The boundary regression checks that a
+disabled collider returns no contact and is excluded from `touches`.
+
+The remaining limits are the original nearby-object ordering/filter flags,
+full kart damage/push sequencing, item own-hit dispatch, crash/landing audio,
+repeated-hit and below-zero reset runtime captures. Exact callback geometry
+coverage does not prove the entire native race collision pipeline identical.
+
+Standard Windows release build passes after both geometry and disabled-bit
+integration. The full core suite passes 107 tests with one existing ignored.
+A frame-240 Shroom Ridge run of the standard executable checks Bevy system
+initialization and intact vehicle/body/axle rendering; capture is
+`%TEMP%/codex-traffic-contact/ridge.png`. No runtime panic occurred. This is
+a native smoke check, not a frame-aligned original collision comparison.

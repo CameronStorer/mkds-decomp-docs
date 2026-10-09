@@ -4803,7 +4803,7 @@ sub_20D27FC,arm9_main,0x020D27FC,108,inferred,sound,guess: allocates 68 bytes fr
 sub_20D286C,arm9_main,0x020D286C,112,inferred,sound,guess: allocates 96 bytes from the heap,2,sub_20364E0 sub_20364E8 sub_2036BEC sub_2109110 sub_210CF9C sub_210CFBC,,
 sub_20D28E0,arm9_main,0x020D28E0,108,inferred,map objects,guess: allocates 68 bytes from the heap,5,sub_20364E0 sub_20364E8 sub_2036BEC sub_2109110 sub_210CF9C sub_210CFBC,,
 sub_20D2950,arm9_main,0x020D2950,124,inferred,kart,"guess: calls sub_21482CC (Length, rounded (`VEC_Mag`, `sub_21482CC)",2,sub_20D5148 sub_21482CC,,
-sub_20D29CC,arm9_main,0x020D29CC,428,known,map objects,object sizes = class sizes x object scale (+88/+92/+96),3,sub_20D5148 sub_21482CC,,vm_model/src/obj_collision.rs:3 vm_model/src/obj_collision.rs:226
+sub_20D29CC,arm9_main,0x020D29CC,428,known,map objects,object sizes = class sizes x object scale (+88/+92/+96),3,sub_20D5148 sub_21482CC,,vm_model/src/obj_collision.rs:3 vm_model/src/obj_collision.rs:230
 sub_20D2B78,arm9_main,0x020D2B78,38,inferred,graphics,guess: near graphics code (call graph),2,,,
 sub_20D2BB0,arm9_main,0x020D2BB0,38,inferred,graphics,guess: near graphics code (call graph),2,,,
 sub_20D2BE8,arm9_main,0x020D2BE8,38,inferred,graphics,guess: near graphics code (call graph),3,,,
@@ -4832,11 +4832,11 @@ sub_20D3DBC,arm9_main,0x020D3DBC,24,unknown,,,1,,,
 sub_20D3DD8,arm9_main,0x020D3DD8,24,unknown,,,1,,,
 sub_20D3DF4,arm9_main,0x020D3DF4,28,inferred,camera,guess: near camera code (call graph),1,,,
 sub_20D3E18,arm9_main,0x020D3E18,24,inferred,camera,guess: near camera code (call graph),2,,,
-sub_20D3E34,arm9_main,0x020D3E34,720,known,map objects,"object shape test by class shape (+152 -> +8): 1 sphere, 2 cylinder, 3 tilted cylinder, 4 box, 5 callback",4,sub_20EAD80 sub_20EAFC4 sub_20EB2A0 sub_20EB3F0,,vm_model/src/obj_collision.rs:4 vm_model/src/obj_collision.rs:233
+sub_20D3E34,arm9_main,0x020D3E34,720,known,map objects,"rejects object flag +2 bit 0 before any shape test; then class shape (+152 -> +8): 1 sphere, 2 cylinder, 3 tilted cylinder, 4 box, 5 callback; traffic bounce-pending bit therefore disables contact until first rebound",4,sub_20EAD80 sub_20EAFC4 sub_20EB2A0 sub_20EB3F0,,vm_model/src/obj_collision.rs:4 vm_model/src/obj_collision.rs:225 vm_model/src/obj_collision.rs:238
 sub_20D4104,arm9_main,0x020D4104,20,inferred,kart damage,guess: near kart damage code (call graph),1,,,
 sub_20D411C,arm9_main,0x020D411C,16,unknown,,,2,,,
 sub_20D4130,arm9_main,0x020D4130,164,inferred,,guess: calls sub_20D5180 (builds the near-object list (<=128) from),1,sub_20D5180,,
-sub_20D41E0,arm9_main,0x020D41E0,548,known,map objects,"kart sphere vs every registered object (near list), sums the pushes (min + max per axis)",1,sub_20D3E34 sub_20D69E4,,vm_model/src/obj_collision.rs:3 vm_model/src/obj_collision.rs:354
+sub_20D41E0,arm9_main,0x020D41E0,548,known,map objects,"kart sphere vs every registered object (near list), sums the pushes (min + max per axis)",1,sub_20D3E34 sub_20D69E4,,vm_model/src/obj_collision.rs:3 vm_model/src/obj_collision.rs:379
 sub_20D4418,arm9_main,0x020D4418,104,inferred,,guess: calls sub_20DFF88 (tail thunk: calls sub_20E1E38 with the b),1,sub_20DFF88 sub_20E3B28 sub_20E435C,,
 sub_20D4484,arm9_main,0x020D4484,260,inferred,,guess: calls sub_20D4C28 (object manager: calls the kind's +0x10 c); sub_20D9E60 (water draw: unless object flags 0x12 set),1,sub_208AB00 sub_20D4C28 sub_20D4D44 sub_20D9E60 sub_20E6A74,,
 sub_20D4590,arm9_main,0x020D4590,252,inferred,,guess: calls sub_20B33F4 (returns *(+8) of global object if presen); sub_20D9F8C (water wave per-tick: 4-state sine bob of),1,sub_20B33F4 sub_20D3B10 sub_20D3B74 sub_20D4698 sub_20D47E0 sub_20D50B4 sub_20D9F8C sub_20E705C,,
@@ -4896,7 +4896,7 @@ sub_20D6A54,arm9_main,0x020D6A54,384,inferred,map objects,guess: near map object
 sub_20D6BE0,arm9_main,0x020D6BE0,328,known,"traffic hit and recovery (codex, 2026-10-08)","separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers",1,sub_218173C,,vm_model/src/obj_collision.rs:5 vm_model/src/obj_collision.rs:120 vm_model/src/obj_collision.rs:141
 sub_20D6D34,arm9_main,0x020D6D34,84,unknown,,,1,,,
 sub_20D6D8C,arm9_main,0x020D6D8C,48,unknown,,,1,,,
-sub_20D6DC0,arm9_main,0x020D6DC0,44,known,map objects,handler table lookup for an explicit id group/index,1,,,game/src/objects.rs:517
+sub_20D6DC0,arm9_main,0x020D6DC0,44,known,map objects,handler table lookup for an explicit id group/index,1,,,game/src/objects.rs:525
 sub_20D6DF0,arm9_main,0x020D6DF0,296,unknown,,,1,sub_2146D28 sub_2146D44 sub_2146D60 sub_2146DFC,,
 sub_20D6F20,arm9_main,0x020D6F20,84,inferred,kart,"guess: calls sub_2146D78 (Row vector times matrix, truncated (`MTX)",1,sub_2146D44 sub_2146D78,,
 sub_20D6F78,arm9_main,0x020D6F78,280,inferred,math,guess: touches hardware divide / square root,3,,,
@@ -4911,7 +4911,7 @@ sub_20D788C,arm9_main,0x020D788C,168,inferred,map objects,guess: near map object
 sub_20D7938,arm9_main,0x020D7938,120,inferred,map objects,guess: near map objects code (call graph),3,,,
 sub_20D79B0,arm9_main,0x020D79B0,136,known,npc and traffic presentation (codex; 2026-10-08),combines terrain tilt quaternion's X/Z/W with half-angle XZ heading; traffic heading helper verified as part of all 899 bus orientation transitions,2,,,vm_model/src/mapobj/presentation.rs:21
 sub_20D7A3C,arm9_main,0x020D7A3C,236,inferred,math,guess: touches hardware divide / square root,4,sub_2147D88 sub_2147DC0 sub_2147E28,,
-sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:435
+sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:438
 sub_20D7B88,arm9_main,0x020D7B88,100,known,npc and traffic presentation (codex; 2026-10-08),"traffic terrain tilt: denominator FX_Sqrt(2*(normalY+4096)); quaternion [FX_Div(normalZ,denominator),0,FX_Div(-normalX,denominator),denominator/2]; native KCL probe plus tilt/heading/easing/body matrix matches all 899 bus transitions",7,sub_2147D88 sub_2147E28 sub_2147E8C,,vm_model/src/mapobj/presentation.rs:5
 sub_20D7BEC,arm9_main,0x020D7BEC,136,inferred,kart,"guess: calls sub_2148538 (`FX_Atan2(y, x)` in fx12 radians (`sub_2)",1,sub_2148538,,
 sub_20D7C84,arm9_main,0x020D7C84,144,known,map objects,single-segment curve advance to new points (carry),3,sub_20D80E4 sub_2133048,,vm_model/src/mapobj/chomp.rs:270
@@ -4994,7 +4994,7 @@ sub_20DB2B8,arm9_main,0x020DB2B8,260,known,map objects,Thwomp init,0,sub_20D27FC
 sub_20DB3E4,arm9_main,0x020DB3E4,56,known,thwomp (dossun),loads dossun.nsbmd and dossun_shadow.nsbmd (Thwomp model and shadow),0,sub_2084968 sub_20D21EC sub_20EA55C sub_20EA588,dossun.nsbmd | dossun_shadow.nsbmd,
 sub_20DB430,arm9_main,0x020DB430,146,known,map objects,Thwomp start on its path,1,sub_20D8A5C sub_20D90A8,,vm_model/src/mapobj/thwomp.rs:1
 sub_20DB4C4,arm9_main,0x020DB4C4,132,known,thwomp (dossun),Thwomp path factor: follower fraction (sub_20D8CAC) mapped to 0..4096 depending on state (+0xA0) and direction,1,sub_20D8CAC,,
-sub_20DB548,arm9_main,0x020DB548,532,known,map objects,"Thwomp class callback (star knock, crush handler 11 for karts below)",0,sub_2039828 sub_2061FB8 sub_20D26F8 sub_20D6DC0 sub_20D8620 sub_21484D0,,vm_model/src/mapobj/thwomp.rs:10 game/src/objects.rs:491
+sub_20DB548,arm9_main,0x020DB548,532,known,map objects,"Thwomp class callback (star knock, crush handler 11 for karts below)",0,sub_2039828 sub_2061FB8 sub_20D26F8 sub_20D6DC0 sub_20D8620 sub_21484D0,,vm_model/src/mapobj/thwomp.rs:10 game/src/objects.rs:494
 sub_20DB760,arm9_main,0x020DB760,1580,known,map objects,"Thwomp tick (shudder, hop, slam, wait, rise; glide)",0,sub_208B7BC sub_20D275C sub_20D4DDC sub_20D4EF4 sub_20D8620 sub_20D8648 sub_20D8A5C sub_20D8CC8 sub_210B7A8,,vm_model/src/mapobj/thwomp.rs:1 vm_model/src/mapobj/thwomp.rs:82
 sub_20DBDAC,arm9_main,0x020DBDAC,184,known,thwomp (dossun),"Thwomp draw callback: optional tilt from sine table by +0xBA, position >>4, draws body and shadow (sub_20EA8A8/20EA868)",0,sub_20EA868 sub_20EA8A8 sub_2146D44 sub_2146DFC,,
 sub_20DBE74,arm9_main,0x020DBE74,84,known,thwomp (dossun),"Thwomp logic class record factory (40 bytes, tick = sub_20DB760), global 0x0217B670",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,
@@ -5115,10 +5115,10 @@ sub_20E1DC0,arm9_main,0x020E1DC0,44,inferred,items,guess: near items code (call 
 sub_20E1DEC,arm9_main,0x020E1DEC,76,inferred,items,guess: part of the items code (address neighbours),0,sub_20EA8A8,,
 sub_20E1E38,arm9_main,0x020E1E38,96,inferred,items,guess: near items code (call graph),3,,,
 sub_20E1E98,arm9_main,0x020E1E98,154,known,npc and traffic presentation (codex; 2026-10-08),"traffic path/reset setup: initializes travel direction, heading quaternion, transform, timers and surface-effect state",2,sub_1FFCCD0 sub_208ADC8 sub_20D79B0 sub_20D8B18 sub_20D90A8 sub_2133048 sub_2148538,,vm_model/src/mapobj/presentation.rs:14 vm_model/src/mapobj/vehicle.rs:157
-sub_20E1F54,arm9_main,0x020E1F54,270,known,npc and traffic presentation (codex; 2026-10-08),"traffic init: type record at object +340; render width +256, height +260 and axle spacing +264 (translations shifted >>4), tire scale +272; scale-adjusted values +276..288 are collision extents, not tire transforms; setting 1 selects body pattern +304",0,sub_2042044 sub_20D286C sub_20D7DA8 sub_20E1E98 sub_210B850 sub_2133048 sub_2133068 sub_2133274,,vm_model/src/mapobj/presentation.rs:86 vm_model/src/mapobj/vehicle.rs:2 vm_model/src/mapobj/vehicle.rs:76
+sub_20E1F54,arm9_main,0x020E1F54,270,known,npc and traffic presentation (codex; 2026-10-08),"traffic init: type record at object +340; render width +256, height +260 and axle spacing +264 (translations shifted >>4), tire scale +272; scale-adjusted values +276..288 are collision extents, not tire transforms; setting 1 selects body pattern +304",0,sub_2042044 sub_20D286C sub_20D7DA8 sub_20E1E98 sub_210B850 sub_2133048 sub_2133068 sub_2133274,,vm_model/src/obj_collision.rs:326 vm_model/src/mapobj/presentation.rs:86 vm_model/src/mapobj/vehicle.rs:2
 sub_20E20A8,arm9_main,0x020E20A8,512,known,npc and traffic presentation (codex; 2026-10-08),"traffic renderer setup: loads body, tire, shadow and pattern resources; binds per-body texture-pattern wrappers and configures material rendering",0,sub_20134B0 sub_203C5E4 sub_2084968 sub_20849B0 sub_20D21EC sub_20EA4BC sub_20EA55C sub_20EA588,bus_a.nsbmd | bus_a_shadow.nsbmd | car_a.nsbmd | car_a.nsbtp | car_a_shadow.nsbmd | car_tire.nsbmd,
 sub_20E230C,arm9_main,0x020E230C,220,known,npc and traffic presentation (codex; 2026-10-08),"traffic route preprocessing: visits each used route once, converts signed path-point setting +14 into turn/easing parameter +18, clears +14, and assigns each traffic object an index at +212",0,sub_2042044 sub_2131234 sub_21322C8 sub_2132440 sub_21329F8 sub_2133048,,
-sub_20E2400,arm9_main,0x020E2400,108,known,"traffic hit and recovery (codex, 2026-10-08)","traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; current native traffic sphere/cylinder approximation still needs this exact contact test",0,sub_20EAFC4,,vm_model/src/obj_collision.rs:26
+sub_20E2400,arm9_main,0x020E2400,108,known,"traffic hit and recovery (codex, 2026-10-08)","traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; native traffic now uses this exact contact test; scaled extents and all 293 original bus/car/truck callback results match",0,sub_20EAFC4,,vm_model/src/obj_collision.rs:26
 sub_20E246C,arm9_main,0x020E246C,40,known,"traffic hit and recovery (codex, 2026-10-08)","traffic item-hit callback: own-reaction byte 1 invokes sub_20E24D0 with item position +80, returns kart/item response byte; item dispatch is not yet wired natively",0,sub_20E24D0,,
 sub_20E2494,arm9_main,0x020E2494,60,known,"traffic hit and recovery (codex, 2026-10-08)","traffic kart-hit callback: own-reaction byte 1 invokes sub_20E24D0 with kart position +128, then collision sound helper sub_20D26F8; native Star/shrunk overlaps now invoke the hit physics",0,sub_20D26F8 sub_20E24D0,,
 sub_20E24D0,arm9_main,0x020E24D0,348,known,"traffic hit and recovery (codex, 2026-10-08)","traffic own-object hit: project object-minus-hitter onto right/forward basis, choose signed 2:1 lateral/longitudinal tilt and height-dependent up component, SDK-normalize, convert to tilt quaternion; set easing 900, add 28672 upward velocity (retain positive Y only when timer <=15), set bounce bit and timer 20; exact original hit capture replayed",2,sub_2039828 sub_2039860 sub_20D7B88 sub_21484D0,,vm_model/src/mapobj/vehicle.rs:7 vm_model/src/mapobj/vehicle.rs:82
@@ -5217,7 +5217,7 @@ sub_20E5634,arm9_main,0x020E5634,48,unknown,,,3,,,
 sub_20E5668,arm9_main,0x020E5668,28,unknown,,,2,,,
 sub_20E5684,arm9_main,0x020E5684,216,inferred,map objects,guess: sets up an object state machine,0,sub_2046BE8 sub_20D720C sub_2133048 sub_2133068,,
 sub_20E576C,arm9_main,0x020E576C,40,inferred,graphics,guess: uses second_hand.nsbmd,0,sub_2084968 sub_20D21EC sub_20EA588,second_hand.nsbmd,
-sub_20E57A0,arm9_main,0x020E57A0,84,inferred,map objects,guess: calls sub_20EAFC4 (oriented box push-out),0,sub_20EAFC4,,
+sub_20E57A0,arm9_main,0x020E57A0,84,inferred,map objects,guess: calls sub_20EAFC4 (asymmetric oriented box push-out: strict),0,sub_20EAFC4,,
 sub_20E57F4,arm9_main,0x020E57F4,8,inferred,map objects,guess: part of the map objects code (address neighbours),0,,,
 sub_20E57FC,arm9_main,0x020E57FC,48,inferred,map objects,guess: part of the map objects code (address neighbours),0,,,
 sub_20E5830,arm9_main,0x020E5830,32,inferred,map objects,guess: part of the map objects code (address neighbours),0,,,
@@ -5329,10 +5329,10 @@ sub_20EA94C,arm9_main,0x020EA94C,200,inferred,kart,"guess: calls sub_2039860 (Un
 sub_20EAA14,arm9_main,0x020EAA14,524,inferred,kart,"guess: calls sub_2039860 (Unit vector and length (`VEC_Normalize`,); sub_214848C (Dot product, rounded (`VEC_DotProduct`, )",5,sub_2039860 sub_214848C sub_2148504,,
 sub_20EAC20,arm9_main,0x020EAC20,160,known,kart,"`sub_20EAC20` in the generic tick, is not ported.)",0,,,vm_model/src/kart/shell.rs:10
 sub_20EACC0,arm9_main,0x020EACC0,192,known,kart,`sub_20EACC0`: turn unit vector `a` toward unit vector `b` by `rate` (more when they differ a,1,sub_2039828 sub_2147FD8,,vm_model/src/kart/red_shell.rs:276
-sub_20EAD80,arm9_main,0x020EAD80,580,known,map objects,tilted cylinder push-out,4,sub_2039828 sub_2039860 sub_21482CC sub_21484D0,,vm_model/src/obj_collision.rs:269
-sub_20EAFC4,arm9_main,0x020EAFC4,732,known,map objects,oriented box push-out,5,sub_2039828 sub_21484D0,,vm_model/src/obj_collision.rs:318
-sub_20EB2A0,arm9_main,0x020EB2A0,336,known,map objects,"upright cylinder push-out (sideways, capped by vertical depth)",1,sub_2039860,,vm_model/src/obj_collision.rs:301
-sub_20EB3F0,arm9_main,0x020EB3F0,168,known,map objects,sphere push-out,3,sub_2039860 sub_21484D0,,vm_model/src/obj_collision.rs:248 vm_model/src/kart/traffic.rs:211
+sub_20EAD80,arm9_main,0x020EAD80,580,known,map objects,tilted cylinder push-out,4,sub_2039828 sub_2039860 sub_21482CC sub_21484D0,,vm_model/src/obj_collision.rs:277
+sub_20EAFC4,arm9_main,0x020EAFC4,732,known,map objects,"asymmetric oriented box push-out: strict per-plane radius-expanded bounds, separate positive/negative extents, least penetration with X-before-Z ties, upward response only for positive up projection; horizontal pushes zero world Y; matches 293 original traffic callback results",5,sub_2039828 sub_21484D0,,vm_model/src/obj_collision.rs:338
+sub_20EB2A0,arm9_main,0x020EB2A0,336,known,map objects,"upright cylinder push-out (sideways, capped by vertical depth)",1,sub_2039860,,vm_model/src/obj_collision.rs:309
+sub_20EB3F0,arm9_main,0x020EB3F0,168,known,map objects,sphere push-out,3,sub_2039860 sub_21484D0,,vm_model/src/obj_collision.rs:254 vm_model/src/kart/traffic.rs:211
 sub_20EB498,arm9_main,0x020EB498,584,inferred,map objects,guess: sets up an object state machine; sphere test against the course (KCL),0,sub_1FFCCD0 sub_1FFDEE4 sub_2039860 sub_2046BE8 sub_20D6F20 sub_20D7A3C sub_20E516C sub_2133048,,
 sub_20EB720,arm9_main,0x020EB720,8,unknown,,,0,,,
 sub_20EB72C,arm9_main,0x020EB72C,40,inferred,graphics,guess: uses woodbox1.nsbmd,0,sub_2084968 sub_20D21EC sub_20EA588,woodbox1.nsbmd,
@@ -5577,7 +5577,7 @@ sub_20F9290,arm9_main,0x020F9290,88,known,kart,"Not ported: wall hits in flight 
 sub_20F92E8,arm9_main,0x020F92E8,44,known,kart,"Not ported: wall hits in flight (`sub_20F92E8` / `sub_20F9290`), bouncing drops (a positive",4,sub_20EAA14,,vm_model/src/kart/banana.rs:5
 sub_20F9320,arm9_main,0x020F9320,20,inferred,kart,guess: part of the kart code (address neighbours),1,,,
 sub_20F9334,arm9_main,0x020F9334,276,known,kart,"landing check under the banana (`sub_20F9334`), then it sits on the ground",2,sub_1FFDEE4,,vm_model/src/kart/banana.rs:2 vm_model/src/kart/banana.rs:13 vm_model/src/kart/banana.rs:180
-sub_20F944C,arm9_main,0x020F944C,392,inferred,,guess: calls sub_20D3E34 (object shape test by class shape (+152 -),2,sub_20D3E34 sub_20D6968 sub_20D6A54 sub_20F77F8 sub_2148504,,
+sub_20F944C,arm9_main,0x020F944C,392,inferred,,guess: calls sub_20D3E34 (rejects object flag +2 bit 0 before any ),2,sub_20D3E34 sub_20D6968 sub_20D6A54 sub_20F77F8 sub_2148504,,
 sub_20F95D4,arm9_main,0x020F95D4,428,unknown,,,1,sub_20F5614 sub_20F77F8 sub_20F7EA8 sub_20F9780,,
 sub_20F9780,arm9_main,0x020F9780,96,unknown,,,1,,,
 sub_20F97E0,arm9_main,0x020F97E0,160,known,items,`sub_20FA4C8` / `sub_20F97E0`: the first item object whose sphere overlaps the kart's contact,1,,,vm_model/src/kart/items.rs:82
@@ -9167,7 +9167,7 @@ sub_2185D54,ov9_001,0x02185D54,80,inferred,map objects,guess: calls sub_20A1084 
 sub_2185DB0,ov9_001,0x02185DB0,270,inferred,kart,guess: near kart code (call graph),0,sub_20D2450 sub_20D2584 sub_20D2950 sub_20D34D4 sub_2133048 sub_2146D44 sub_2146DFC sub_2147FD8,,
 sub_2185EE4,ov9_001,0x02185EE4,158,inferred,kart,"guess: calls sub_2039860 (Unit vector and length (`VEC_Normalize`,)",0,sub_2039860 sub_2133048 sub_2147FD8,,
 sub_2185F90,ov9_001,0x02185F90,266,inferred,kart,"guess: calls sub_2039860 (Unit vector and length (`VEC_Normalize`,)",0,sub_2039860 sub_2133048 sub_2147FD8,,
-sub_21860AC,ov9_001,0x021860AC,272,inferred,map objects,guess: calls sub_20EAD80 (tilted cylinder push-out); sub_20EAFC4 (oriented box push-out); sub_20EB3F0 (sphere push-out),0,sub_20EAD80 sub_20EAFC4 sub_20EB3F0 sub_2133048,,
+sub_21860AC,ov9_001,0x021860AC,272,inferred,map objects,guess: calls sub_20EAD80 (tilted cylinder push-out); sub_20EAFC4 (asymmetric oriented box push-out: strict); sub_20EB3F0 (sphere push-out),0,sub_20EAD80 sub_20EAFC4 sub_20EB3F0 sub_2133048,,
 sub_21861D4,ov9_001,0x021861D4,314,inferred,graphics,guess: sends geometry commands (draws),6,sub_1FF9048 sub_209B940 sub_209B9A4 sub_209BB2C sub_20E6B58 sub_2146D44,,
 sub_2186348,ov9_001,0x02186348,302,inferred,graphics,guess: sends geometry commands (draws),6,sub_1FF9048 sub_2012FFC sub_209B7A0 sub_209B904 sub_209B940 sub_209B9A4 sub_209BB2C sub_20D3C44 sub_20E69BC sub_20E6B58 sub_2146D44,,
 sub_218648C,ov9_001,0x0218648C,2700,inferred,collision (KCL),guess: sphere test against the course (KCL),8,sub_1FFDEE4 sub_2039860 sub_208B5B0 sub_208B6B0 sub_209B620 sub_2133048 sub_2146D44 sub_2146D78 sub_2147FD8 sub_2148504 sub_2186F94 sub_2187004,,
