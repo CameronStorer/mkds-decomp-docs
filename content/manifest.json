@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-08 23:19 UTC",
+  "updated": "2026-10-09 00:28 UTC",
   "documents": [
     {
       "path": "docs/NEXT_GOALS.md",
       "title": "Current progress",
       "group": "Progress",
-      "modified": "2026-10-08"
+      "modified": "2026-10-09"
     },
     {
       "path": "docs/ROADMAP.md",
@@ -23,19 +23,19 @@
       "path": "docs/FUNCTION_MAP.md",
       "title": "Identified functions",
       "group": "Function maps",
-      "modified": "2026-10-08"
+      "modified": "2026-10-09"
     },
     {
       "path": "docs/FUNCTION_TABLE.md",
       "title": "Inventory coverage",
       "group": "Function maps",
-      "modified": "2026-10-08"
+      "modified": "2026-10-09"
     },
     {
       "path": "docs/function_notes.md",
       "title": "Function meanings",
       "group": "Function maps",
-      "modified": "2026-10-08"
+      "modified": "2026-10-09"
     },
     {
       "path": "analysis/race_logic_map.md",
@@ -89,7 +89,7 @@
       "path": "analysis/CODEX_NPC_MAP.md",
       "title": "NPC and traffic animation",
       "group": "Research",
-      "modified": "2026-10-08"
+      "modified": "2026-10-09"
     },
     {
       "path": "docs/CODEX_NSBCA_HANDOFF.md",

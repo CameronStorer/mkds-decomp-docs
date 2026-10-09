@@ -208,3 +208,10 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20E2A74: traffic draw: publishes body pattern frame from object +304, draws body/shadow and separate tire model twice with mirrored axle offset; tire angle from +268
 - sub_20E2630: traffic tick includes orientation easing and tire angle +268 increment of 1536 units each tick; tire clock port matches 899 original bus transitions; stationary/collision body poses still pending
 - sub_20E1E98: traffic path/reset setup: initializes travel direction, heading quaternion, transform, timers and surface-effect state
+- sub_20E1F54: traffic init: type record at object +340; render width +256, height +260 and axle spacing +264 (translations shifted >>4), tire scale +272; scale-adjusted values +276..288 are collision extents, not tire transforms; setting 1 selects body pattern +304
+- sub_2147230: SDK X-axis 4x3 rotation matrix constructor: rows [4096,0,0], [0,cos,sin], [0,-sin,cos], zero translation; traffic overrides X scale and Y/Z translation for the two axle draws
+- sub_20E230C: traffic route preprocessing: visits each used route once, converts signed path-point setting +14 into turn/easing parameter +18, clears +14, and assigns each traffic object an index at +212
+- sub_20D79B0: combines terrain tilt quaternion's X/Z/W with half-angle XZ heading; traffic heading helper verified as part of all 899 bus orientation transitions
+- sub_20D759C: sign-corrected per-component quaternion easing (negates target if dot product is negative), without normalization; traffic helper matches 899 original bus transitions with recorded tilt/yaw/rate inputs
+- sub_1FF9490: SDK scale-only texture matrix: S/T diagonal from scale, S offset zero, T offset height*(1-scaleT) in texel space; missing T-origin compensation caused duplicated half-wheel textures in native traffic
+- sub_1FF96CC: SDK scale+translation texture matrix: S offset -width*scaleS*translateS, T offset height*(1-scaleT+scaleT*translateT); resource translations are normalized Maya coordinates, not texels
