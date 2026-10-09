@@ -5,12 +5,22 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Corrected Goomba "debris" mapping: the original helper creates a mushroom pickup.
+  Normal-race launch, flight, growth, landing and spring match all 538 original
+  item updates; native qualifying kart hits now create the original mushroom
+  asset, and collection invokes the existing 90-tick boost/shove handler.
+  Map setting 1 low half disables drops when nonzero; repeated disabled contacts
+  cannot create duplicate pickups. Moving platforms, item/object dispatch and
+  original audio remain pending. Full core suite: 110 passed, one ignored;
+  standard release build and mushroom visual smoke check pass. See
+  `analysis/CODEX_NPC_MAP.md`.
+
 - Goomba normal-contact wobble and squash states 2..5 now match all 600 original
   update calls and three original callbacks (two normal, one qualifying hit).
   Native Star/shrunk contacts trigger stretch/compression/wait/spring-back and
   collision suppression; sprite X/Y scale follows original draw formula.
   One-shot fade/deactivation is source-derived, not independently captured.
-  Mario Circuit flat/recovered visual captures pass; debris, airborne state 1,
+  Mario Circuit flat/recovered visual captures pass; airborne state 1,
   item-hit dispatch and audio remain pending. See `analysis/CODEX_NPC_MAP.md`.
 
 - Original traffic tire model now renders both axle assemblies on buses/cars/trucks;

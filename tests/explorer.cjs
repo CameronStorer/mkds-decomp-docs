@@ -85,7 +85,10 @@ setImmediate(() => {
   assert(node("#function-rows").innerHTML.includes('colspan="5"'));
   setFilter("#function-search", "", "input");
   setFilter("#status-filter", "unknown");
-  assert.equal(shown().length, 200); assert(shown().every(index => data[index].status === "unknown"));
+  const unknownCount = data.filter(row => row.status === "unknown").length;
+  assert.equal(shown().length, Math.min(200, unknownCount));
+  assert(shown().every(index => data[index].status === "unknown"));
+  assert.equal(node("#load-more").hidden, unknownCount <= 200);
   const area = data.find(r => r.status === "unknown" && r.area)?.area;
   if (area) {
     setFilter("#area-filter", area);

@@ -243,5 +243,16 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20DAF0C: Goomba walking state 0 entry restores squash 4096 and spring velocity zero
 - sub_20DADE8: airborne Goomba state 1 entry restores squash 4096 and spring velocity zero
 - sub_20DADFC: Goomba walking update: advances follower only during gait 10..19/30..39, updates curved position, applies 1/8 restoring spring with 3481/4096 damping; snaps to squash 4096/velocity zero inside strict +/-41 windows
-- sub_20DA684: Goomba item callback: qualifying own response in state 0/1/5 queues squash and detaches item; ordinary response initializes spring velocity from a literal only at rest; native item dispatch remains pending
-- sub_20DA820: Goomba detached hit debris: projects hitter XZ velocity perpendicular to path direction, normalizes, creates actor type 3 and launches it outward/upward; not yet ported
+- sub_20DA684: Goomba item callback: qualifying own response in state 0/1/5 queues squash, consumes/marks the hitting item via sub_20F8DDC and drops a mushroom using that item velocity; ordinary response initializes spring velocity from a literal only at rest; native item dispatch remains pending
+- sub_20DA820: Goomba mushroom pickup drop (corrected from debris): map setting 1 low half zero enables it; projects hitter XZ velocity perpendicular to the path, normalizes, allocates item type 3 with owner 8, offsets spawn by the initial launch velocity, then uses shared item launch sub_20F6630. normal-race native drop implemented; launch plus all 538 original item ticks match for flight/growth/landing/spring
+
+- sub_1FFF95C: generic item tick (actor in r1), clears transient flags, increments airborne counters, runs size growth and callback then collision/postupdate bookkeeping, saves previous position and increments age; export is truncated at ITCM jumpout, ARM continuation required; mushroom replay matches 538 calls
+- sub_20F6630: shared item launch removes up component of velocity, appends clamped nonnegative hitter up speed plus 10240 for pickup-flight types or 14336 for vanishing types; chooses flight/wall callbacks by item type registry +128 and battle/actor flags
+- sub_20F63CC: launched pickup flight: position += velocity, damp only X/Z by 4076/4096, primary KCL query 0x44, shared floor/side-wall responses, gravity 901 with fall cap -40960, settle on confirmed floor; mushroom static-course trajectory replay matches
+- sub_20F6388: launched pickup wall callback reflects velocity and on first wall sets flag 0x1000000 while zeroing orientation/anchor vector +264..272
+- sub_20F5040: mushroom item initialization enables draw field +308 = 1
+- sub_20F5008: mushroom item draw gated by +308, delegates to shared billboard/model helper sub_20ED5C0
+- sub_20ED5C0: shared item draw with alpha +216 and animated scale +104..112; floor normal Y <4014 or actor flag 0x80 selects normal/camera cross-product billboard basis, otherwise shared camera billboard with translated position
+- sub_20FA0B8: grows item target size +112 by supplied step, clamps to supplied target and returns whether it changed
+- sub_20FA030: copies target size to both visible scale axes, updates course/hit radii from item-type multipliers, marks resized flag 0x40 and updates broadphase radius
+- sub_20F9DC8: shared item scale spring: stiffness819, damping3072, strict +/-41 deadzone, squash = 2*target - size, updates collision radii when changing; all mushroom landing spring ticks match original

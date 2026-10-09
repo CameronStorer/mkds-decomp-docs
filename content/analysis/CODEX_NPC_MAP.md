@@ -373,7 +373,7 @@ subsequent karts in the same update cannot hit it again.
 
 The 600-update capture verifies the respawning path actor and normal wobble.
 Airborne state 1, non-respawning fade/deletion runtime comparison, item-hit
-dispatch, collision/recovery audio, and detached debris from `sub_20DA820`
+dispatch, collision/recovery audio, and the mushroom pickup drop from `sub_20DA820`
 remain separate fidelity work. The one-shot branch is source-derived and
 not independently recorded. Full kart/object update ordering and naturally
 acquired Star/shrink scenarios are not established by this controlled replay.
@@ -390,3 +390,83 @@ and `recovered.png`. Both standard-executable runs exit through the shot
 hook without a runtime panic. These are visual smoke checks, not
 frame-aligned emulator image comparisons; exact numeric coverage is the
 600-update controlled path-actor trace above.
+
+## Goomba mushroom pickup drop (2026-10-08)
+
+### Corrected function meaning
+
+The earlier label "detached debris" for `sub_20DA820` was incorrect. A
+controlled allocator/return capture identifies item type 3 (mushroom), owner
+8, flight callback `sub_20F63CC`, and wall callback `sub_20F6388`. Map setting
+1 low half zero enables this drop. Qualifying Goomba kart contacts now create
+this pickup; disabled/repeated contacts cannot create duplicates. A nonzero
+map setting suppresses the pickup while retaining the squash reaction.
+
+The helper projects hitter XZ velocity perpendicular to the current path
+segment, normalizes it, and multiplies by full hitter speed plus 20480. It
+adds 61440 to Y and uses that vector to offset spawn position. Shared launch
+`sub_20F6630` then replaces vertical velocity with hitter Y speed clamped to
+0..4915 plus 10240. Spawn offset and final flight velocity are different.
+The normal-race branch is ported; battle-mode vanishing behavior is separate.
+
+### Movement, growth and original-runtime evidence
+
+`tools/bizhawk/codex_goomba_drop/run.ps1` performs an isolated Mario Circuit
+normal contact followed by a qualifying mode-1 contact. At the original drop
+helper entry it supplies velocity [12288,4096,8192] to exercise lateral launch.
+This is a controlled helper experiment, not natural item acquisition. It
+records launch output and all 538 generic item update entry/return pairs,
+frames 2520..3057, without hook errors. The item actor is passed in r1 at
+`sub_1FFF95C`; 01FFF9F0 is an internal growth block, not its entry point.
+The C export ends at JUMPOUT, so the ARM continuation establishes the rest.
+
+The launch position is [11460537,1290237,-1573760] and final velocity
+[-3646,14336,35622]. Initial visible scale is 205; growth adds 737 until
+4096, then 410 until full size 6963. Course/hit radii multiply scale by
+14336/13517. Flight advances position before damping X/Z by 4076/4096;
+Y loses 901 per airborne update with a -40960 cap. The primary KCL sphere
+uses 0x44, with the shared secondary landing sphere using 0x24.
+
+The pickup lands at frame 2555, its 36th update, with position
+[11339588,1253170,-395425]. Shared landing zeros velocity, anchors under
+its radius, and initializes the size spring to -1475. Spring stiffness819,
+damping3072 and strict +/-41 deadzone preserve the original small residual
+squash/size difference at rest. The native core continuously matches all
+538 entry/return states for position, velocity, previous position, all
+three scale fields, both radii, floor normal/flags, spring, ground anchor,
+resting/airborne state, airborne counter, age and owner shield.
+
+`vm_model/tests/mushroom_drop.rs` uses numeric fixtures
+`mushroom_launch.csv` and `mushroom_ticks.csv`. Launch verification runs
+without a ROM; trajectory replay requires the user's Mario Circuit KCL.
+A separate regression checks normal contact, disabled repeated contact and
+map-setting suppression. Shared wall reflection is source-derived and is
+not exercised by this floor-only capture.
+
+### Native presentation, pickup and remaining limits
+
+`game/src/items.rs` loads `MainRace/Item/it_kinoko.nsbmd` from the user's ROM,
+tracks the pickup alongside other live items and invokes existing
+`ItemAction::Mushroom` on collection. That handler provides the original
+90-tick terrain-independent boost (refused while damaged) and 90-tick shove.
+Owner8 is the game's neutral sentinel, so it shields none of the eight karts.
+This integration does not establish exact original broadphase or full
+kart/object/item ordering. Items colliding with map actors, moving-platform
+attachment, battle launch branch and original object/audio dispatch remain
+unported. Those limits also apply to the traffic item-hit follow-up.
+
+Rendering uses the captured squash/size and the original mushroom model.
+Shared draw `sub_20ED5C0` uses full camera billboarding on level ground;
+normalY<4014 uses a floor-normal/camera-Z cross-product basis. The native
+renderer follows those branches in floating point; no SDK matrix replay
+has been recorded for mushroom drawing.
+
+Standard Windows release build and a native Mario Circuit frame-220 smoke
+capture pass without a panic. The screenshot
+`%TEMP%/codex-goomba-mushroom/settled.png` shows the textured pickup after
+landing. Set `MKDS_SHOT_GOOMBA=1`, `MKDS_SHOT_GOOMBA_HIT=1` and
+`MKDS_SHOT_MUSHROOM=1` to reproduce this controlled view. This visual smoke
+check is separate from the exact 538-update numeric replay.
+
+Full core suite after integration: 110 passed, one existing ignored. Standard
+Windows release build includes the drop and pickup integration.
