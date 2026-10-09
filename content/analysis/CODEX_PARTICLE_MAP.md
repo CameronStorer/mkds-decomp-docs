@@ -1,8 +1,9 @@
 # Original drift particles and SPA resource layout
 
 Recorded 2026-10-08 from local AMCE `export/plan2` C, checked against ARM where
-the exports omit arguments. This is a resource decoder and function map;
-the full original SPL particle simulation is not yet running in the port.
+the exports omit arguments. The native drift/pivot subset now uses original
+particle arithmetic and textured drawing. The latest section below records
+validation and the remaining full-manager/GPU fidelity limits.
 
 ## Charge and wheel effects
 
@@ -22,13 +23,13 @@ stops the old emitters, enables wheel effects and calls `sub_208CACC`.
 Values are resource ticks, not seconds. `sub_208D758` allocates 136-byte
 wheel controllers and selects these detailed/low-detail families.
 `sub_208C5B8` indexes that array. `sub_208C520` enables continuous effects;
-`sub_208C534` disables and cleans them up. `sub_208D650` sets emitter +36 bit 1
+`sub_208C534` disables and cleans them up. `sub_208D650` sets emitter +36 stop bit0 (mask1)
 and detaches the two active continuous emitters.
 
-The existing native `effects.rs` still draws approximate cubes. Replacing them
-with continuous blue particles would also be wrong: original blue resource 126
-is triggered at a charge transition. Timers, wheel callbacks and simulation
-must be ported as well as selecting the right texture.
+The native `effects.rs` now draws ROM-textured smoke, transient blue/red flares
+and continuous red sparks. Blue resource126 fires at a charge transition and
+attaches for eight ticks; it is not a continuous charging effect. The source
+timers, wheel callbacks and particle arithmetic drive these effects.
 
 ## Checked resource decoder
 
@@ -425,3 +426,79 @@ manager integration and visual comparison. Native spark cubes are unchanged.
 
 Validation after pool/composed simulation: 141 shared core and integration tests
 passed, zero failed, one existing CPU replay ignored; Windows release build passed.
+
+
+## Lane B: original drawing and native drift/pivot effects (2026-10-09)
+
+`nitro_particle_draw.rs` ports smoke's camera billboard (`sub_201C09C`), the
+velocity-aligned flare billboard (`sub_201B560`) and world-oriented spark quad
+(`sub_201A364`). A controlled resource-selection experiment covers all eight drift
+resources and **721 primary draws**. Every captured MTX_MULT matrix and XY/XZ quad
+helper argument matches Rust. Mode3's view LOAD is supplied separately; the
+capture verifies its local MULT. Velocity alignment uses the original rounded
+cross/normalization/dot operations, and the world path preserves rotation and
+matrix-concatenation order. Source-derived packed color/alpha modulation,
+signed16/VTX10 corner quantization and texture-size UV scaling complete the native
+quad bridge; final packed GPU vertices and DS pixels have not been captured.
+
+`wheel_contacts` ports `sub_2084478`: kart-specific rear offsets, outward X
+adjustments (+6144/-6144), ground-level local Y, X/Z scale, the kart's second
+matrix, position >>4 and fixed spray vectors (+/-1843,3277,-1843). Both rear
+positions/directions match **645 natural original calls**. The capture uses the
+position pointer as translation because this function overwrites the matrix's
+translation before transforming contacts. `attach_smoke` matches **100 original
+wheel records**: initial SPL velocity is previous displacement times2867 truncated
+fx12, and emitter position is wheel minus that velocity plus resource offset.
+`sub_1FF9B70` runs attachments before updating kart+944: copy velocity, subtract
+vertical speed when grounded and **not resting** (bit0x1000 clear), then >>4.
+The native bridge retains this preceding-tick input. Bit0x1000 is resting, not hop.
+
+`game/src/effects.rs` replaces cubes with the ROM's SPA textures, shared 120-slot
+primary pool, at most40 emitters, fixed60Hz clocks and source controller wiring.
+Smoke stops births while existing particles finish; blue/red transients and
+continuous cancellation immediately return slots. Original birth/channel/motion/
+update/list/draw modules drive simulation. Kart model setup supplies each
+vehicle's rear offsets. Dynamic native quads bypass stale mesh-bound culling,
+and race exit drops the manager before the next race initializes it.
+
+Drift activation (`sub_206C5E4`) resets the previous continuous controller before
+starting smoke, so quickly starting another drift cancels delayed old sparks.
+The separate A+B pivot path (`sub_206C494`) runs before control for undamaged,
+non-drifting karts (`sub_1FFC6C0`). Both pedals and velocity magnitude below6144
+enable its branch: grounded/absent smoke starts it, airborne retains handles,
+and leaving the branch stops births. A natural input experiment (A+B+left180
+frames, then acceleration/drift) supplies **3,993 calls**; start/keep/stop actions
+and resulting handle-active state all match (1 start,179 keep,3813 stop).
+Caller guards and the renderer's effect-permitted assumption remain source-derived.
+
+Damage reset (`sub_206BF88`) clears drift and calls `sub_208C534` without the
+native `DriftEnded` message. The bridge observes new damage states and unannounced
+active-to-inactive drift transitions, stopping smoke and requesting continuous
+cleanup. The ordinary end event consumes that transition once. This covers
+zero-damage-state resets such as flattening too. Exact frame order against other
+native object/item systems has not been replay-validated.
+
+Native validation: Windows release builds pass. The latest shared suite passed
+**155 tests**, zero failed, one existing CPU replay ignored. The charge screenshot
+(`scratchpad/codex_spa_fixed_500.png`) shows original orange sparks at both rear
+wheels; diagnostics reached blue/red charge with four/six emitters and four/eight
+visible particles. Pivot smoke also renders at rest
+(`scratchpad/codex_spa_pivot_220.png`, two emitters/four particles). A separate
+mid-red-effect restart at screenshot frame540 reloaded the course and finished
+frame800 without errors or retained visible particles. These are native visual/
+reload checks, not DS pixel-equivalence assertions.
+
+Test hooks: `MKDS_DRIFT=1` plus `MKDS_SHOT` supplies fixed race-tick input, avoids
+start burnout, hops/countersteers at ticks400..580; screenshot frame500 is useful.
+`MKDS_DRIFT=pivot` supplies both pedals+left at ticks180..260; frame220 shows smoke.
+Normal controls are unaffected. Capture scripts/fixtures are under
+`tools/bizhawk/codex_particle_{draw,contacts,smoke,pivot}` and `vm_model/tests`.
+
+Remaining limits: only these effects consume the independently seeded SPL RNG;
+other kart/course emitters and child particles are absent. Native camera values
+are converted to fx12, and Bevy blending/filtering/depth differ from the DS GPU.
+The native kart basis/body offset substitutes for the second original matrix;
+full damage/bounce matrix equivalence remains unverified. Detail selection follows
+model detail, and visibility-based effect suppression (+76 bit0x8000) and draw-hide
+callbacks are unported. Original replay fixtures and ROM-derived textures remain
+local; public documentation publishes findings only.

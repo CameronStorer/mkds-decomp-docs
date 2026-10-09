@@ -41,6 +41,8 @@ def main():
     for rel, title, group in DOCUMENTS:
         path = source / rel
         text = path.read_text(encoding='utf-8')
+        if not re.match(r'^#\s+\S', text.lstrip()):
+            raise ValueError(f'{rel}: expected a Markdown title; refusing to sync')
         # Normalize machine-specific paths; never import credentials or arbitrary folders.
         text = re.sub(r'C:[/\\]Users[/\\]camer[/\\]Desktop[/\\]My_NDS_GAME', 'WORKSPACE', text, flags=re.I)
         dest = target / rel

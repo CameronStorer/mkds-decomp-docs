@@ -1,5 +1,7 @@
 # Next goals (resume here)
 
+- Lane B: ROM-textured drift smoke/flares/sparks now replace cubes; draw matrices/quad args match 721 original calls, rear contacts 645 calls, smoke attachment 100 wheel records, pivot smoke gate 3,993 calls. Native charge rendering and active-effects race restart verified; remaining second-matrix/GPU differences are tracked in `analysis/CODEX_PARTICLE_MAP.md`.
+
 How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Cargo lives in
 `~/.cargo/bin` (not on Git Bash's PATH: `export PATH="$HOME/.cargo/bin:$PATH"`).
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
@@ -8,27 +10,27 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - Lane B primary particle pool added: 1,396 natural list operations match; whole
   birth/update/death/reuse composition matches 1,050 controlled original emitter
   ticks, including free-slot order/alpha, particle fields, RNG and polygon state.
-  Next: original draw geometry and native effects integration; cubes unchanged.
+  Drawing/native integration now landed; see the Lane B summary above.
 - Lane B continuous-wheel gate now matches 645 natural updates and a second
   645-update capture with four controlled airborne calls. Drift starts/switches
   after eleven drifting ticks; ground resumes births, air pauses them. Corrected
-  flag meanings: kart+68 mask0x08=drifting, mask0x10=grounded. Handle pool and textured
-  rendering remain next; native cubes unchanged.
+  flag meanings: kart+68 mask0x08=drifting, mask0x10=grounded. Pool and native
+  texture rendering now landed; remaining fidelity limits are documented above.
 - Lane B emitter scheduling matches 1,050 original decisions (279 birth calls,
   four removals). Natural blue/red burst timing and all 56 wheel attachments
-  match 20 callbacks. Continuous-wheel switching/ground gate and textured native
-  rendering remain next; native effects still use the old cubes.
+  match 20 callbacks. Continuous-wheel switching, ground gate and native textured
+  rendering now landed.
 - Flipper replay repaired: all 1,476 complete calls pass; three known stale
   return-hook exits are explicitly checked. Tracer now suppresses inactive exits.
 - Lane C status, specs and open work: `docs/lane_c/PROGRESS.md` (read it before touching items or sound).
 - Lane B primary particle update now matches 996 original-game ticks across all
   eight drift resources, including every modeled field, RNG and polygon allocator.
-  Next: emitter/wheel timing and textured native rendering; child spawning remains
+  Emitter/wheel timing and native rendering now landed; child spawning remains
   unsupported. See `analysis/CODEX_PARTICLE_MAP.md`.
 - Lane B point-particle birth now matches 280 original births across all eight
   drift/wheel resources, including initialized fields and RNG states. Full
-  particle update, wheel timers and native textured effects integration remain
-  next; see `analysis/CODEX_PARTICLE_MAP.md`.
+  particle update, wheel timers and native textured effects integration are now
+  implemented; see `analysis/CODEX_PARTICLE_MAP.md`.
 
 - Lane C Blooper ported from `docs/lane_c/blooper_boo_bullet.md`: victims are the karts AHEAD of the user
   (4/4/3/3/2/2/1 by place), chosen at actor age 63, inked at 143, ink 451 ticks fading over the last 50;
@@ -54,8 +56,14 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - Lane C bob-omb: flight with bounces, landing, rest, fuse and blast replay a BizHawk recording exactly
   (`vm_model/src/kart/bomb.rs`); in the game it is thrown (or dropped behind when aiming back) and any
   kart sets it off.
-- Lane C remaining: blue shell state 1 spline, damage state 6 (both items' blast), bob-omb throw speed
-  with the kart's motion, engine sound / 3D sound (`SeqPlayer` live parameters), see `docs/lane_c/PROGRESS.md`.
+- Lane C damage state 6 ("launch") replays a recorded kart; blue shell and bob-omb blasts use it.
+- Lane C engine sound: kart engine voices (three nearest the camera) with live pitch/volume/pan
+  (`vm_model/src/engine_sound.rs`, `game/src/engine_audio.rs`); item sound effects positioned by the camera.
+- Lane C blue shell: the route-spline phase (153 ticks of the recording) now replays exactly too; only the
+  first 20 steering ticks and the 1 -> 3 switch rule are approximate.
+- Lane C music: final-lap fanfare (sequence 62, then the course music 1.17x faster) and the star theme (sequence 73).
+- Lane C remaining: blue shell first 20 ticks, bob-omb throw speed with the kart's motion, engine leftovers
+  (countdown rev, Doppler, air drop), final-lap fanfare; see `docs/lane_c/PROGRESS.md`.
 - Lane B particle motion: all six SPL behavior records ported; controlled
   original resource capture matches 9,794 acceleration/random/rotation calls
   and their RNG states. Attraction/plane/convergence are source-derived with
