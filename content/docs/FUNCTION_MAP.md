@@ -204,7 +204,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FF9D18_01FF9D18.c`
 
 - [vm_model/src/kart/mod.rs:15](../vm_model/src/kart/mod.rs#L15) | [`MiniTurbo::tick`] | `sub_1FF9D18` (head) | mini-turbo countdown |
-- [vm_model/src/kart/mod.rs:534](../vm_model/src/kart/mod.rs#L534) `sub_1FF9D18` head: counts down; the trigger tick itself counts.
+- [vm_model/src/kart/mod.rs:535](../vm_model/src/kart/mod.rs#L535) `sub_1FF9D18` head: counts down; the trigger tick itself counts.
 - [vm_model/src/kart/speed.rs:172](../vm_model/src/kart/speed.rs#L172) `sub_1FF9D18`: the shove counts down with the mini-turbo.
 
 ## sub_1FF9E5C
@@ -300,7 +300,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFB130_01FFB130.c`
 
 - [vm_model/src/kart/mod.rs:16](../vm_model/src/kart/mod.rs#L16) | [`movement`] | `sub_1FFB130`, `sub_1FFCB58` | facing/travel direction, velocity, position, ground contact, orientation |
-- [vm_model/src/kart/mod.rs:599](../vm_model/src/kart/mod.rs#L599) sub_1FFB130 (top): a flattened kart is held still at first
+- [vm_model/src/kart/mod.rs:600](../vm_model/src/kart/mod.rs#L600) sub_1FFB130 (top): a flattened kart is held still at first
 - [vm_model/src/kart/movement.rs:7](../vm_model/src/kart/movement.rs#L7) | [`integrate`] | `sub_1FFB130` (+ `sub_1FFB9E0`, `sub_1FFB9CC`, `sub_1FFAF18`, `sub_1FFB930`, `sub_1FF9C40`, `sub_1FFAE14`) |
 - [vm_model/src/kart/movement.rs:22](../vm_model/src/kart/movement.rs#L22) After this many airborne ticks the fall speed is capped at [`MAX_FALL_SPEED`] (`sub_1FFB130`).
 - [vm_model/src/kart/movement.rs:429](../vm_model/src/kart/movement.rs#L429) `sub_1FFB130` for a kart on ordinary ground: friction, gravity, facing, speed cap, lean
@@ -332,7 +332,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_1FFBA68
 `export/plan0/arm9_autoload1_itcm/sub_1FFBA68_01FFBA68.c`
 
-- [vm_model/src/kart/mod.rs:629](../vm_model/src/kart/mod.rs#L629) `sub_1FFBA68` (tail): a wall's yaw kick turns the kart away, decaying ×0.9 per tick.
+- [vm_model/src/kart/mod.rs:630](../vm_model/src/kart/mod.rs#L630) `sub_1FFBA68` (tail): a wall's yaw kick turns the kart away, decaying ×0.9 per tick.
 - [vm_model/src/kart/speed.rs:7](../vm_model/src/kart/speed.rs#L7) | [`accelerate`] | `sub_1FFBA68`, `sub_206CEB4` | per-tick acceleration, boost countdown, coasting |
 - [vm_model/src/kart/speed.rs:23](../vm_model/src/kart/speed.rs#L23) Acceleration in a jump-pad flight (`sub_1FFBA68`).
 - [vm_model/src/kart/speed.rs:31](../vm_model/src/kart/speed.rs#L31) Extra acceleration per unit of reverse speed when accelerating out of reverse (`sub_1FFBA68`).
@@ -395,7 +395,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFC27C_01FFC27C.c`
 
 - [vm_model/src/kart/mod.rs:12](../vm_model/src/kart/mod.rs#L12) | [`steer`] | `sub_1FFC27C`, `sub_1FFC158`, `sub_1FFC090`, `sub_206C494` | steering, turn rate, yaw, pivot |
-- [vm_model/src/kart/mod.rs:179](../vm_model/src/kart/mod.rs#L179) Held steering; left wins if both are held (`sub_1FFC27C` tests Left first, and the
+- [vm_model/src/kart/mod.rs:180](../vm_model/src/kart/mod.rs#L180) Held steering; left wins if both are held (`sub_1FFC27C` tests Left first, and the
 - [vm_model/src/kart/steer.rs:6](../vm_model/src/kart/steer.rs#L6) | [`steer`] | `sub_1FFC27C` + `sub_1FFC158` |
 - [vm_model/src/kart/steer.rs:15](../vm_model/src/kart/steer.rs#L15) Yaw per tick during a hop, toward the drift side (literal in `sub_1FFC27C`).
 - [vm_model/src/kart/steer.rs:21](../vm_model/src/kart/steer.rs#L21) Below this |forward speed| the turn rate is reduced (literal in `sub_1FFC27C`).
@@ -416,7 +416,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_1FFC5A0
 `export/plan0/arm9_autoload1_itcm/sub_1FFC5A0_01FFC5A0.c`
 
-- [vm_model/src/kart/mod.rs:202](../vm_model/src/kart/mod.rs#L202) Pedal intents for one tick (`sub_1FFC5A0`, kart +0x48 bits 0x2 / 0x4 / 0x80).
+- [vm_model/src/kart/mod.rs:203](../vm_model/src/kart/mod.rs#L203) Pedal intents for one tick (`sub_1FFC5A0`, kart +0x48 bits 0x2 / 0x4 / 0x80).
 
 ## sub_1FFC67C
 `export/plan0/arm9_autoload1_itcm/sub_1FFC67C_01FFC67C.c`
@@ -429,7 +429,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/kart/damage.rs:9](../vm_model/src/kart/damage.rs#L9) | [`KartDamage::begin_control`] | `sub_1FFC6C0` (head), `sub_1FFC67C` |
 - [vm_model/src/kart/damage.rs:209](../vm_model/src/kart/damage.rs#L209) `sub_1FFC6C0` (head): the post-spin lock counts down, then decides whether the next
-- [vm_model/src/kart/mod.rs:603](../vm_model/src/kart/mod.rs#L603) sub_1FFC6C0: a damaged kart is not driven at all
+- [vm_model/src/kart/mod.rs:604](../vm_model/src/kart/mod.rs#L604) sub_1FFC6C0: a damaged kart is not driven at all
 
 ## sub_1FFC8CC
 `export/plan0/arm9_autoload1_itcm/sub_1FFC8CC_01FFC8CC.c`
@@ -473,7 +473,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFCC50_01FFCC50.c`
 
 - [vm_model/src/kart/mod.rs:10](../vm_model/src/kart/mod.rs#L10) | [`step`] | `sub_1FFCC50` | per-kart tick, in the original's order |
-- [vm_model/src/kart/mod.rs:576](../vm_model/src/kart/mod.rs#L576) (`sub_1FFCC50`): speed limit -> speed ratio and heading -> pedals -> pivot -> steering ->
+- [vm_model/src/kart/mod.rs:577](../vm_model/src/kart/mod.rs#L577) (`sub_1FFCC50`): speed limit -> speed ratio and heading -> pedals -> pivot -> steering ->
 
 ## sub_1FFCCD0
 `export/plan0/arm9_autoload1_itcm/sub_1FFCCD0_01FFCCD0.c`
@@ -4526,7 +4526,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/nitro_particle_birth.rs:31](../vm_model/src/nitro_particle_birth.rs#L31) Relevant initialization from sub_2019B28, before wheel callbacks override fields.
 - [vm_model/src/nitro_spa.rs:2](../vm_model/src/nitro_spa.rs#L2) sub_2018A1C, emitter fields from sub_2019B28, texture parameters from sub_2019DF8.
 - [docs/function_notes.md:114](../docs/function_notes.md#L114) initializes emitter from resource and supplied position: rate, size, lifetime, frequency, opacity, texture parameters and other state
-- [docs/function_notes.md:332](../docs/function_notes.md#L332) initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported
+- [docs/function_notes.md:338](../docs/function_notes.md#L338) initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported
 
 ## sub_2019DF4
 `(not in export)`
@@ -9472,6 +9472,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2046B40
 `export/plan0/arm9_main/sub_2046B40_02046B40.c`
 
+- [vm_model/src/kart/blue_shell.rs:4](../vm_model/src/kart/blue_shell.rs#L4) Item state machine (table `0x0216C694`, run by `sub_2046B40` like the red shell's; a requested
 - [vm_model/src/kart/red_shell.rs:4](../vm_model/src/kart/red_shell.rs#L4) States are (enter, update) pairs run by `sub_2046B40`: a requested change takes effect at
 - [vm_model/src/mapobj/block.rs:62](../vm_model/src/mapobj/block.rs#L62) the state machine (sub_2046B40): a pending state starts first
 - [vm_model/src/mapobj/chomp.rs:112](../vm_model/src/mapobj/chomp.rs#L112) +0x90 the state to switch to at the start of the next tick (`sub_2046B40`).
@@ -13630,10 +13631,10 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20681F0_020681F0.c`
 
 - [vm_model/src/kart/mod.rs:14](../vm_model/src/kart/mod.rs#L14) | [`KartDrift::count_counter_steer`] | `sub_20681F0` | counter-steer presses -> charge |
-- [vm_model/src/kart/mod.rs:65](../vm_model/src/kart/mod.rs#L65) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
-- [vm_model/src/kart/mod.rs:76](../vm_model/src/kart/mod.rs#L76) Ticks between counted counter-steer presses (literal in `sub_20681F0`).
-- [vm_model/src/kart/mod.rs:190](../vm_model/src/kart/mod.rs#L190) Newly pressed steering; left wins if both are pressed (`sub_20681F0` tests Left first).
-- [vm_model/src/kart/mod.rs:459](../vm_model/src/kart/mod.rs#L459) `sub_20681F0`: counts alternating counter-steer presses. A press away from the drift must
+- [vm_model/src/kart/mod.rs:66](../vm_model/src/kart/mod.rs#L66) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
+- [vm_model/src/kart/mod.rs:77](../vm_model/src/kart/mod.rs#L77) Ticks between counted counter-steer presses (literal in `sub_20681F0`).
+- [vm_model/src/kart/mod.rs:191](../vm_model/src/kart/mod.rs#L191) Newly pressed steering; left wins if both are pressed (`sub_20681F0` tests Left first).
+- [vm_model/src/kart/mod.rs:460](../vm_model/src/kart/mod.rs#L460) `sub_20681F0`: counts alternating counter-steer presses. A press away from the drift must
 - [docs/function_notes.md:100](../docs/function_notes.md#L100) mini-turbo countersteer charge transitions: stage 2 blue flare 126 and SE 210; stage 3 switches wheel effects and starts red flares 22/23 when drift contact allows
 
 ## sub_2068440
@@ -13915,6 +13916,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206C0B0
 `export/plan0/arm9_main/sub_206C0B0_0206C0B0.c`
 
+- [vm_model/src/kart/blue_shell.rs:84](../vm_model/src/kart/blue_shell.rs#L84) Not trackable now (`sub_206C0B0`): the shell keeps the last position it saw.
 - [docs/function_notes/agent_03.md:219](../docs/function_notes/agent_03.md#L219) returns whether kart is invulnerable/disabled (flags 0x400020 in +124 or 0x800 in +76)
 
 ## sub_206C0E0
@@ -13977,19 +13979,19 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_206C5E4_0206C5E4.c`
 
 - [vm_model/src/kart/mod.rs:13](../vm_model/src/kart/mod.rs#L13) | (in [`step`]) | `sub_206C5E4` | hop, drift direction, drift start/continue/end, landing alignment |
-- [vm_model/src/kart/mod.rs:65](../vm_model/src/kart/mod.rs#L65) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
-- [vm_model/src/kart/mod.rs:82](../vm_model/src/kart/mod.rs#L82) Airborne ticks (not counting hops) after which holding drift picks a direction. `sub_206C5E4`.
-- [vm_model/src/kart/mod.rs:87](../vm_model/src/kart/mod.rs#L87) Slide bonus on landing into a drift: `|velocity| * 26 / 4096` (`sub_206C5E4`).
-- [vm_model/src/kart/mod.rs:747](../vm_model/src/kart/mod.rs#L747) First grounded tick after a hop (`sub_206C5E4`, tail): the yaw turned during the hop becomes
+- [vm_model/src/kart/mod.rs:66](../vm_model/src/kart/mod.rs#L66) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
+- [vm_model/src/kart/mod.rs:83](../vm_model/src/kart/mod.rs#L83) Airborne ticks (not counting hops) after which holding drift picks a direction. `sub_206C5E4`.
+- [vm_model/src/kart/mod.rs:88](../vm_model/src/kart/mod.rs#L88) Slide bonus on landing into a drift: `|velocity| * 26 / 4096` (`sub_206C5E4`).
+- [vm_model/src/kart/mod.rs:748](../vm_model/src/kart/mod.rs#L748) First grounded tick after a hop (`sub_206C5E4`, tail): the yaw turned during the hop becomes
 
 ## sub_206CC60
 `export/plan0/arm9_main/sub_206CC60_0206CC60.c`
 
-- [vm_model/src/kart/mod.rs:65](../vm_model/src/kart/mod.rs#L65) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
-- [vm_model/src/kart/mod.rs:74](../vm_model/src/kart/mod.rs#L74) Per-tick step back when the angle is beyond the limit (literal in `sub_206CC60`).
-- [vm_model/src/kart/mod.rs:84](../vm_model/src/kart/mod.rs#L84) Slide bonus floor and per-tick decay while drifting (`sub_206CC60`, `0x0206CDD0`).
-- [vm_model/src/kart/mod.rs:493](../vm_model/src/kart/mod.rs#L493) `sub_206CC60` (first half): move the drift angle toward the limit on the drift side.
-- [vm_model/src/kart/mod.rs:508](../vm_model/src/kart/mod.rs#L508) `sub_206CC60` (second half, while drifting): the slide bonus decays toward its floor.
+- [vm_model/src/kart/mod.rs:66](../vm_model/src/kart/mod.rs#L66) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
+- [vm_model/src/kart/mod.rs:75](../vm_model/src/kart/mod.rs#L75) Per-tick step back when the angle is beyond the limit (literal in `sub_206CC60`).
+- [vm_model/src/kart/mod.rs:85](../vm_model/src/kart/mod.rs#L85) Slide bonus floor and per-tick decay while drifting (`sub_206CC60`, `0x0206CDD0`).
+- [vm_model/src/kart/mod.rs:494](../vm_model/src/kart/mod.rs#L494) `sub_206CC60` (first half): move the drift angle toward the limit on the drift side.
+- [vm_model/src/kart/mod.rs:509](../vm_model/src/kart/mod.rs#L509) `sub_206CC60` (second half, while drifting): the slide bonus decays toward its floor.
 
 ## sub_206CDD4
 `export/plan0/arm9_main/sub_206CDD4_0206CDD4.c`
@@ -14068,7 +14070,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/obj_collision.rs:1](../vm_model/src/obj_collision.rs#L1) Karts against course objects (`sub_206E874`): each collidable object carries a collision
 - [vm_model/src/kart/items.rs:5](../vm_model/src/kart/items.rs#L5) contact `sub_206E874` reports no push, wall or slow-down flags for them). Which item objects
-- [vm_model/src/kart/mod.rs:371](../vm_model/src/kart/mod.rs#L371) Bumped into a solid object this tick (+0x44 bit 0x40, `sub_206E874`).
+- [vm_model/src/kart/mod.rs:372](../vm_model/src/kart/mod.rs#L372) Bumped into a solid object this tick (+0x44 bit 0x40, `sub_206E874`).
 - [vm_model/src/kart/movement.rs:710](../vm_model/src/kart/movement.rs#L710) `sub_206F04C` from the object check (`sub_206E874`, flag 8 handlers): bumping into a solid
 - [game/src/objects.rs:8](../game/src/objects.rs#L8) Collision is the game's (`vm_model::obj_collision`, `sub_206E874`): objects with a collision
 - [game/src/objects.rs:756](../game/src/objects.rs#L756) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
@@ -14084,7 +14086,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_206F04C_0206F04C.c`
 
 - [vm_model/src/obj_collision.rs:216](../vm_model/src/obj_collision.rs#L216) The handler's result flags: 8 wall bump (`sub_206F04C` with full speed kept), 2 speed
-- [vm_model/src/kart/mod.rs:349](../vm_model/src/kart/mod.rs#L349) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
+- [vm_model/src/kart/mod.rs:350](../vm_model/src/kart/mod.rs#L350) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
 - [vm_model/src/kart/movement.rs:690](../vm_model/src/kart/movement.rs#L690) `sub_206F574` + `sub_206F04C`: hitting a wall. Returns whether this was a fresh hit.
 - [vm_model/src/kart/movement.rs:710](../vm_model/src/kart/movement.rs#L710) `sub_206F04C` from the object check (`sub_206E874`, flag 8 handlers): bumping into a solid
 - [vm_model/src/kart/movement.rs:728](../vm_model/src/kart/movement.rs#L728) The body of `sub_206F04C`: `a4` caps the speed (times how head-on the hit is), `fresh`
@@ -14093,13 +14095,13 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206F574
 `export/plan0/arm9_main/sub_206F574_0206F574.c`
 
-- [vm_model/src/kart/mod.rs:349](../vm_model/src/kart/mod.rs#L349) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
+- [vm_model/src/kart/mod.rs:350](../vm_model/src/kart/mod.rs#L350) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
 - [vm_model/src/kart/movement.rs:690](../vm_model/src/kart/movement.rs#L690) `sub_206F574` + `sub_206F04C`: hitting a wall. Returns whether this was a fresh hit.
 
 ## sub_206F694
 `export/plan0/arm9_main/sub_206F694_0206F694.c`
 
-- [vm_model/src/kart/mod.rs:349](../vm_model/src/kart/mod.rs#L349) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
+- [vm_model/src/kart/mod.rs:350](../vm_model/src/kart/mod.rs#L350) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
 - [vm_model/src/kart/movement.rs:666](../vm_model/src/kart/movement.rs#L666) `sub_206F694`: the sphere test's slide vector becomes a velocity impulse along the wall;
 
 ## sub_206F824
@@ -14121,7 +14123,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206FF50
 `export/plan0/arm9_main/sub_206FF50_0206FF50.c`
 
-- [vm_model/src/kart/mod.rs:322](../vm_model/src/kart/mod.rs#L322) passes this same result to sub_206FF50; a fresh unswept query can hit backfaces.
+- [vm_model/src/kart/mod.rs:323](../vm_model/src/kart/mod.rs#L323) passes this same result to sub_206FF50; a fresh unswept query can hit backfaces.
 - [game/src/respawn.rs:4](../game/src/respawn.rs#L4) one (0x8000) starts it (`sub_206FF50`); race progress is frozen meanwhile (kart +0x48 bit
 - [game/src/respawn.rs:20](../game/src/respawn.rs#L20) Fall surfaces (types 10, 11). Type 15 is a cannon (`sub_206FF50` -> `sub_20710B0`).
 - [docs/function_notes.md:123](../docs/function_notes.md#L123) handles accepted fall/cannon terrain contact; flags 0xC00 begin fall state, signed type-15 flag routes cannon/off-course handling; caller's second argument omitted by C cast but retained in ARM r1
@@ -14134,7 +14136,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2070484
 `export/plan0/arm9_main/sub_2070484_02070484.c`
 
-- [vm_model/src/kart/mod.rs:311](../vm_model/src/kart/mod.rs#L311) points along it (+0x3F8, `sub_2070484`; `None` = 1.0).
+- [vm_model/src/kart/mod.rs:312](../vm_model/src/kart/mod.rs#L312) points along it (+0x3F8, `sub_2070484`; `None` = 1.0).
 - [vm_model/src/kart/movement.rs:817](../vm_model/src/kart/movement.rs#L817) `sub_2070484`: in the air (moving, not upside down) the tilt target is the attitude given by
 
 ## sub_20705FC
@@ -17103,12 +17105,16 @@ ports or explains it. Regenerate after porting something new.
 ## sub_208C520
 `export/plan0/arm9_main/sub_208C520_0208C520.c`
 
+- [vm_model/src/nitro_particle_wheel.rs:46](../vm_model/src/nitro_particle_wheel.rs#L46) sub_208C520 restarts the pending-switch timer without replacing handles yet.
 - [docs/function_notes.md:105](../docs/function_notes.md#L105) enables continuous drift wheel effect and resets timer
+- [docs/function_notes.md:332](../docs/function_notes.md#L332) marks continuous-wheel switch pending and resets unsigned switch timer +98; existing handles stay alive until eleven drifting controller updates (ported request_switch)
 
 ## sub_208C534
 `export/plan0/arm9_main/sub_208C534_0208C534.c`
 
+- [vm_model/src/nitro_particle_wheel.rs:51](../vm_model/src/nitro_particle_wheel.rs#L51) Continuous portion of sub_208C534. The detailed callback pauses births;
 - [docs/function_notes.md:106](../docs/function_notes.md#L106) disables drift wheel effect, stops/detaches active wheel emitters and invokes cleanup callback when active
+- [docs/function_notes.md:333](../docs/function_notes.md#L333) stops wheel smoke pair by setting emitter stop bit0 and dropping handles; active continuous controller invokes +120 callback then sets shutdown pending +52, clears switch timer/request. Detailed +120 pauses continuous births for delayed removal; low-detail +120 removes pair and clears clocks immediately before caller sets pending (continuous request ported, smoke handle ownership separate)
 
 ## sub_208C5B8
 `export/plan0/arm9_main/sub_208C5B8_0208C5B8.c`
@@ -17145,12 +17151,15 @@ ports or explains it. Regenerate after porting something new.
 ## sub_208CB8C
 `export/plan0/arm9_main/sub_208CB8C_0208CB8C.c`
 
-- [docs/function_notes.md:198](../docs/function_notes.md#L198) continuous drift-wheel effect lifecycle: ten-tick activation delay, callback-selected drawing/update and grounded/airborne handling
+- [vm_model/src/nitro_particle_wheel.rs:81](../vm_model/src/nitro_particle_wheel.rs#L81) Original sub_208CB8C order: delayed stop, drift-gated switch, attachment,
+- [docs/function_notes.md:198](../docs/function_notes.md#L198) continuous red drift-wheel lifecycle now ported: pending switch increments unsigned +98 only while kart+68 bit0x08 (drifting), activates on update11; signed shutdown +48 runs regardless of drift and clears pending switch on update11. Active controller attaches then resumes births on kart bit0x10 (grounded) unless shutting down, otherwise pauses births. All 645 natural and 645 controlled airborne-probe clocks/callback orders/emitter flags match; correction: bit0x08 is drift, not ground
 
 ## sub_208CCF0
 `export/plan0/arm9_main/sub_208CCF0_0208CCF0.c`
 
+- [vm_model/src/nitro_particle_wheel.rs:71](../vm_model/src/nitro_particle_wheel.rs#L71) Continuous portion of immediate reset sub_208CCF0.
 - [docs/function_notes.md:200](../docs/function_notes.md#L200) clears continuous wheel effect via cleanup callback and resets activation/expiry timers
+- [docs/function_notes.md:334](../docs/function_notes.md#L334) immediate continuous-wheel reset: invokes remove callback if active, clears active/delay/switch fields (ported reset)
 
 ## sub_208CD2C
 `export/plan0/arm9_main/sub_208CD2C_0208CD2C.c`
@@ -17196,6 +17205,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_208D1EC_0208D1EC.c`
 
 - [docs/function_notes.md:201](../docs/function_notes.md#L201) clears active continuous wheel effect via cleanup callback and resets timers only when active
+- [docs/function_notes.md:337](../docs/function_notes.md#L337) low-detail stop-request callback: if continuous active, invokes remove callback and clears continuous active/delay/switch clocks; differs from detailed pause-only callback sub_208D234 (source-derived)
 
 ## sub_208D234
 `export/plan0/arm9_main/sub_208D234_0208D234.c`
@@ -28917,6 +28927,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20F7104
 `export/plan0/arm9_main/sub_20F7104_020F7104.c`
 
+- [vm_model/src/kart/blue_shell.rs:171](../vm_model/src/kart/blue_shell.rs#L171) `sub_20F7104` -> `sub_20FADE4`: the machine resets and the explosion is requested.
 - [docs/function_notes/NEEDS_REVIEW.md:840](../docs/function_notes/NEEDS_REVIEW.md#L840) racer post-update: calls sub_20F7184(a1,0,0); if the result is 0, flag 0x8000000 is set and a2 is nonzero, calls sub_20FE7A0(id,0,8,a1+78) [REVIEW]
 - [docs/function_notes/hk_24.md:32](../docs/function_notes/hk_24.md#L32) racer post-update: calls sub_20F7184(a1,0,0); if the result is 0, flag 0x8000000 is set and a2 is nonzero, calls sub_20FE7A0(id,0,8,a1+78) [REVIEW]
 
@@ -29270,6 +29281,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20F9CE8
 `export/plan0/arm9_main/sub_20F9CE8_020F9CE8.c`
 
+- [vm_model/src/kart/blue_shell.rs:385](../vm_model/src/kart/blue_shell.rs#L385) size eases to the dive size (`sub_20F9CE8`)
 - [docs/function_notes/NEEDS_REVIEW.md:876](../docs/function_notes/NEEDS_REVIEW.md#L876) smoothing step: if +256 is nonzero, moves +108 toward +256 by dword_20F9DC0, sets +104 as overshoot (2*+112 - +108) [REVIEW]
 - [docs/function_notes/hk_24.md:87](../docs/function_notes/hk_24.md#L87) smoothing step: if +256 is nonzero, moves +108 toward +256 by dword_20F9DC0, sets +104 as overshoot (2*+112 - +108) [REVIEW]
 
@@ -29297,12 +29309,14 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FA030
 `export/plan0/arm9_main/sub_20FA030_020FA030.c`
 
+- [vm_model/src/kart/blue_shell.rs:186](../vm_model/src/kart/blue_shell.rs#L186) Generic growth (`sub_20FA0B8` / `sub_20FA030`): quickly to 1.0, then by 82 to full size.
 - [vm_model/src/kart/shell.rs:186](../vm_model/src/kart/shell.rs#L186) Size growth (`sub_20FA0B8` / `sub_20FA030`): quickly up to 1.0, then by the type's step
 - [docs/function_notes.md:257](../docs/function_notes.md#L257) copies target size to both visible scale axes, updates course/hit radii from item-type multipliers, marks resized flag 0x40 and updates broadphase radius
 
 ## sub_20FA0B8
 `export/plan0/arm9_main/sub_20FA0B8_020FA0B8.c`
 
+- [vm_model/src/kart/blue_shell.rs:186](../vm_model/src/kart/blue_shell.rs#L186) Generic growth (`sub_20FA0B8` / `sub_20FA030`): quickly to 1.0, then by 82 to full size.
 - [vm_model/src/kart/shell.rs:186](../vm_model/src/kart/shell.rs#L186) Size growth (`sub_20FA0B8` / `sub_20FA030`): quickly up to 1.0, then by the type's step
 - [docs/function_notes.md:256](../docs/function_notes.md#L256) grows item target size +112 by supplied step, clamps to supplied target and returns whether it changed
 
@@ -29402,6 +29416,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FADE4
 `export/plan0/arm9_main/sub_20FADE4_020FADE4.c`
 
+- [vm_model/src/kart/blue_shell.rs:171](../vm_model/src/kart/blue_shell.rs#L171) `sub_20F7104` -> `sub_20FADE4`: the machine resets and the explosion is requested.
 - [docs/function_notes/NEEDS_REVIEW.md:891](../docs/function_notes/NEEDS_REVIEW.md#L891) enters state 7 (end/special): calls sub_2046BE8 with off_20FAE6C, sets +760=7, +762=1, sets handler +288 from off_20FAE70 when no flags [REVIEW]
 - [docs/function_notes/hk_24.md:105](../docs/function_notes/hk_24.md#L105) enters state 7 (end/special): calls sub_2046BE8 with off_20FAE6C, sets +760=7, +762=1, sets handler +288 from off_20FAE70 when no flags [REVIEW]
 
@@ -29432,48 +29447,61 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FB2B4
 `export/plan0/arm9_main/sub_20FB2B4_020FB2B4.c`
 
+- [vm_model/src/kart/blue_shell.rs:14](../vm_model/src/kart/blue_shell.rs#L14) | 7 | `sub_20FB35C` | `sub_20FB2B4` | explode (blast sphere grows 1.0 to 30.0) |
+- [vm_model/src/kart/blue_shell.rs:391](../vm_model/src/kart/blue_shell.rs#L391) State 7 (`sub_20FB2B4`): the blast grows; contact ends at tick 42 and the item is freed after 85.
 - [docs/function_notes/NEEDS_REVIEW.md:896](../docs/function_notes/NEEDS_REVIEW.md#L896) per-frame racer state dispatcher on +748: calls sub_20FA0B8 with two table values and sub_20F9FA8 on success; state 22 sets +740=1 [REVIEW]
 - [docs/function_notes/hk_24.md:110](../docs/function_notes/hk_24.md#L110) per-frame racer state dispatcher on +748: calls sub_20FA0B8 with two table values and sub_20F9FA8 on success; state 22 sets +740=1 [REVIEW]
 
 ## sub_20FB35C
 `export/plan0/arm9_main/sub_20FB35C_020FB35C.c`
 
+- [vm_model/src/kart/blue_shell.rs:14](../vm_model/src/kart/blue_shell.rs#L14) | 7 | `sub_20FB35C` | `sub_20FB2B4` | explode (blast sphere grows 1.0 to 30.0) |
 - [docs/function_notes/NEEDS_REVIEW.md:897](../docs/function_notes/NEEDS_REVIEW.md#L897) racer respawn/start effect: sets flag 0x800000, copies a reset position from off_20FB460 into +104..+112 [REVIEW]
 - [docs/function_notes/hk_24.md:111](../docs/function_notes/hk_24.md#L111) racer respawn/start effect: sets flag 0x800000, copies a reset position from off_20FB460 into +104..+112 [REVIEW]
 
 ## sub_20FB46C
 `export/plan0/arm9_main/sub_20FB46C_020FB46C.c`
 
+- [vm_model/src/kart/blue_shell.rs:13](../vm_model/src/kart/blue_shell.rs#L13) | 6 | `sub_20FB5DC` | `sub_20FB46C` | dive onto the target |
+- [vm_model/src/kart/blue_shell.rs:366](../vm_model/src/kart/blue_shell.rs#L366) State 6 (`sub_20FB46C`).
+- [vm_model/src/kart/blue_shell.rs:412](../vm_model/src/kart/blue_shell.rs#L412) Dive lock gain (`sub_20FB46C` passes it to `sub_20FCCE4`).
 - [docs/function_notes/NEEDS_REVIEW.md:898](../docs/function_notes/NEEDS_REVIEW.md#L898) per-frame racer physics with fall handling: decrements vertical velocity +608 by 28672 [REVIEW]
 - [docs/function_notes/hk_24.md:112](../docs/function_notes/hk_24.md#L112) per-frame racer physics with fall handling: decrements vertical velocity +608 by 28672 [REVIEW]
 
 ## sub_20FB5DC
 `export/plan0/arm9_main/sub_20FB5DC_020FB5DC.c`
 
+- [vm_model/src/kart/blue_shell.rs:13](../vm_model/src/kart/blue_shell.rs#L13) | 6 | `sub_20FB5DC` | `sub_20FB46C` | dive onto the target |
 - [docs/function_notes/NEEDS_REVIEW.md:899](../docs/function_notes/NEEDS_REVIEW.md#L899) init: sets +608 = 163840 (2.5 fixed-point), sets +256 from table 168*id+116 plus 2048, then tail-calls off_20FB618(a1) [REVIEW]
 - [docs/function_notes/hk_24.md:113](../docs/function_notes/hk_24.md#L113) init: sets +608 = 163840 (2.5 fixed-point), sets +256 from table 168*id+116 plus 2048, then tail-calls off_20FB618(a1) [REVIEW]
 
 ## sub_20FB61C
 `export/plan0/arm9_main/sub_20FB61C_020FB61C.c`
 
+- [vm_model/src/kart/blue_shell.rs:12](../vm_model/src/kart/blue_shell.rs#L12) | 5 | `sub_20FB770` | `sub_20FB61C` | rise over the target |
+- [vm_model/src/kart/blue_shell.rs:352](../vm_model/src/kart/blue_shell.rs#L352) State 5 (`sub_20FB61C`).
 - [docs/function_notes/NEEDS_REVIEW.md:900](../docs/function_notes/NEEDS_REVIEW.md#L900) per-frame airborne/jump racer integration: adds dword_20FB760 to +608, caps +612, sets state 6 above 184320, decays speed +636/+644 (floor 123) [REVIEW]
 - [docs/function_notes/hk_24.md:114](../docs/function_notes/hk_24.md#L114) per-frame airborne/jump racer integration: adds dword_20FB760 to +608, caps +612, sets state 6 above 184320, decays speed +636/+644 (floor 123) [REVIEW]
 
 ## sub_20FB770
 `export/plan0/arm9_main/sub_20FB770_020FB770.c`
 
+- [vm_model/src/kart/blue_shell.rs:12](../vm_model/src/kart/blue_shell.rs#L12) | 5 | `sub_20FB770` | `sub_20FB61C` | rise over the target |
 - [docs/function_notes/NEEDS_REVIEW.md:901](../docs/function_notes/NEEDS_REVIEW.md#L901) racer reset entry: copies saved position from +196 into +80..+88, sets +608 = 163840, +612 from dword_20FB7EC, +256 from table 168*id+116 [REVIEW]
 - [docs/function_notes/hk_24.md:115](../docs/function_notes/hk_24.md#L115) racer reset entry: copies saved position from +196 into +80..+88, sets +608 = 163840, +612 from dword_20FB7EC, +256 from table 168*id+116 [REVIEW]
 
 ## sub_20FB7F8
 `export/plan0/arm9_main/sub_20FB7F8_020FB7F8.c`
 
+- [vm_model/src/kart/blue_shell.rs:11](../vm_model/src/kart/blue_shell.rs#L11) | 4 | `sub_20FBA6C` | `sub_20FB7F8` | spiral in around that point |
+- [vm_model/src/kart/blue_shell.rs:255](../vm_model/src/kart/blue_shell.rs#L255) State 4 (`sub_20FB7F8`).
 - [docs/function_notes/NEEDS_REVIEW.md:902](../docs/function_notes/NEEDS_REVIEW.md#L902) per-frame drift/trick motion: steers heading +636 toward 53248 by dword_20FBA5C, advances +648 by 45, decrements +608 and +644 [REVIEW]
 - [docs/function_notes/hk_24.md:116](../docs/function_notes/hk_24.md#L116) per-frame drift/trick motion: steers heading +636 toward 53248 by dword_20FBA5C, advances +648 by 45, decrements +608 and +644 [REVIEW]
 
 ## sub_20FBA6C
 `export/plan0/arm9_main/sub_20FBA6C_020FBA6C.c`
 
+- [vm_model/src/kart/blue_shell.rs:11](../vm_model/src/kart/blue_shell.rs#L11) | 4 | `sub_20FBA6C` | `sub_20FB7F8` | spiral in around that point |
 - [docs/function_notes/NEEDS_REVIEW.md:903](../docs/function_notes/NEEDS_REVIEW.md#L903) state reset: sets +612 = 20480, +648 = 1000, computes a position via sub_21484D0, releases sub-object +620 via sub_208EB10 [REVIEW]
 - [docs/function_notes/hk_24.md:117](../docs/function_notes/hk_24.md#L117) state reset: sets +612 = 20480, +648 = 1000, computes a position via sub_21484D0, releases sub-object +620 via sub_208EB10 [REVIEW]
 
@@ -29486,18 +29514,22 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FBC18
 `export/plan0/arm9_main/sub_20FBC18_020FBC18.c`
 
+- [vm_model/src/kart/blue_shell.rs:10](../vm_model/src/kart/blue_shell.rs#L10) | 3 | `sub_20FBD4C` | `sub_20FBC18` | home on the point 30 units ahead of the target |
+- [vm_model/src/kart/blue_shell.rs:244](../vm_model/src/kart/blue_shell.rs#L244) State 3 (`sub_20FBC18`).
 - [docs/function_notes/NEEDS_REVIEW.md:905](../docs/function_notes/NEEDS_REVIEW.md#L905) per-frame kart update: steps a1+636 angle (wraps at 53248), sub_20FCEDC, sound via sub_2109078 if a1+116 bit0 clear, then sub_20FC2E8 on a1+92 [REVIEW]
 - [docs/function_notes/hk_25.md:2](../docs/function_notes/hk_25.md#L2) per-frame kart update: steps a1+636 angle (wraps at 53248), sub_20FCEDC, sound via sub_2109078 if a1+116 bit0 clear, then sub_20FC2E8 on a1+92 [REVIEW]
 
 ## sub_20FBD4C
 `export/plan0/arm9_main/sub_20FBD4C_020FBD4C.c`
 
+- [vm_model/src/kart/blue_shell.rs:10](../vm_model/src/kart/blue_shell.rs#L10) | 3 | `sub_20FBD4C` | `sub_20FBC18` | home on the point 30 units ahead of the target |
 - [docs/function_notes/NEEDS_REVIEW.md:906](../docs/function_notes/NEEDS_REVIEW.md#L906) sets a1[159] = length of vector a1+23 (sub_21482CC), a1[161]=122880, returns 221 and sets a1[156]=221 when racer index matches global [REVIEW]
 - [docs/function_notes/hk_25.md:3](../docs/function_notes/hk_25.md#L3) sets a1[159] = length of vector a1+23 (sub_21482CC), a1[161]=122880, returns 221 and sets a1[156]=221 when racer index matches global [REVIEW]
 
 ## sub_20FBD98
 `export/plan0/arm9_main/sub_20FBD98_020FBD98.c`
 
+- [vm_model/src/kart/blue_shell.rs:9](../vm_model/src/kart/blue_shell.rs#L9) | 1 | | `sub_20FBD98` | route run (spline mode, not ported here) |
 - [docs/function_notes/NEEDS_REVIEW.md:907](../docs/function_notes/NEEDS_REVIEW.md#L907) large per-frame racer logic: decrements a1+96 by speed, sound update, picks target via off_20FC25C lists and sub_203C880, sets state 2/3 at +760 [REVIEW]
 - [docs/function_notes/hk_25.md:4](../docs/function_notes/hk_25.md#L4) large per-frame racer logic: decrements a1+96 by speed, sound update, picks target via off_20FC25C lists and sub_203C880, sets state 2/3 at +760 [REVIEW]
 
@@ -29520,6 +29552,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FC654
 `export/plan0/arm9_main/sub_20FC654_020FC654.c`
 
+- [vm_model/src/kart/blue_shell.rs:300](../vm_model/src/kart/blue_shell.rs#L300) `sub_20FC654` (flat variant): the display position follows the shell, its height easing
 - [docs/function_notes/NEEDS_REVIEW.md:909](../docs/function_notes/NEEDS_REVIEW.md#L909) per-frame oscillation: advances phase a1+616 by dword_20FC78C, indexes sine table off_20FC790, updates position a1+196..204 with damping dword_20FC798 [REVIEW]
 - [docs/function_notes/hk_25.md:8](../docs/function_notes/hk_25.md#L8) per-frame oscillation: advances phase a1+616 by dword_20FC78C, indexes sine table off_20FC790, updates position a1+196..204 with damping dword_20FC798 [REVIEW]
 
@@ -29577,6 +29610,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FCCE4
 `export/plan0/arm9_main/sub_20FCCE4_020FCCE4.c`
 
+- [vm_model/src/kart/blue_shell.rs:330](../vm_model/src/kart/blue_shell.rs#L330) States 5 and 6's mover (`sub_20FCCE4`): the shell moves a fraction `gain` of the way to a
+- [vm_model/src/kart/blue_shell.rs:412](../vm_model/src/kart/blue_shell.rs#L412) Dive lock gain (`sub_20FB46C` passes it to `sub_20FCCE4`).
 - [docs/function_notes/NEEDS_REVIEW.md:916](../docs/function_notes/NEEDS_REVIEW.md#L916) builds racer offset from kart struct (+556..564, +580..588), scales, then sub_1FFDEE4 query (likely collision/ground) [REVIEW]
 - [docs/function_notes/hk_25.md:18](../docs/function_notes/hk_25.md#L18) builds racer offset from kart struct (+556..564, +580..588), scales, then sub_1FFDEE4 query (likely collision/ground) [REVIEW]
 
@@ -29594,6 +29629,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FCF10
 `export/plan0/arm9_main/sub_20FCF10_020FCF10.c`
 
+- [vm_model/src/kart/blue_shell.rs:269](../vm_model/src/kart/blue_shell.rs#L269) States 3 and 4's mover (`sub_20FCF10`): the chase point is the target's position, 30 units
 - [docs/function_notes/NEEDS_REVIEW.md:918](../docs/function_notes/NEEDS_REVIEW.md#L918) kart position integrator: rotates velocity by heading table off_20FD250, clamps length to a2, smooths into a1+92..100, collision query sub_1FFDEE4 [REVIEW]
 - [docs/function_notes/hk_25.md:21](../docs/function_notes/hk_25.md#L21) kart position integrator: rotates velocity by heading table off_20FD250, clamps length to a2, smooths into a1+92..100, collision query sub_1FFDEE4 [REVIEW]
 
@@ -31201,7 +31237,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_210BAFC
 `export/plan0/arm9_main/sub_210BAFC_0210BAFC.c`
 
-- [vm_model/src/kart/mod.rs:369](../vm_model/src/kart/mod.rs#L369) Collision type and variant of the wall last touched (picks its sound, `sub_210BAFC`).
+- [vm_model/src/kart/mod.rs:370](../vm_model/src/kart/mod.rs#L370) Collision type and variant of the wall last touched (picks its sound, `sub_210BAFC`).
 - [game/src/sfx.rs:2](../game/src/sfx.rs#L2) the entry being the id the kart code passes to `sub_21090C4` (e.g. 129..141 walls by material (`sub_210BAFC`), 232 crash,
 - [game/src/sfx.rs:121](../game/src/sfx.rs#L121) Wall sounds by the wall's collision type and variant (`sub_210B234` -> `sub_210BAFC`:
 

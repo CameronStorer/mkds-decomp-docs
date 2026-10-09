@@ -5,6 +5,11 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Lane B continuous-wheel gate now matches 645 natural updates and a second
+  645-update capture with four controlled airborne calls. Drift starts/switches
+  after eleven drifting ticks; ground resumes births, air pauses them. Corrected
+  flag meanings: kart+68 mask0x08=drifting, mask0x10=grounded. Handle pool and textured
+  rendering remain next; native cubes unchanged.
 - Lane B emitter scheduling matches 1,050 original decisions (279 birth calls,
   four removals). Natural blue/red burst timing and all 56 wheel attachments
   match 20 callbacks. Continuous-wheel switching/ground gate and textured native

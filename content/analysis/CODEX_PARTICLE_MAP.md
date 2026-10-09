@@ -322,3 +322,50 @@ have not yet been replaced.
 Validation after scheduling/transient ports: 133 core and integration tests
 passed, zero failed, one existing ignored CPU replay. Windows release build and
 site explorer sort/filter/200-row scrolling checks passed.
+
+## Lane B: continuous-wheel gate
+
+`ContinuousWheelClock` in `vm_model/src/nitro_particle_wheel.rs` now ports
+`sub_208CB8C`. Correction to earlier interpretation: kart+68 bit0x08 means
+drifting, and bit0x10 means grounded (`KartDrift::active` / `KartMotion::grounded`).
+The pending switch increments its unsigned +98 counter only during drifting;
+it replaces the continuous emitters on the eleventh such update. The signed
+shutdown counter +48 advances whenever shutdown is pending, independently of
+drift, and clears both active and pending switch state on update11. This happens
+before switch processing, so an expiring shutdown cancels a pending switch.
+
+After lifecycle processing, active emitters attach to the wheels. Grounded
+controllers resume births unless shutdown is pending; airborne controllers
+pause births. Pausing emission preserves particle simulation, consistent with
+the SPL scheduling port. Detailed callbacks affect four emitters; low-detail
+callbacks affect two. Actions are emitted in original callback order and leave
+pool/handle operations to the caller.
+
+`tools/bizhawk/codex_particle_gate/run.ps1` records controller clocks, kart flags,
+named callback entry events and continuous-emitter flags. The unmodified natural
+drive/countersteer trace has 645 updates: 527 inactive, 106 attach/resume, ten
+attach-only during shutdown, one start/attach/resume, one stop. Every resulting
+clock, action sequence and emitter flag matches Rust.
+
+The separate `-AirProbe` experiment clears only the grounded bit inside four
+active controller calls at input steps330..333, then restores the original kart
+flags at each return. It does not alter the collision/physics state. The resulting
+645-update fixture includes four attach/pause decisions, with exact emitter flags
+and subsequent ground resume matching Rust. `particle_gate.csv` and
+`particle_gate_air.csv` retain numerical state and callback names, with no handles
+or original code/assets. Captures run in their own emulator process.
+
+Source-derived request methods cover `sub_208C520` pending-switch reset,
+`sub_208C534` continuous stop request and `sub_208CCF0` immediate reset. A detailed
+stop request pauses births and preserves an already-running stop timer. Its
+low-detail callback `sub_208D1EC` removes handles and clears clocks immediately,
+then the caller still sets shutdown pending. These request methods have boundary
+regressions but their entry/exit arithmetic has not been separately captured.
+Smoke-pair stopping in `sub_208C534` remains outside this continuous-clock API.
+
+Remaining for native integration: smoke lifecycle and handle/pool ordering,
+kart emitter callbacks, and original textured billboard drawing. Existing native
+spark cubes remain unchanged.
+
+Validation after the continuous-wheel gate: 137 shared core/integration tests
+passed, zero failed, one existing CPU replay ignored; Windows release build passed.
