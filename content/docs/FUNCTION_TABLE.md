@@ -33,6 +33,7 @@ Total 11175: known 3529, inferred 3125, out of scope 2472, unknown 1538, sdk 511
 | frontend flow-state callbacks (flow manager at *0x021a99c0: next-state id at +40, change-pending at +42) | 27 | 12 | 0 | 0 |
 | ghost / records | 2 | 0 | 0 | 0 |
 | goomba (kuribo) | 14 | 0 | 0 | 0 |
+| goomba squash dispatcher (codex, 2026-10-08) | 2 | 0 | 0 | 0 |
 | graphics | 1 | 156 | 0 | 0 |
 | info message strip / staff roll (managers at 0x0217d3e8, 0x0217d3ec, 0x0217d3f0) | 23 | 15 | 0 | 0 |
 | input | 0 | 2 | 0 | 0 |
@@ -44,7 +45,7 @@ Total 11175: known 3529, inferred 3125, out of scope 2472, unknown 1538, sdk 511
 | kart damage | 29 | 12 | 0 | 0 |
 | kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct) | 173 | 97 | 0 | 0 |
 | kart/character select screen (struct at 0x0217ace8; files /data/kartmodelmenu/*, kart/select/select.nsbmd) | 30 | 51 | 0 | 0 |
-| map objects | 431 | 160 | 0 | 0 |
+| map objects | 429 | 160 | 0 | 0 |
 | math | 0 | 5 | 0 | 0 |
 | mb (multiboot / ds download play) library, continued (the "packet layer" lines above are this library's parent/child comm; work area at *0x0216fd8c, up to 16 children, 22-byte user info per child) | 183 | 33 | 0 | 0 |
 | menu / mode flow and save-record blocks (0x0205db50-0x0205f700) | 60 | 92 | 0 | 0 |

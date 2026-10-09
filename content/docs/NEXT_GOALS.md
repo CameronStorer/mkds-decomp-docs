@@ -5,6 +5,14 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Goomba normal-contact wobble and squash states 2..5 now match all 600 original
+  update calls and three original callbacks (two normal, one qualifying hit).
+  Native Star/shrunk contacts trigger stretch/compression/wait/spring-back and
+  collision suppression; sprite X/Y scale follows original draw formula.
+  One-shot fade/deactivation is source-derived, not independently captured.
+  Mario Circuit flat/recovered visual captures pass; debris, airborne state 1,
+  item-hit dispatch and audio remain pending. See `analysis/CODEX_NPC_MAP.md`.
+
 - Original traffic tire model now renders both axle assemblies on buses/cars/trucks;
   rotation comes from the vehicle tick (+1536 angle units), with original type-specific
   scale/spacing. Bus clock and render fields agree with the 900-row original trace.
@@ -19,7 +27,7 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   sounds remain pending.
   Fixed missing SDK T-origin compensation in non-rotated texture matrices, which
   made the quarter-wheel texture appear as two half-wheels.
-  Full core suite: 107 passed, one ignored; standard Windows release build and
+  Full core suite: 108 passed, one ignored; standard Windows release build and
   Shroom Ridge / Mushroom Bridge visual captures pass. See
   `analysis/CODEX_NPC_MAP.md` for evidence and remaining vehicle presentation work.
 - CPU drift fixed (hop-only direction, facing vector while drifting, CPU hop turn x2): no falls.
@@ -119,8 +127,10 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   return logic; capture spin/win/lose, face changes and crossfades against the emulator.
 - Rainbow Road spiral falls; original drift particle simulation from `RaceEffect.spa`.
 - Object reactions: traffic hit/bounce and asymmetric contact geometry ported; item-hit dispatch next.
-  Other own-object callbacks dispatched by `sub_20D6BE0` remain unported (Goomba
-  squash, crab knock), moving-object shove (handler flag 1), handler 9/10 exact damage (taken as blown).
+  Goomba wobble/squash/recovery states now match 600 original updates and three
+  callbacks; normal/Star/shrunk contacts drive native squash, disabled contact,
+  stretch and spring-back. Other own-object callbacks (crab knock, Chomp) remain
+  unported, moving-object shove (handler flag 1), handler 9/10 exact damage (taken as blown).
 
 ## Long-term: "bring your own ROM" release (user, 2026-10-08; lower priority than finishing the game)
 Like the SM64 PC port: ship only our code; the player supplies their own MKDS `.nds`. The game
@@ -151,7 +161,7 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
    0x1AC, Pokeys 0x1B2 walk, iron balls 0x1B0, Piranha plants 0x1A6, Cheep Cheeps 0x19B,
    Monty Moles 0x199, snowmen 0x19D, bats 0x19F, fire bars/flippers/bumpers, pendulum 0xCF,
    clock hand 0xCD, gear pauses 0xCB, drawbridge 0xCC; the objects' own reactions to karts
-   (Goomba squash states 2..5, Chomp state 2). Method: obj_trace.lua -> writer pc -> state
+   (Goomba debris/airborne state, Chomp state 2). Method: obj_trace.lua -> writer pc -> state
    table (def +0x10 manager record +8 / state machine at +0x80) -> port -> replay test.
 4. Item fidelity: star invincibility/knock, blue shell, bob-omb, blooper, Boo, bullet bill,
    triple/trailing items (record each in BizHawk, write fixture, port).

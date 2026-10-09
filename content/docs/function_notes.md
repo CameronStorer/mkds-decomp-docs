@@ -175,10 +175,10 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20DA494: Goomba init
 - sub_20DAF20: Goomba tick (step counter, state machine)
 - sub_20DADFC: Goomba walking state (stepping gait along its path)
-- sub_20DA73C: Goomba class callback (run over)
-- sub_20DAA10: Goomba state 5 (spring back after squash)
-- sub_20DAB9C: Goomba state 3 (shrink)
-- sub_20DAC00: Goomba state 2 (squash)
+- sub_20DA73C: Goomba kart callback: own response 1 in state 0/1/5 queues state 2 and disables contact; response 0 adds 82*forwardSpeed>>12 spring velocity only from resting squash 4096/velocity 0; two normal contacts and one qualifying hit replayed exactly
+- sub_20DAA10: Goomba state 5 spring-back: velocity += (4096-squash)>>3, decay by 3481/4096, add to squash; elapsed >60 queues walking state 0 on next tick; exact 600-update runtime replay
+- sub_20DAB9C: Goomba state 3 compression: squash *=3481/4096; below 819 queues flat state 4 on next tick
+- sub_20DAC00: Goomba state 2 initial stretch: squash *=4710/4096; above 6144 queues compression state 3 on next tick (earlier squash-only label hid this initial stretch)
 
 ## SPL particle channels and wheel attachment (Codex, 2026-10-08)
 
@@ -233,3 +233,15 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20D2668: object sound-context selection wrapper around sub_2024A28 when class sound entry is enabled; not the own-object reaction dispatcher (earlier project notes attributed reactions here incorrectly)
 - sub_20D26F8: traffic crash sound 232 for kart mode 1 or 3; physics kick itself is dispatched separately through sub_20E2494
 - sub_20E2400: traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; native traffic now uses this exact contact test; scaled extents and all 293 original bus/car/truck callback results match
+
+## Goomba squash dispatcher (Codex, 2026-10-08)
+
+- sub_2046B40: shared state dispatcher: consume pending transition, reset elapsed ticks, run new entry and update in same call, then increment elapsed; Goomba timing matches all 600 captured updates
+- sub_20DAB2C: Goomba flat state 4: respawning objects queue state 5 when elapsed >300 (302 update calls); one-shot objects decrement draw alpha +256 and remove at zero
+- sub_20DAAA0: Goomba spring-back state 5 entry: plays recovery sound, clears collision-disabled bit 0, zeroes squash velocity without restoring squash height
+- sub_20DAC58: Goomba stretch state 2 entry sets collision-disabled bit 0
+- sub_20DAF0C: Goomba walking state 0 entry restores squash 4096 and spring velocity zero
+- sub_20DADE8: airborne Goomba state 1 entry restores squash 4096 and spring velocity zero
+- sub_20DADFC: Goomba walking update: advances follower only during gait 10..19/30..39, updates curved position, applies 1/8 restoring spring with 3481/4096 damping; snaps to squash 4096/velocity zero inside strict +/-41 windows
+- sub_20DA684: Goomba item callback: qualifying own response in state 0/1/5 queues squash and detaches item; ordinary response initializes spring velocity from a literal only at rest; native item dispatch remains pending
+- sub_20DA820: Goomba detached hit debris: projects hitter XZ velocity perpendicular to path direction, normalizes, creates actor type 3 and launches it outward/upward; not yet ported

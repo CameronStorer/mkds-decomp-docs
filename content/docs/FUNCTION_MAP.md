@@ -5021,7 +5021,9 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/mapobj/block.rs:62](../vm_model/src/mapobj/block.rs#L62) the state machine (sub_2046B40): a pending state starts first
 - [vm_model/src/mapobj/chomp.rs:112](../vm_model/src/mapobj/chomp.rs#L112) +0x90 the state to switch to at the start of the next tick (`sub_2046B40`).
 - [vm_model/src/mapobj/chomp.rs:216](../vm_model/src/mapobj/chomp.rs#L216) `sub_2046B40`: a pending state starts, running its entry.
+- [vm_model/src/mapobj/goomba.rs:91](../vm_model/src/mapobj/goomba.rs#L91) sub_20DAF20 advances gait even while squashed. sub_2046B40 applies a
 - [docs/function_notes.md:130](../docs/function_notes.md#L130) object state machine tick: runs a pending state's enter, then the update
+- [docs/function_notes.md:239](../docs/function_notes.md#L239) shared state dispatcher: consume pending transition, reset elapsed ticks, run new entry and update in same call, then increment elapsed; Goomba timing matches all 600 captured updates
 
 ## sub_2046BCC
 `export/plan0/arm9_main/sub_2046BCC_02046BCC.c`
@@ -6614,7 +6616,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/mod.rs:370](../vm_model/src/kart/mod.rs#L370) Bumped into a solid object this tick (+0x44 bit 0x40, `sub_206E874`).
 - [vm_model/src/kart/movement.rs:660](../vm_model/src/kart/movement.rs#L660) `sub_206F04C` from the object check (`sub_206E874`, flag 8 handlers): bumping into a solid
 - [game/src/objects.rs:8](../game/src/objects.rs#L8) Collision is the game's (`vm_model::obj_collision`, `sub_206E874`): objects with a collision
-- [game/src/objects.rs:469](../game/src/objects.rs#L469) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
+- [game/src/objects.rs:472](../game/src/objects.rs#L472) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
 - [docs/function_notes.md:39](../docs/function_notes.md#L39) kart vs course objects: handler, wall bump (flag 8), speed scale (2), moving-object shove (1), push out
 
 ## sub_206EDAC
@@ -12626,14 +12628,14 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/obj_collision.rs:5](../vm_model/src/obj_collision.rs#L5) tables at `0x0216B94C` (`sub_20D6BE0`), which decides what the touch does: a wall bump,
 - [vm_model/src/obj_collision.rs:120](../vm_model/src/obj_collision.rs#L120) Hit handler of an object id (`sub_20D6BE0`'s tables at `0x0216B94C`), by id / 100 group,
 - [vm_model/src/obj_collision.rs:141](../vm_model/src/obj_collision.rs#L141) `sub_20D6BE0` (table part): the handler for an object id when the kart is in `mode`;
-- [game/src/objects.rs:472](../game/src/objects.rs#L472) solid ones. Traffic's own reaction is dispatched separately by sub_20D6BE0.
+- [game/src/objects.rs:475](../game/src/objects.rs#L475) solid ones. Traffic's own reaction is dispatched separately by sub_20D6BE0.
 - [docs/function_notes.md:17](../docs/function_notes.md#L17) picks the kart-vs-object hit handler from tables at 0x0216B94C (id/100 group, kart +0x29C mode, id%100)
 - [docs/function_notes.md:231](../docs/function_notes.md#L231) separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers
 
 ## sub_20D6DC0
 `export/plan0/arm9_main/sub_20D6DC0_020D6DC0.c`
 
-- [game/src/objects.rs:525](../game/src/objects.rs#L525) sub_20D6DC0(.., 4, 4): the handler table's group 4, entry 4
+- [game/src/objects.rs:534](../game/src/objects.rs#L534) sub_20D6DC0(.., 4, 4): the handler table's group 4, entry 4
 - [docs/function_notes.md:160](../docs/function_notes.md#L160) handler table lookup for an explicit id group/index
 
 ## sub_20D70AC
@@ -12657,7 +12659,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20D7B34
 `export/plan0/arm9_main/sub_20D7B34_020D7B34.c`
 
-- [game/src/objects.rs:438](../game/src/objects.rs#L438) facing its travel (sub_20D7B34 from the walk's direction)
+- [game/src/objects.rs:441](../game/src/objects.rs#L441) facing its travel (sub_20D7B34 from the walk's direction)
 
 ## sub_20D7B88
 `export/plan0/arm9_main/sub_20D7B88_020D7B88.c`
@@ -12800,13 +12802,13 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20D9480_020D9480.c`
 
 - [vm_model/src/mapobj/goomba.rs:4](../vm_model/src/mapobj/goomba.rs#L4) three axes, `sub_20D9480`), with a stepping gait: a counter runs 0..40 and the Goomba only
-- [vm_model/src/mapobj/goomba.rs:23](../vm_model/src/mapobj/goomba.rs#L23) `sub_20D9480` / `sub_20D95C0`: the point at progress `t` on a segment's Bezier curve.
+- [vm_model/src/mapobj/goomba.rs:37](../vm_model/src/mapobj/goomba.rs#L37) `sub_20D9480` / `sub_20D95C0`: the point at progress `t` on a segment's Bezier curve.
 - [docs/function_notes.md:144](../docs/function_notes.md#L144) Bezier x/y/z from a segment and progress
 
 ## sub_20D95C0
 `export/plan0/arm9_main/sub_20D95C0_020D95C0.c`
 
-- [vm_model/src/mapobj/goomba.rs:23](../vm_model/src/mapobj/goomba.rs#L23) `sub_20D9480` / `sub_20D95C0`: the point at progress `t` on a segment's Bezier curve.
+- [vm_model/src/mapobj/goomba.rs:37](../vm_model/src/mapobj/goomba.rs#L37) `sub_20D9480` / `sub_20D95C0`: the point at progress `t` on a segment's Bezier curve.
 
 ## sub_20D970C
 `export/plan0/arm9_main/sub_20D970C_020D970C.c`
@@ -12889,7 +12891,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20DA494_020DA494.c`
 
 - [vm_model/src/mapobj/goomba.rs:1](../vm_model/src/mapobj/goomba.rs#L1) Goomba (0x191): init `sub_20DA494`, tick `sub_20DAF20`, walking state `sub_20DADFC`.
-- [vm_model/src/mapobj/goomba.rs:39](../vm_model/src/mapobj/goomba.rs#L39) `sub_20DA494`: `speed_setting` is setting 0's low half, `start` the starting point
+- [vm_model/src/mapobj/goomba.rs:53](../vm_model/src/mapobj/goomba.rs#L53) `sub_20DA494`: `speed_setting` is setting 0's low half, `start` the starting point
 - [docs/function_notes.md:175](../docs/function_notes.md#L175) Goomba init
 
 ## sub_20DA5F0
@@ -12905,46 +12907,52 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20DA684
 `export/plan0/arm9_main/sub_20DA684_020DA684.c`
 
+- [docs/function_notes.md:246](../docs/function_notes.md#L246) Goomba item callback: qualifying own response in state 0/1/5 queues squash and detaches item; ordinary response initializes spring velocity from a literal only at rest; native item dispatch remains pending
 - [docs/function_notes/agent_06.md:25](../docs/function_notes/agent_06.md#L25) Goomba kart-hit handler: when hit type 1 and state is 0/1/5, requests state 2 (squashed), calls sub_20F8DDC and spawns squash debris (sub_20DA820)
 
 ## sub_20DA73C
 `export/plan0/arm9_main/sub_20DA73C_020DA73C.c`
 
-- [docs/function_notes.md:178](../docs/function_notes.md#L178) Goomba class callback (run over)
+- [vm_model/src/mapobj/goomba.rs:74](../vm_model/src/mapobj/goomba.rs#L74) sub_20DA73C: own-response 1 starts squash; response 0 adds ordinary wobble.
+- [docs/function_notes.md:178](../docs/function_notes.md#L178) Goomba kart callback: own response 1 in state 0/1/5 queues state 2 and disables contact; response 0 adds 82*forwardSpeed>>12 spring velocity only from resting squash 4096/velocity 0; two normal contacts and one qualifying hit replayed exactly
 
 ## sub_20DA820
 `export/plan0/arm9_main/sub_20DA820_020DA820.c`
 
+- [docs/function_notes.md:247](../docs/function_notes.md#L247) Goomba detached hit debris: projects hitter XZ velocity perpendicular to path direction, normalizes, creates actor type 3 and launches it outward/upward; not yet ported
 - [docs/function_notes/agent_06.md:26](../docs/function_notes/agent_06.md#L26) uncertain: spawns a debris/dead-Goomba object (sub_20FA3D0) flying away from the kart (direction via VEC normalize)
 
 ## sub_20DAA10
 `export/plan0/arm9_main/sub_20DAA10_020DAA10.c`
 
-- [docs/function_notes.md:179](../docs/function_notes.md#L179) Goomba state 5 (spring back after squash)
+- [docs/function_notes.md:179](../docs/function_notes.md#L179) Goomba state 5 spring-back: velocity += (4096-squash)>>3, decay by 3481/4096, add to squash; elapsed >60 queues walking state 0 on next tick; exact 600-update runtime replay
 
 ## sub_20DAAA0
 `export/plan0/arm9_main/sub_20DAAA0_020DAAA0.c`
 
+- [docs/function_notes.md:241](../docs/function_notes.md#L241) Goomba spring-back state 5 entry: plays recovery sound, clears collision-disabled bit 0, zeroes squash velocity without restoring squash height
 - [docs/function_notes/agent_06.md:27](../docs/function_notes/agent_06.md#L27) Goomba squash state: plays sound 0x183 at its position (variant by kart sound table), clears flag bit 1, resets +0xC8
 
 ## sub_20DAB2C
 `export/plan0/arm9_main/sub_20DAB2C_020DAB2C.c`
 
+- [docs/function_notes.md:240](../docs/function_notes.md#L240) Goomba flat state 4: respawning objects queue state 5 when elapsed >300 (302 update calls); one-shot objects decrement draw alpha +256 and remove at zero
 - [docs/function_notes/agent_06.md:28](../docs/function_notes/agent_06.md#L28) Goomba timed state tick: if +0xFC set and state counter >300 switches to state 5, else counts down +0x100 and deletes object (sub_20D2398)
 
 ## sub_20DAB9C
 `export/plan0/arm9_main/sub_20DAB9C_020DAB9C.c`
 
-- [docs/function_notes.md:180](../docs/function_notes.md#L180) Goomba state 3 (shrink)
+- [docs/function_notes.md:180](../docs/function_notes.md#L180) Goomba state 3 compression: squash *=3481/4096; below 819 queues flat state 4 on next tick
 
 ## sub_20DAC00
 `export/plan0/arm9_main/sub_20DAC00_020DAC00.c`
 
-- [docs/function_notes.md:181](../docs/function_notes.md#L181) Goomba state 2 (squash)
+- [docs/function_notes.md:181](../docs/function_notes.md#L181) Goomba state 2 initial stretch: squash *=4710/4096; above 6144 queues compression state 3 on next tick (earlier squash-only label hid this initial stretch)
 
 ## sub_20DAC58
 `export/plan0/arm9_main/sub_20DAC58_020DAC58.c`
 
+- [docs/function_notes.md:242](../docs/function_notes.md#L242) Goomba stretch state 2 entry sets collision-disabled bit 0
 - [docs/function_notes/agent_06.md:31](../docs/function_notes/agent_06.md#L31) sets object flag bit 0 (visible) in +2
 
 ## sub_20DAC74
@@ -12955,6 +12963,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20DADE8
 `export/plan0/arm9_main/sub_20DADE8_020DADE8.c`
 
+- [docs/function_notes.md:244](../docs/function_notes.md#L244) airborne Goomba state 1 entry restores squash 4096 and spring velocity zero
 - [docs/function_notes/agent_06.md:33](../docs/function_notes/agent_06.md#L33) resets scale +0xC4 to 4096 and +0xC8 to 0
 
 ## sub_20DADFC
@@ -12962,17 +12971,19 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/mapobj/goomba.rs:1](../vm_model/src/mapobj/goomba.rs#L1) Goomba (0x191): init `sub_20DA494`, tick `sub_20DAF20`, walking state `sub_20DADFC`.
 - [docs/function_notes.md:177](../docs/function_notes.md#L177) Goomba walking state (stepping gait along its path)
+- [docs/function_notes.md:245](../docs/function_notes.md#L245) Goomba walking update: advances follower only during gait 10..19/30..39, updates curved position, applies 1/8 restoring spring with 3481/4096 damping; snaps to squash 4096/velocity zero inside strict +/-41 windows
 
 ## sub_20DAF0C
 `export/plan0/arm9_main/sub_20DAF0C_020DAF0C.c`
 
+- [docs/function_notes.md:243](../docs/function_notes.md#L243) Goomba walking state 0 entry restores squash 4096 and spring velocity zero
 - [docs/function_notes/agent_06.md:34](../docs/function_notes/agent_06.md#L34) resets scale +0xC4 to 4096 and +0xC8 to 0
 
 ## sub_20DAF20
 `export/plan0/arm9_main/sub_20DAF20_020DAF20.c`
 
 - [vm_model/src/mapobj/goomba.rs:1](../vm_model/src/mapobj/goomba.rs#L1) Goomba (0x191): init `sub_20DA494`, tick `sub_20DAF20`, walking state `sub_20DADFC`.
-- [vm_model/src/mapobj/goomba.rs:57](../vm_model/src/mapobj/goomba.rs#L57) `sub_20DAF20` + the walking state; `rand` draws from the race's other random numbers
+- [vm_model/src/mapobj/goomba.rs:91](../vm_model/src/mapobj/goomba.rs#L91) sub_20DAF20 advances gait even while squashed. sub_2046B40 applies a
 - [docs/function_notes.md:176](../docs/function_notes.md#L176) Goomba tick (step counter, state machine)
 
 ## sub_20DB050
@@ -13025,7 +13036,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20DB548_020DB548.c`
 
 - [vm_model/src/mapobj/thwomp.rs:10](../vm_model/src/mapobj/thwomp.rs#L10) Not ported: being knocked about by a star / mega kart (`sub_20DB548`, +0xB4 modes 1 and 2),
-- [game/src/objects.rs:494](../game/src/objects.rs#L494) a Thwomp slamming down or just landed crushes karts in the cone under it (`sub_20DB548`)
+- [game/src/objects.rs:497](../game/src/objects.rs#L497) a Thwomp slamming down or just landed crushes karts in the cone under it (`sub_20DB548`)
 - [docs/function_notes.md:159](../docs/function_notes.md#L159) Thwomp class callback (star knock, crush handler 11 for karts below)
 
 ## sub_20DB760

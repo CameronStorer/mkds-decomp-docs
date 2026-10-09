@@ -1821,7 +1821,7 @@ nullsub_29,arm9_main,0x02046AD0,4,inferred,"race configuration object *0x021759a
 nullsub_30,arm9_main,0x02046AD4,4,inferred,"race configuration object *0x021759a0: setup, commit, cup progression (0x2043d10-0x2046648); profile slots at *0x0217a9e8 (+20/+24/+28)","guess: part of the race configuration object *0x021759a0: setup, commit, cup progression (0x2043d10-0x2046648); profile slots at *0x0217a9e8 (+20/+24/+28) code (address neighbours)",0,,,
 sub_2046AD8,arm9_main,0x02046AD8,12,known,"race configuration object *0x021759a0: setup, commit, cup progression (0x2043d10-0x2046648); profile slots at *0x0217a9e8 (+20/+24/+28)",thunk: tail-calls sub_20446E0,0,sub_20446E0,,
 sub_2046AE4,arm9_main,0x02046AE4,88,known,"race configuration object *0x021759a0: setup, commit, cup progression (0x2043d10-0x2046648); profile slots at *0x0217a9e8 (+20/+24/+28)",scene init callback: creates a task/layer object (sub_2038D88/2038D28/2037ABC) from descriptor 0x02154868,0,sub_20364E0 sub_20364E8 sub_2037ABC sub_2038D28 sub_2038D88,,
-sub_2046B40,arm9_main,0x02046B40,140,known,map objects,"object state machine tick: runs a pending state's enter, then the update",21,,,vm_model/src/kart/red_shell.rs:4 vm_model/src/mapobj/block.rs:62 vm_model/src/mapobj/chomp.rs:112
+sub_2046B40,arm9_main,0x02046B40,140,known,"goomba squash dispatcher (codex, 2026-10-08)","shared state dispatcher: consume pending transition, reset elapsed ticks, run new entry and update in same call, then increment elapsed; Goomba timing matches all 600 captured updates",21,,,vm_model/src/kart/red_shell.rs:4 vm_model/src/mapobj/block.rs:62 vm_model/src/mapobj/chomp.rs:112
 sub_2046BCC,arm9_main,0x02046BCC,28,known,map objects,object state machine: request a state (applied next tick),23,,,
 sub_2046BE8,arm9_main,0x02046BE8,40,known,map objects,"object state machine init (+0x80: table of (enter, update) pairs, count, owner)",27,,,vm_model/src/mapobj/chomp.rs:4
 sub_2046C10,arm9_main,0x02046C10,96,known,"race configuration object *0x021759a0: setup, commit, cup progression (0x2043d10-0x2046648); profile slots at *0x0217a9e8 (+20/+24/+28)","touch input: returns packed pen position (x<<8 | y) when the pen is down, else 0xFFFF",2,,,
@@ -4896,7 +4896,7 @@ sub_20D6A54,arm9_main,0x020D6A54,384,inferred,map objects,guess: near map object
 sub_20D6BE0,arm9_main,0x020D6BE0,328,known,"traffic hit and recovery (codex, 2026-10-08)","separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers",1,sub_218173C,,vm_model/src/obj_collision.rs:5 vm_model/src/obj_collision.rs:120 vm_model/src/obj_collision.rs:141
 sub_20D6D34,arm9_main,0x020D6D34,84,unknown,,,1,,,
 sub_20D6D8C,arm9_main,0x020D6D8C,48,unknown,,,1,,,
-sub_20D6DC0,arm9_main,0x020D6DC0,44,known,map objects,handler table lookup for an explicit id group/index,1,,,game/src/objects.rs:525
+sub_20D6DC0,arm9_main,0x020D6DC0,44,known,map objects,handler table lookup for an explicit id group/index,1,,,game/src/objects.rs:534
 sub_20D6DF0,arm9_main,0x020D6DF0,296,unknown,,,1,sub_2146D28 sub_2146D44 sub_2146D60 sub_2146DFC,,
 sub_20D6F20,arm9_main,0x020D6F20,84,inferred,kart,"guess: calls sub_2146D78 (Row vector times matrix, truncated (`MTX)",1,sub_2146D44 sub_2146D78,,
 sub_20D6F78,arm9_main,0x020D6F78,280,inferred,math,guess: touches hardware divide / square root,3,,,
@@ -4911,7 +4911,7 @@ sub_20D788C,arm9_main,0x020D788C,168,inferred,map objects,guess: near map object
 sub_20D7938,arm9_main,0x020D7938,120,inferred,map objects,guess: near map objects code (call graph),3,,,
 sub_20D79B0,arm9_main,0x020D79B0,136,known,npc and traffic presentation (codex; 2026-10-08),combines terrain tilt quaternion's X/Z/W with half-angle XZ heading; traffic heading helper verified as part of all 899 bus orientation transitions,2,,,vm_model/src/mapobj/presentation.rs:21
 sub_20D7A3C,arm9_main,0x020D7A3C,236,inferred,math,guess: touches hardware divide / square root,4,sub_2147D88 sub_2147DC0 sub_2147E28,,
-sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:438
+sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:441
 sub_20D7B88,arm9_main,0x020D7B88,100,known,npc and traffic presentation (codex; 2026-10-08),"traffic terrain tilt: denominator FX_Sqrt(2*(normalY+4096)); quaternion [FX_Div(normalZ,denominator),0,FX_Div(-normalX,denominator),denominator/2]; native KCL probe plus tilt/heading/easing/body matrix matches all 899 bus transitions",7,sub_2147D88 sub_2147E28 sub_2147E8C,,vm_model/src/mapobj/presentation.rs:5
 sub_20D7BEC,arm9_main,0x020D7BEC,136,inferred,kart,"guess: calls sub_2148538 (`FX_Atan2(y, x)` in fx12 radians (`sub_2)",1,sub_2148538,,
 sub_20D7C84,arm9_main,0x020D7C84,144,known,map objects,single-segment curve advance to new points (carry),3,sub_20D80E4 sub_2133048,,vm_model/src/mapobj/chomp.rs:270
@@ -4949,9 +4949,9 @@ sub_20D91DC,arm9_main,0x020D91DC,148,known,misc,"`sub_20D91DC`: x and z on the s
 sub_20D9270,arm9_main,0x020D9270,208,known,npc and traffic presentation (codex; 2026-10-08),"curved-path initialization: evaluates cubic Bernstein position and derivative weights, multiplies X/Z derivative by follower step in fx24",1,sub_20D94DC sub_20D970C,,vm_model/src/mapobj/vehicle.rs:48
 sub_20D9340,arm9_main,0x020D9340,92,known,map objects,Bezier x/z from a segment and progress,2,sub_20D94DC sub_20D9810,,vm_model/src/mapobj/path.rs:288 vm_model/src/mapobj/path.rs:296
 sub_20D939C,arm9_main,0x020D939C,228,inferred,map objects,guess: calls sub_20D95C0 (`sub_20D9480` / `sub_20D95C0`: the point); sub_20D970C (computes cubic Bernstein position and de),1,sub_20D95C0 sub_20D970C,,
-sub_20D9480,arm9_main,0x020D9480,92,known,map objects,Bezier x/y/z from a segment and progress,2,sub_20D95C0 sub_20D9810,,vm_model/src/mapobj/goomba.rs:4 vm_model/src/mapobj/goomba.rs:23
+sub_20D9480,arm9_main,0x020D9480,92,known,map objects,Bezier x/y/z from a segment and progress,2,sub_20D95C0 sub_20D9810,,vm_model/src/mapobj/goomba.rs:4 vm_model/src/mapobj/goomba.rs:37
 sub_20D94DC,arm9_main,0x020D94DC,228,unknown,,,3,,,
-sub_20D95C0,arm9_main,0x020D95C0,332,known,misc,`sub_20D9480` / `sub_20D95C0`: the point at progress `t` on a segment's Bezier curve.,2,,,vm_model/src/mapobj/goomba.rs:23
+sub_20D95C0,arm9_main,0x020D95C0,332,known,misc,`sub_20D9480` / `sub_20D95C0`: the point at progress `t` on a segment's Bezier curve.,2,,,vm_model/src/mapobj/goomba.rs:37
 sub_20D970C,arm9_main,0x020D970C,260,known,npc and traffic presentation (codex; 2026-10-08),computes cubic Bernstein position and derivative weights in fx24 for initial curved-path velocity,2,,,
 sub_20D9810,arm9_main,0x020D9810,148,known,map objects,cubic Bernstein weights (24-bit),3,,,vm_model/src/mapobj/path.rs:301
 sub_20D98A4,arm9_main,0x020D98A4,74,known,"water surface effect (course water: water_efct, hyudoro/yoshi/town/beach/mini_stage3 water models)",loads MapObj/water_efct nsbmd/nsbca/nsbma into a 16-byte record at 0x0217B654 and registers it,0,sub_20364E0 sub_20364E8 sub_2036BEC sub_2047974 sub_20D4970,MapObj/water_efct.nsbca | MapObj/water_efct.nsbma | MapObj/water_efct.nsbmd,
@@ -4967,25 +4967,25 @@ sub_20D9E60,arm9_main,0x020D9E60,296,known,"water surface effect (course water: 
 sub_20D9F8C,arm9_main,0x020D9F8C,992,known,"water surface effect (course water: water_efct, hyudoro/yoshi/town/beach/mini_stage3 water models)","water wave per-tick: 4-state sine bob of wave heights (table 0x0215D4B4), plays water splash sound on phase change",1,sub_20A02C8 sub_20D4EF4 sub_2105B28 sub_2108E6C sub_210B760,,
 sub_20DA384,arm9_main,0x020DA384,124,known,"water surface effect (course water: water_efct, hyudoro/yoshi/town/beach/mini_stage3 water models)","water object init: clears flag bits 2/8, sets +0x66=31, runs course water creator callback, loads water_efct nsbmd/nsbca/nsbma",0,sub_2047974,MapObj/water_efct.nsbca | MapObj/water_efct.nsbma | MapObj/water_efct.nsbmd,
 sub_20DA414,arm9_main,0x020DA414,128,known,"water surface effect (course water: water_efct, hyudoro/yoshi/town/beach/mini_stage3 water models)",allocates 64 bytes from the heap and zeroes them,0,sub_20364E0 sub_20364E8 sub_2036BEC,,
-sub_20DA494,arm9_main,0x020DA494,314,known,map objects,Goomba init,0,sub_2042044 sub_2046BCC sub_2046BE8 sub_20D7DA8 sub_20D8B88 sub_20D90A8 sub_2133068,,vm_model/src/mapobj/goomba.rs:1 vm_model/src/mapobj/goomba.rs:39
+sub_20DA494,arm9_main,0x020DA494,314,known,map objects,Goomba init,0,sub_2042044 sub_2046BCC sub_2046BE8 sub_20D7DA8 sub_20D8B88 sub_20D90A8 sub_2133068,,vm_model/src/mapobj/goomba.rs:1 vm_model/src/mapobj/goomba.rs:53
 sub_20DA5F0,arm9_main,0x020DA5F0,42,known,goomba (kuribo),loads kuribo.nsbmd and kuribo.nsbtp (Goomba model + texture pattern) into the render object at 0x0217B668,0,sub_20D21EC sub_20E6488 sub_20E6AB8,kuribo.nsbmd | kuribo.nsbtp,
 sub_20DA628,arm9_main,0x020DA628,84,known,goomba (kuribo),"Goomba corpse/flattened object init: scale +0xF8=4096, copies two 16-byte vectors to +0xA4/+0xB4, requests state 1, zeroes velocity",1,sub_2046BCC,,
 sub_20DA684,arm9_main,0x020DA684,176,known,goomba (kuribo),"Goomba kart-hit handler: when hit type 1 and state is 0/1/5, requests state 2 (squashed), calls sub_20F8DDC and spawns squash debris (sub_20DA820)",0,sub_20DA820 sub_20F8DDC,,
-sub_20DA73C,arm9_main,0x020DA73C,220,known,map objects,Goomba class callback (run over),0,sub_20D26EC sub_20D26F8 sub_20DA820,,
+sub_20DA73C,arm9_main,0x020DA73C,220,known,map objects,Goomba kart callback: own response 1 in state 0/1/5 queues state 2 and disables contact; response 0 adds 82*forwardSpeed>>12 spring velocity only from resting squash 4096/velocity 0; two normal contacts and one qualifying hit replayed exactly,0,sub_20D26EC sub_20D26F8 sub_20DA820,,vm_model/src/mapobj/goomba.rs:74
 sub_20DA820,arm9_main,0x020DA820,492,known,goomba (kuribo),uncertain: spawns a debris/dead-Goomba object (sub_20FA3D0) flying away from the kart (direction via VEC normalize),2,sub_2039860 sub_20F6630 sub_20FA3D0 sub_21482CC sub_214848C sub_21484D0 sub_2148504,,
-sub_20DAA10,arm9_main,0x020DAA10,140,known,map objects,Goomba state 5 (spring back after squash),0,,,
+sub_20DAA10,arm9_main,0x020DAA10,140,known,map objects,"Goomba state 5 spring-back: velocity += (4096-squash)>>3, decay by 3481/4096, add to squash; elapsed >60 queues walking state 0 on next tick; exact 600-update runtime replay",0,,,
 sub_20DAAA0,arm9_main,0x020DAAA0,132,known,goomba (kuribo),"Goomba squash state: plays sound 0x183 at its position (variant by kart sound table), clears flag bit 1, resets +0xC8",0,sub_20D4EF4 sub_210B7A8,,
 sub_20DAB2C,arm9_main,0x020DAB2C,108,known,goomba (kuribo),"Goomba timed state tick: if +0xFC set and state counter >300 switches to state 5, else counts down +0x100 and deletes object (sub_20D2398)",0,sub_20D2398,,
 nullsub_53,arm9_main,0x020DAB98,4,unknown,,,0,,,
-sub_20DAB9C,arm9_main,0x020DAB9C,88,known,map objects,Goomba state 3 (shrink),0,,,
+sub_20DAB9C,arm9_main,0x020DAB9C,88,known,map objects,Goomba state 3 compression: squash *=3481/4096; below 819 queues flat state 4 on next tick,0,,,
 nullsub_54,arm9_main,0x020DABFC,4,inferred,map objects,guess: part of the map objects code (address neighbours),0,,,
-sub_20DAC00,arm9_main,0x020DAC00,84,known,map objects,Goomba state 2 (squash),0,,,
+sub_20DAC00,arm9_main,0x020DAC00,84,known,map objects,Goomba state 2 initial stretch: squash *=4710/4096; above 6144 queues compression state 3 on next tick (earlier squash-only label hid this initial stretch),0,,,
 sub_20DAC58,arm9_main,0x020DAC58,24,known,goomba (kuribo),sets object flag bit 0 (visible) in +2,0,,,
 sub_20DAC74,arm9_main,0x020DAC74,368,known,goomba (kuribo),"Goomba corpse physics: gravity -1024 per tick, sphere vs KCL ground (sub_1FFDEE4), snaps up and bounces; blends orientation, caps at 180",0,sub_1FFDEE4 sub_20D759C sub_20D7B88 sub_2148504,,
 sub_20DADE8,arm9_main,0x020DADE8,20,known,goomba (kuribo),resets scale +0xC4 to 4096 and +0xC8 to 0,0,,,
-sub_20DADFC,arm9_main,0x020DADFC,260,known,map objects,Goomba walking state (stepping gait along its path),0,sub_20D8C74 sub_20D8CC8,,vm_model/src/mapobj/goomba.rs:1
+sub_20DADFC,arm9_main,0x020DADFC,260,known,"goomba squash dispatcher (codex, 2026-10-08)","Goomba walking update: advances follower only during gait 10..19/30..39, updates curved position, applies 1/8 restoring spring with 3481/4096 damping; snaps to squash 4096/velocity zero inside strict +/-41 windows",0,sub_20D8C74 sub_20D8CC8,,vm_model/src/mapobj/goomba.rs:1
 sub_20DAF0C,arm9_main,0x020DAF0C,20,known,goomba (kuribo),resets scale +0xC4 to 4096 and +0xC8 to 0,0,,,
-sub_20DAF20,arm9_main,0x020DAF20,288,known,map objects,"Goomba tick (step counter, state machine)",0,sub_2046B40 sub_20D4EF4 sub_210B7A8,,vm_model/src/mapobj/goomba.rs:1 vm_model/src/mapobj/goomba.rs:57
+sub_20DAF20,arm9_main,0x020DAF20,288,known,map objects,"Goomba tick (step counter, state machine)",0,sub_2046B40 sub_20D4EF4 sub_210B7A8,,vm_model/src/mapobj/goomba.rs:1 vm_model/src/mapobj/goomba.rs:91
 sub_20DB050,arm9_main,0x020DB050,316,known,goomba (kuribo),"Goomba draw callback: builds matrix from orientation or path follower, squash scale (+0xC4), animation frame, draws model (sub_20E67C4)",0,sub_1FFCCD0 sub_20D7938 sub_20D88FC sub_20E67C4 sub_20E6D34,,vm_model/src/mapobj/presentation.rs:43 game/src/object_animation.rs:2
 sub_20DB1B0,arm9_main,0x020DB1B0,84,known,goomba (kuribo),"Goomba logic class record factory (40 bytes, tick = sub_20DAF20), global 0x0217B664",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,
 sub_20DB20C,arm9_main,0x020DB20C,84,known,goomba (kuribo),"Goomba draw class record factory (44 bytes, loader = sub_20DA5F0, draw = sub_20DB050), global 0x0217B660",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20D49D8,,
@@ -4994,7 +4994,7 @@ sub_20DB2B8,arm9_main,0x020DB2B8,260,known,map objects,Thwomp init,0,sub_20D27FC
 sub_20DB3E4,arm9_main,0x020DB3E4,56,known,thwomp (dossun),loads dossun.nsbmd and dossun_shadow.nsbmd (Thwomp model and shadow),0,sub_2084968 sub_20D21EC sub_20EA55C sub_20EA588,dossun.nsbmd | dossun_shadow.nsbmd,
 sub_20DB430,arm9_main,0x020DB430,146,known,map objects,Thwomp start on its path,1,sub_20D8A5C sub_20D90A8,,vm_model/src/mapobj/thwomp.rs:1
 sub_20DB4C4,arm9_main,0x020DB4C4,132,known,thwomp (dossun),Thwomp path factor: follower fraction (sub_20D8CAC) mapped to 0..4096 depending on state (+0xA0) and direction,1,sub_20D8CAC,,
-sub_20DB548,arm9_main,0x020DB548,532,known,map objects,"Thwomp class callback (star knock, crush handler 11 for karts below)",0,sub_2039828 sub_2061FB8 sub_20D26F8 sub_20D6DC0 sub_20D8620 sub_21484D0,,vm_model/src/mapobj/thwomp.rs:10 game/src/objects.rs:494
+sub_20DB548,arm9_main,0x020DB548,532,known,map objects,"Thwomp class callback (star knock, crush handler 11 for karts below)",0,sub_2039828 sub_2061FB8 sub_20D26F8 sub_20D6DC0 sub_20D8620 sub_21484D0,,vm_model/src/mapobj/thwomp.rs:10 game/src/objects.rs:497
 sub_20DB760,arm9_main,0x020DB760,1580,known,map objects,"Thwomp tick (shudder, hop, slam, wait, rise; glide)",0,sub_208B7BC sub_20D275C sub_20D4DDC sub_20D4EF4 sub_20D8620 sub_20D8648 sub_20D8A5C sub_20D8CC8 sub_210B7A8,,vm_model/src/mapobj/thwomp.rs:1 vm_model/src/mapobj/thwomp.rs:82
 sub_20DBDAC,arm9_main,0x020DBDAC,184,known,thwomp (dossun),"Thwomp draw callback: optional tilt from sine table by +0xBA, position >>4, draws body and shadow (sub_20EA8A8/20EA868)",0,sub_20EA868 sub_20EA8A8 sub_2146D44 sub_2146DFC,,
 sub_20DBE74,arm9_main,0x020DBE74,84,known,thwomp (dossun),"Thwomp logic class record factory (40 bytes, tick = sub_20DB760), global 0x0217B670",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,

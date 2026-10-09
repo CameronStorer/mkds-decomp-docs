@@ -309,3 +309,84 @@ A frame-240 Shroom Ridge run of the standard executable checks Bevy system
 initialization and intact vehicle/body/axle rendering; capture is
 `%TEMP%/codex-traffic-contact/ridge.png`. No runtime panic occurred. This is
 a native smoke check, not a frame-aligned original collision comparison.
+
+## Goomba wobble, squash and recovery (2026-10-08)
+
+The kart callback `sub_20DA73C` separates two responses. Own byte 0 adds
+`82*forwardSpeed>>12` to the squash spring only when squash is exactly 4096
+and spring velocity is zero. Own byte 1, from current states 0/1/5, queues
+state 2 and immediately sets collision-disabled bit 0. The own-response
+entries for Goomba are [0,1,0,1], matching traffic. These are separate from
+the kart damage response. Native normal contacts now add wobble and
+Star/shrunk contacts start the squash sequence before kart damage/push.
+
+The state table at 0216BE48 contains six entry/update pairs. The shared
+`sub_2046B40` dispatcher consumes a pending transition on the next update,
+resets elapsed to zero, runs entry then update in that same call, then
+increments elapsed. Native state and pending state are tracked separately.
+
+| State | Behavior |
+| --- | --- |
+| 0 walking | Entry resets squash 4096 and velocity zero. Gait-driven path walking continues; wobble adds `(4096-squash)>>3` to spring velocity, damps by 3481/4096, then adds velocity to squash. Strict squash/velocity windows of +/-41 snap to rest. |
+| 1 airborne | Entry resets squash/velocity; its falling/KCL behavior remains unported. |
+| 2 stretch | Entry disables contact; multiply squash by 4710/4096. Above 6144 queues state 3. |
+| 3 compress | Multiply squash by 3481/4096. Below 819 queues state 4. |
+| 4 flat wait | Respawning objects queue state 5 when prior elapsed is >300; one-shot objects decrement draw alpha and disappear at zero. |
+| 5 spring-back | Entry clears disabled bit and zeros spring velocity, retaining flat squash. Use the damped spring; prior elapsed >60 queues state 0. |
+
+The gait counter advances in every state; path position and follower hold
+during states 2..5. The wait therefore consumes 302 update calls and spring
+state 62 calls, with transitions taking effect on the following tick. Map
+setting 0 high half zero selects the respawn branch. Native one-shot actors
+fade using the original alpha counter then hide/deactivate at zero rather
+than freeing the entity during its own update.
+
+### Original-runtime evidence
+
+`tools/bizhawk/codex_goomba_hit/run.ps1` boots an isolated Mario Circuit
+emulator and performs a controlled ordinary overlap, then a mode-1 overlap
+60 ticks later. It restores the kart after each callback. This is a
+controlled handler experiment, not naturally acquired item gameplay. It
+recorded 600 full update entry/return pairs and three hit callbacks without
+hook errors. The actual callback speed was 4182; the attempted pre-update
+speed override does not replace that measured input in the replay.
+
+The first normal callback at frame 2460 gives spring velocity 83. The second
+at 2461 leaves the already-moving spring unchanged. Qualifying hit 2520
+queues state 2 and disables contact. Runtime state entries occur at 2520
+(stretch), 2523 (compress), 2536 (flat), 2838 (spring-back), 2900 (walking).
+The continuous Rust replay matches all 600 updates and all three callback
+outputs for position, follower, gait/phase, current/pending state, elapsed
+counter, squash, spring velocity, collision-disabled bit and draw alpha.
+It requires the user's ROM for the Mario Circuit path and skips without it.
+The existing ordinary-walk replay also continues to pass.
+
+### Native presentation and limits
+
+`game/src/object_animation.rs` now feeds simulation squash into the original
+`sub_20DB050` draw formula: scale Y by squash, widen X by half the lost height,
+and retain the gait's alternating X mirror and original pattern texture.
+Per-instance materials preserve independent texture phases and one-shot
+alpha. The object loop mirrors collision-disabled state and hides deleted
+actors. A newly qualifying hit also disables the collision snapshot so
+subsequent karts in the same update cannot hit it again.
+
+The 600-update capture verifies the respawning path actor and normal wobble.
+Airborne state 1, non-respawning fade/deletion runtime comparison, item-hit
+dispatch, collision/recovery audio, and detached debris from `sub_20DA820`
+remain separate fidelity work. The one-shot branch is source-derived and
+not independently recorded. Full kart/object update ordering and naturally
+acquired Star/shrink scenarios are not established by this controlled replay.
+
+Native visual inspection can use `MKDS_SHOT_GOOMBA=1` and
+`MKDS_SHOT_GOOMBA_HIT=1` on Mario Circuit; the second option injects one
+qualifying hit at Goomba tick 60. Regular gameplay uses `collide_objects`.
+
+The full core suite passes 108 tests, with one existing ignored, and the
+standard Windows release build includes these changes. Controlled native
+Mario Circuit captures at render frames 200 and 600 show flat and recovered
+poses with the original pattern textures: `%TEMP%/codex-goomba-hit/flat.png`
+and `recovered.png`. Both standard-executable runs exit through the shot
+hook without a runtime panic. These are visual smoke checks, not
+frame-aligned emulator image comparisons; exact numeric coverage is the
+600-update controlled path-actor trace above.
