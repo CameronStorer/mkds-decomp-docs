@@ -206,7 +206,7 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20DA384: Goomba renderer loader: loads three shared resources into object-manager slots +372/+376/+380, after common render setup
 - sub_20E20A8: traffic renderer setup: loads body, tire, shadow and pattern resources; binds per-body texture-pattern wrappers and configures material rendering
 - sub_20E2A74: traffic draw: publishes body pattern frame from object +304, draws body/shadow and separate tire model twice with mirrored axle offset; tire angle from +268
-- sub_20E2630: traffic tick includes orientation easing and tire angle +268 increment of 1536 units each tick; tire clock port matches 899 original bus transitions; stationary/collision body poses still pending
+- sub_20E2630: traffic tick includes orientation easing and tire angle +268 increment of 1536 units each tick; normal driving matches 899 original bus transitions; hit flight/rebound/recovery additionally matches 300 controlled original bus updates
 - sub_20E1E98: traffic path/reset setup: initializes travel direction, heading quaternion, transform, timers and surface-effect state
 - sub_20E1F54: traffic init: type record at object +340; render width +256, height +260 and axle spacing +264 (translations shifted >>4), tire scale +272; scale-adjusted values +276..288 are collision extents, not tire transforms; setting 1 selects body pattern +304
 - sub_2147230: SDK X-axis 4x3 rotation matrix constructor: rows [4096,0,0], [0,cos,sin], [0,-sin,cos], zero translation; traffic overrides X scale and Y/Z translation for the two axle draws
@@ -222,3 +222,14 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20D970C: computes cubic Bernstein position and derivative weights in fx24 for initial curved-path velocity
 - sub_1FFCCD0: quaternion-to-3x3 basis with truncated products shifted by 11; preserves unnormalized easing contraction; traffic renderer now applies this affine basis to body/axle globals and collider axes
 - sub_2062464: race scheduler update: derives shared eight-slot terrain-probe phase (+12) from race tick counter (+4 & 7), parity at +16 and kart round-robin index at +20; some race states freeze tick advancement
+
+## Traffic hit and recovery (Codex, 2026-10-08)
+
+- sub_20E24D0: traffic own-object hit: project object-minus-hitter onto right/forward basis, choose signed 2:1 lateral/longitudinal tilt and height-dependent up component, SDK-normalize, convert to tilt quaternion; set easing 900, add 28672 upward velocity (retain positive Y only when timer <=15), set bounce bit and timer 20; exact original hit capture replayed
+- sub_20E246C: traffic item-hit callback: own-reaction byte 1 invokes sub_20E24D0 with item position +80, returns kart/item response byte; item dispatch is not yet wired natively
+- sub_20E2494: traffic kart-hit callback: own-reaction byte 1 invokes sub_20E24D0 with kart position +128, then collision sound helper sub_20D26F8; native Star/shrunk overlaps now invoke the hit physics
+- sub_20D6BE0: separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers
+- sub_20E2630: traffic flight uses timer >15, gravity 1434 and path X/Z; probes every flight tick at Y+61440; first floor landing rebounds by 1843+(height-81920)/512 and reverses/eases impact tilt, second sets timer 15 and Y velocity zero; following 15 updates restore normal easing; all 300 original bus updates reproduced including full basis
+- sub_20D2668: object sound-context selection wrapper around sub_2024A28 when class sound entry is enabled; not the own-object reaction dispatcher (earlier project notes attributed reactions here incorrectly)
+- sub_20D26F8: traffic crash sound 232 for kart mode 1 or 3; physics kick itself is dispatched separately through sub_20E2494
+- sub_20E2400: traffic custom contact callback passes scale-adjusted extents +276/+280/+284 and secondary extents [+276,0,+288] plus object basis to sub_20EAFC4; current native traffic sphere/cylinder approximation still needs this exact contact test

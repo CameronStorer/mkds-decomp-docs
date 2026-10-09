@@ -157,9 +157,81 @@ Add `MKDS_SHOT_TRAFFIC_LIFT=1` to raise only the inspected render root 120 units
 for an unobstructed model view. Simulation/collision position remains unchanged.
 
 `sub_20E1E98` initializes heading and reset state. The current vehicle port
-already follows the verified original path; collision/bounce orientation,
-pattern selection, horns and lights remain
-presentation work. Normal driving orientation is covered by the replay above.
+already follows the verified original path; pattern selection, horns and lights remain
+presentation work. Hit/bounce orientation is now covered below. Normal driving orientation is covered by the replay above.
 
 Other NPCs should be linked to their own state/draw routines in the same way.
 No blanket animation loop has been assigned to unmapped actors.
+
+## Traffic own-object hit, rebound and recovery (2026-10-08)
+
+The traffic kart callback `sub_20E2494` checks the separate own-reaction byte,
+then calls `sub_20E24D0` with the kart position (+128). The corresponding item
+callback `sub_20E246C` uses the item position (+80). These are distinct from
+the kart damage handlers. `sub_20D6BE0` reads own responses from 0216B9AC;
+for bus/car/truck the four kart-mode entries are [0,1,0,1]. The native game
+currently supplies modes 0 (normal), 1 (Star) and 3 (shrunk). Flag 0800
+suppresses own response 1; flag 0080 bypasses the dynamic callback in the
+original dispatcher. The initialized traffic flags captured here are 0010.
+
+The hit helper chooses the sign of the object's right and forward vectors
+from their dot products against object-minus-hitter, combines them 2:1 in
+XZ, and adds an upward component `(collisionHeight-81920)/16+8192`.
+SDK normalization and `sub_20D7B88` produce impact tilt. It sets easing 900,
+bounce-pending bit 0 and timer 20, then adds upward velocity 28672. Positive
+Y velocity is retained only when the previous timer is <=15.
+
+Flight is timer >15. X/Z continue along the path while gravity subtracts
+1434 from Y velocity every tick. The flight KCL sphere probes at Y+61440
+with radius 61440, flags 8, every tick. First floor contact while descending
+clears bounce-pending and rebounds by fx12 factor
+`1843+((collisionHeight-81920)>>9)`. The impact quaternion's XYZ are negated,
+W retained, then eased toward terrain tilt with rate 2253; body rate becomes
+800. The next landing sets timer 15, Y velocity zero and rate 600. Subsequent
+normal ticks decrement that timer, restoring the configured normal rate at
+zero. Descent uses held terrain tilt and a velocity-dependent rate;
+ascent/rebound uses impact tilt. The flight branch is decided at tick entry,
+including the tick that transitions to recovery.
+
+### Original-runtime evidence
+
+`tools/bizhawk/codex_traffic_hit/run.ps1` launches an isolated emulator, boots
+Shroom Ridge and makes one controlled mode-1 kart overlap with the first
+bus. Once the original hit callback fires it restores the kart position and
+mode. This is a controlled handler experiment, not naturally acquired Star
+gameplay. It recorded one original hit call and 300 original tick calls,
+without hook errors. Return hooks capture both inputs and outputs.
+
+The replay fixtures `bus_hit.csv` and `bus_hit_ticks.csv` contain signed
+object words, not ROM/assets. The tick rows are frame, scheduler slot,
+92 before words, 92 after words; hit rows are frame, hitter XYZ, 92 before
+words, 92 after words. `Vehicle::hit` and `tick_on_course` replay continuously
+from the initial captured state, applying the one hit at its original frame.
+All 300 updates match position, velocity, path state, terrain/impact/eased
+quaternions, heading, tire clock, timer, pending bit, rate and all nine basis
+words. The hit was frame 2460, first rebound 2498, second landing 2518,
+normal rate restored 2533. It complements the 899 normal-drive transitions.
+
+### Native integration and limits
+
+`game/src/objects.rs` now configures collision height from type and map Y
+scale (bus 55, car 20, truck 40 units at scale one), dispatches qualifying
+traffic own reactions before kart damage/push, and uses the resulting pose
+for body, tires and collider axes. Standard Windows release build passes;
+105 core tests pass, one existing ignored. Controlled native captures show
+the body and both axle assemblies tilted in flight and settled afterward:
+`%TEMP%/codex-traffic-hit/{airborne,hit}.png`. These are visual smoke checks,
+not emulator image comparisons. Optional inspection: `MKDS_SHOT_TRAFFIC=1`
+and `MKDS_SHOT_TRAFFIC_HIT=1` inject one hit at traffic tick 60.
+
+Contact geometry still uses the existing traffic cylinder approximation.
+The original `sub_20E2400` passes asymmetric oriented extents to
+`sub_20EAFC4`; this contact test is the next fidelity task. Thus exact
+handler/tick replay does not establish identical native collision timing.
+Items do not yet dispatch the own-object hit callback. Crash/landing sound,
+wall impacts, repeated-hit branches, below-zero reset and car/truck rebound
+have not been independently captured. The below-zero reset is source-derived.
+
+Earlier notes attributed own reactions to `sub_20D2668`; that function
+selects an object sound context through `sub_2024A28`. The own-reaction
+callback dispatch is `sub_20D6BE0`, as the C and controlled capture show.

@@ -10,10 +10,13 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   scale/spacing. Bus clock and render fields agree with the 900-row original trace.
   Normal terrain probing, heading, tilt, easing and all nine body-matrix words now
   match all 899 bus transitions using native KCL/velocity inputs. Rendering and
-  collision axes consume that state; collision/bounce poses remain pending.
+  collision axes consume that state. Hit flight/rebound/recovery now additionally
+  match 300 original bus updates after one controlled mode-1 overlap; Star/shrunk
+  contacts invoke the own-object reaction in the native game. Exact traffic contact
+  geometry, item-hit dispatch and crash/landing sounds remain pending.
   Fixed missing SDK T-origin compensation in non-rotated texture matrices, which
   made the quarter-wheel texture appear as two half-wheels.
-  Full core suite: 104 passed, one ignored; standard Windows release build and
+  Full core suite: 105 passed, one ignored; standard Windows release build and
   Shroom Ridge / Mushroom Bridge visual captures pass. See
   `analysis/CODEX_NPC_MAP.md` for evidence and remaining vehicle presentation work.
 - CPU drift fixed (hop-only direction, facing vector while drifting, CPU hop turn x2): no falls.
@@ -112,8 +115,9 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
 - Driver presentation: victory idle alternation, complete special-mode results and one-shot
   return logic; capture spin/win/lose, face changes and crossfades against the emulator.
 - Rainbow Road spiral falls; original drift particle simulation from `RaceEffect.spa`.
-- Object reactions not ported: the object's own side (`sub_20D2668`: Goombas squashed, crabs
-  knocked), moving-object shove (handler flag 1), handler 9/10 exact damage (taken as blown).
+- Object reactions: traffic hit/bounce ported; exact asymmetric contact geometry next.
+  Other own-object callbacks dispatched by `sub_20D6BE0` remain unported (Goomba
+  squash, crab knock), moving-object shove (handler flag 1), handler 9/10 exact damage (taken as blown).
 
 ## Long-term: "bring your own ROM" release (user, 2026-10-08; lower priority than finishing the game)
 Like the SM64 PC port: ship only our code; the player supplies their own MKDS `.nds`. The game
