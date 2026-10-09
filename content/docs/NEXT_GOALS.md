@@ -5,6 +5,13 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Flipper replay repaired: all 1,476 complete calls pass; three known stale
+  return-hook exits are explicitly checked. Tracer now suppresses inactive exits.
+- Lane C status, specs and open work: `docs/lane_c/PROGRESS.md` (read it before touching items or sound).
+- Lane B primary particle update now matches 996 original-game ticks across all
+  eight drift resources, including every modeled field, RNG and polygon allocator.
+  Next: emitter/wheel timing and textured native rendering; child spawning remains
+  unsupported. See `analysis/CODEX_PARTICLE_MAP.md`.
 - Lane B point-particle birth now matches 280 original births across all eight
   drift/wheel resources, including initialized fields and RNG states. Full
   particle update, wheel timers and native textured effects integration remain
@@ -209,14 +216,14 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
    pendulum, clock hands + their box collision: done; replay-exact or within 1 unit)
    Done since: Monty Moles, drawbridge (agent; deck = hinged ramp/wall floor), fire rings
    (hit test of outer fireballs, spin), pinball bumpers (bounce 12 units), moving-object
-   shove (handler flag 1). In progress (agents): Airship objects (0x1A1/0x1A2/0x1A4/0x1A7),
+   shove (handler flag 1), Airship objects (bullet launchers fire Bullet Bills that blow karts,
+   path sliders, hatches; in game, autopilot 0-1 falls from bullet blows). In progress (agents):
    pinball (flippers, iron balls, drums), fallback decoration models.
    Left: bats 0x19F (spawned by the course, not NKM), visual-only movers (Boos 0x13C/0x13D,
    chandeliers 0x140, paintings 0x151/0x152, jumping fish 0x1A0), Mansion 0xC9 path item
-   boxes (Lane C), objects' star/mega reactions (crab knock, Pokey break, snowman), Piranha plants 0x1A6, Cheep Cheeps 0x19B,
-   Monty Moles 0x199, snowmen 0x19D, bats 0x19F, fire bars/flippers/bumpers, pendulum 0xCF,
-   clock hand 0xCD, gear pauses 0xCB, drawbridge 0xCC; the objects' own reactions to karts
-   (Goomba debris/airborne state, Chomp state 2). Method: obj_trace.lua -> writer pc -> state
+   boxes (Lane C), objects' star/mega reactions (crab knock, Pokey break, snowman break, Chomp
+   state 2), Piranha plant 0x1A6 bite, snowman 0x19D, gear pauses 0xCB/0xCE. Method:
+   obj_trace.lua -> writer pc -> state
    table (def +0x10 manager record +8 / state machine at +0x80) -> port -> replay test.
 4. Item fidelity: star invincibility/knock, blue shell, bob-omb, blooper, Boo, bullet bill,
    triple/trailing items (record each in BizHawk, write fixture, port).

@@ -225,3 +225,45 @@ still need integration. Native drift sparks remain the current approximation.
 
 Validation after the birth port: shared core suite 126 passed, zero failed,
 one existing ignored. Site explorer sort/filter/200-row scrolling checks pass.
+
+## Lane B: original primary particle update
+
+`vm_model/src/nitro_particle_update.rs` ports the primary particle loop of
+`sub_20192E0` for resources without child emission. The caller supplies emitter
+position, translational velocity, plane override and the manager's polygon word.
+This integrates the previously verified birth fields, channels and behaviors;
+it does not yet schedule emitter births or render native effects.
+
+Channel phases use the particle's age before incrementing: life-step times age
+shifted by eight, or initial phase plus repeat-step times age shifted by eight,
+both truncated to a byte. Random birth color/texture suppress their corresponding
+per-tick channel. Follow-emitter bit15 refreshes world position before behaviors.
+Behaviors execute in archive order, followed by angular motion, drag, acceleration
+and local movement including the parent's translational velocity. Drag uses a
+wrapping 32-bit multiply by base[70]+384 before the arithmetic shift by nine.
+The manager assigns a polygon ID while preserving packed opacity, and increments
+age afterward; particles expire strictly when age exceeds lifetime.
+
+`tools/bizhawk/codex_particle_update/run.ps1` selects the eight original drift
+resources cyclically in an isolated Figure-8 replay. Entry/exit hooks at
+020194C8/020197C0 captured 1,002 original primary updates without hook errors.
+`make_fixture.py` retains 996 updates across resources 17,18,19,20,21,22,23,126;
+six incidental resource59 updates are excluded because that resource has child
+emission. All modeled fields, RNG state, polygon allocator state and expiry
+conditions match the Rust replay, including final particle ticks. Pool/list
+pointers are excluded from the numerical fixture. The replay loads the SPA from
+the user's local ROM and skips when it is absent.
+
+Remaining: emitter birth cadence and wheel transition/attachment timers, then
+native textured rendering. Child spawning and other emission geometries are
+unsupported; the native drift spark cubes are still the approximation.
+
+Validation: the new replay passes. The shared suite also exposed three orphan
+exit rows in the older flipper capture: return-address hooks stayed armed between
+calls. Its replay now pairs all 1,476 complete calls by function, checks matching
+frames and explicitly checks the three known orphan rows; it passes without
+changing flipper physics. The tracer now guards exits with an active return
+address. One pre-existing CPU replay remains ignored.
+
+Final validation: 130 core and integration tests passed, zero failed, one ignored;
+the Windows game release build passed.

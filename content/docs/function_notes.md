@@ -114,8 +114,8 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_2019B28: initializes emitter from resource and supplied position: rate, size, lifetime, frequency, opacity, texture parameters and other state
 - sub_2019DF8: converts SPA texture flags to GX texture parameters; palette-zero transparency comes from resource flag bit 16
 - sub_201873C: ticks active SPL emitters, honors start delay/alternating update flags, recycles expired empty emitters
-- sub_20192E0: emitter and particle simulation tick: spawn cadence, animated size/color/alpha/texture, behaviors, integration, death and child emission (not yet ported)
-- sub_201CA6C: allocates primary particles from fractional fx12 emission-rate accumulator, initializes positions by emission shape and remaining particle state (not yet ported)
+- sub_20192E0: emitter and particle simulation tick: spawn cadence, animated size/color/alpha/texture, behaviors, integration, death and child emission. Primary non-child tick now ported: life/repeat phase selection, follow-emitter bit15, ordered behaviors, wrapping32 drag multiply, parent translational velocity, polygon-ID allocation and strict age>lifetime expiry match 996 original updates across all eight drift resources; emitter scheduling and child emission remain separate
+- sub_201CA6C: allocates primary particles from fractional fx12 emission-rate accumulator; point-emission birth port matches 280 original births and RNG states (details below); other emission shapes and pool exhaustion remain separate
 
 ## Fall contact provenance (Codex; C and ARM, 2026-10-08)
 
