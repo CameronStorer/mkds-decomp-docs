@@ -504,3 +504,36 @@ full damage/bounce matrix equivalence remains unverified. Detail selection follo
 model detail, and visibility-based effect suppression (+76 bit0x8000) and draw-hide
 callbacks are unported. Original replay fixtures and ROM-derived textures remain
 local; public documentation publishes findings only.
+
+## CPU heading correction during Rainbow Road investigation (2026-10-09)
+
+The native CPU driver used floating-point `atan2` for heading error. Exported
+`sub_207F6F0` instead uses the SDK quantized fx12 angle table
+(`sub_2148538`) and a rounded radians-to-degrees multiplication by
+`0x394BB834C8`. The Rust driver now uses that original integer pipeline.
+Projection retains the rounded SDK dot product followed by truncated
+component multiplication; cross and forward dot products truncate.
+
+The isolated BizHawk capture snapshots the target at the angle call, after
+any reset-triggered recentering. Capturing only at function entry initially
+recorded stale targets when kart+68 bit0x2000 called `sub_207E7F0`; the tracer
+was corrected before accepting the replay. Figure-8 and Rainbow Road numeric
+fixtures verify the replacement; the Rainbow Road capture was selected via
+race-setup course ID29 and checks that selection before recording.
+All3,500 calls match:875 Figure-8 plus2,625 Rainbow Road, including inverted
+track with kart-up Y down to-4093. The replaced floating-point calculation
+differs on3,499 calls. The replay validates given original inputs, not native
+target selection or a complete race trajectory.
+
+The current Windows release built successfully and both native Rainbow Road
+sweeps exited normally at 6,000 render frames, with logged race tick6,000.
+Seed1 produced five falls before and six after the angle correction. The
+player advanced from lap1 checkpoint41 to lap2 checkpoint4; other kart paths
+and item interactions also diverged. This confirms a steering arithmetic
+correction, **not a reduction of spiral falls or a full race-parity claim**.
+All eleven falls were accepted type11 contacts (`0x84000800`). Numeric
+comparison: `analysis/cpu_heading_fall_comparison.csv`.
+
+The full core suite passes156 tests, with one existing CPU replay ignored.
+Remaining work is to isolate CPU route decisions, ground/contact evolution
+and missing driver substates against original race traces.

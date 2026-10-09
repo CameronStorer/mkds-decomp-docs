@@ -518,7 +518,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFD224_01FFD224.c`
 
 - [vm_model/src/cpu.rs:14](../vm_model/src/cpu.rs#L14) * Steering (`sub_1FFD224`): the heading error is the angle (degrees, fx12) between the kart's
-- [vm_model/src/cpu.rs:620](../vm_model/src/cpu.rs#L620) sub_1FFD224: turn toward the target, faster when moving
+- [vm_model/src/cpu.rs:627](../vm_model/src/cpu.rs#L627) sub_1FFD224: turn toward the target, faster when moving
 
 ## sub_1FFD648
 `export/plan0/arm9_autoload1_itcm/sub_1FFD648_01FFD648.c`
@@ -8988,7 +8988,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_2041BB0_02041BB0.c`
 
 - [vm_model/src/cpu.rs:1](../vm_model/src/cpu.rs#L1) CPU drivers: where karts start (`sub_2041BB0` / `sub_2041DC8`) and how a CPU follows the CPU
-- [vm_model/src/cpu.rs:65](../vm_model/src/cpu.rs#L65) Start grid (`sub_2041BB0`, race modes): for `racers` karts, kart in grid slot `slot`
+- [vm_model/src/cpu.rs:67](../vm_model/src/cpu.rs#L67) Start grid (`sub_2041BB0`, race modes): for `racers` karts, kart in grid slot `slot`
 
 ## sub_2041DC8
 `export/plan0/arm9_main/sub_2041DC8_02041DC8.c`
@@ -13386,6 +13386,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_2063B30_02063B30.c`
 
 - [docs/function_notes.md:66](../docs/function_notes.md#L66) kart up axis (+0x12C)
+- [docs/function_notes.md:373](../docs/function_notes.md#L373) copies kart-up vector from kart+300/+304/+308 into caller output; yaw steering sub_1FFD224 uses this same up vector to project its target and choose cross-product turn sign
 
 ## sub_2063B50
 `export/plan0/arm9_main/sub_2063B50_02063B50.c`
@@ -13672,7 +13673,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2068440
 `export/plan0/arm9_main/sub_2068440_02068440.c`
 
-- [vm_model/src/cpu.rs:37](../vm_model/src/cpu.rs#L37) mini-turbo at once (`sub_2068440(kart, 3)`).
+- [vm_model/src/cpu.rs:39](../vm_model/src/cpu.rs#L39) mini-turbo at once (`sub_2068440(kart, 3)`).
 
 ## sub_2068494
 `export/plan0/arm9_main/sub_2068494_02068494.c`
@@ -14177,7 +14178,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206F914
 `export/plan0/arm9_main/sub_206F914_0206F914.c`
 
-- [vm_model/src/cpu.rs:43](../vm_model/src/cpu.rs#L43) * Start (`sub_207E088`, decided when the driver is set up; applied at "GO" by `sub_206F914`):
+- [vm_model/src/cpu.rs:45](../vm_model/src/cpu.rs#L45) * Start (`sub_207E088`, decided when the driver is set up; applied at "GO" by `sub_206F914`):
 - [vm_model/src/start.rs:1](../vm_model/src/start.rs#L1) The start boost (`sub_206F914`): holding the accelerator during the countdown builds a charge
 
 ## sub_206FE08
@@ -15351,8 +15352,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207C144
 `export/plan0/arm9_main/sub_207C144_0207C144.c`
 
-- [vm_model/src/cpu.rs:48](../vm_model/src/cpu.rs#L48) * Items ([`CpuItems`], `sub_207C144` / `sub_207C2EC` and the handlers in the per-class tables
-- [vm_model/src/cpu.rs:243](../vm_model/src/cpu.rs#L243) `sub_207C144`: an item (slot index 0..16) arrived.
+- [vm_model/src/cpu.rs:50](../vm_model/src/cpu.rs#L50) * Items ([`CpuItems`], `sub_207C144` / `sub_207C2EC` and the handlers in the per-class tables
+- [vm_model/src/cpu.rs:245](../vm_model/src/cpu.rs#L245) `sub_207C144`: an item (slot index 0..16) arrived.
 
 ## sub_207C270
 `export/plan0/arm9_main/sub_207C270_0207C270.c`
@@ -15362,7 +15363,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207C2EC
 `export/plan0/arm9_main/sub_207C2EC_0207C2EC.c`
 
-- [vm_model/src/cpu.rs:48](../vm_model/src/cpu.rs#L48) * Items ([`CpuItems`], `sub_207C144` / `sub_207C2EC` and the handlers in the per-class tables
+- [vm_model/src/cpu.rs:50](../vm_model/src/cpu.rs#L50) * Items ([`CpuItems`], `sub_207C144` / `sub_207C2EC` and the handlers in the per-class tables
 
 ## sub_207C448
 `export/plan0/arm9_main/sub_207C448_0207C448.c`
@@ -15422,52 +15423,52 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207CB74
 `export/plan0/arm9_main/sub_207CB74_0207CB74.c`
 
-- [vm_model/src/cpu.rs:169](../vm_model/src/cpu.rs#L169) `sub_207CC74` / `sub_207CB74`: only when within 20 degrees of the target.
+- [vm_model/src/cpu.rs:171](../vm_model/src/cpu.rs#L171) `sub_207CC74` / `sub_207CB74`: only when within 20 degrees of the target.
 
 ## sub_207CC74
 `export/plan0/arm9_main/sub_207CC74_0207CC74.c`
 
-- [vm_model/src/cpu.rs:169](../vm_model/src/cpu.rs#L169) `sub_207CC74` / `sub_207CB74`: only when within 20 degrees of the target.
+- [vm_model/src/cpu.rs:171](../vm_model/src/cpu.rs#L171) `sub_207CC74` / `sub_207CB74`: only when within 20 degrees of the target.
 
 ## sub_207CD74
 `export/plan0/arm9_main/sub_207CD74_0207CD74.c`
 
-- [vm_model/src/cpu.rs:162](../vm_model/src/cpu.rs#L162) `sub_207D35C`: throw, aimed by place (`sub_207CD74`).
+- [vm_model/src/cpu.rs:164](../vm_model/src/cpu.rs#L164) `sub_207D35C`: throw, aimed by place (`sub_207CD74`).
 
 ## sub_207D194
 `export/plan0/arm9_main/sub_207D194_0207D194.c`
 
-- [vm_model/src/cpu.rs:164](../vm_model/src/cpu.rs#L164) `sub_207D3A4`: at a target racer if there is one (`sub_207D194`), else as `Throw`.
+- [vm_model/src/cpu.rs:166](../vm_model/src/cpu.rs#L166) `sub_207D3A4`: at a target racer if there is one (`sub_207D194`), else as `Throw`.
 
 ## sub_207D35C
 `export/plan0/arm9_main/sub_207D35C_0207D35C.c`
 
-- [vm_model/src/cpu.rs:162](../vm_model/src/cpu.rs#L162) `sub_207D35C`: throw, aimed by place (`sub_207CD74`).
+- [vm_model/src/cpu.rs:164](../vm_model/src/cpu.rs#L164) `sub_207D35C`: throw, aimed by place (`sub_207CD74`).
 
 ## sub_207D3A4
 `export/plan0/arm9_main/sub_207D3A4_0207D3A4.c`
 
-- [vm_model/src/cpu.rs:164](../vm_model/src/cpu.rs#L164) `sub_207D3A4`: at a target racer if there is one (`sub_207D194`), else as `Throw`.
+- [vm_model/src/cpu.rs:166](../vm_model/src/cpu.rs#L166) `sub_207D3A4`: at a target racer if there is one (`sub_207D194`), else as `Throw`.
 
 ## sub_207D3EC
 `export/plan0/arm9_main/sub_207D3EC_0207D3EC.c`
 
-- [vm_model/src/cpu.rs:166](../vm_model/src/cpu.rs#L166) `sub_207D3EC` / `sub_207D474`: a rival whose pick-up roll is within the limit keeps it
+- [vm_model/src/cpu.rs:168](../vm_model/src/cpu.rs#L168) `sub_207D3EC` / `sub_207D474`: a rival whose pick-up roll is within the limit keeps it
 
 ## sub_207D474
 `export/plan0/arm9_main/sub_207D474_0207D474.c`
 
-- [vm_model/src/cpu.rs:166](../vm_model/src/cpu.rs#L166) `sub_207D3EC` / `sub_207D474`: a rival whose pick-up roll is within the limit keeps it
+- [vm_model/src/cpu.rs:168](../vm_model/src/cpu.rs#L168) `sub_207D3EC` / `sub_207D474`: a rival whose pick-up roll is within the limit keeps it
 
 ## sub_207D4CC
 `export/plan0/arm9_main/sub_207D4CC_0207D4CC.c`
 
-- [vm_model/src/cpu.rs:171](../vm_model/src/cpu.rs#L171) `sub_207D4CC` / `sub_207D5B8`: use at once.
+- [vm_model/src/cpu.rs:173](../vm_model/src/cpu.rs#L173) `sub_207D4CC` / `sub_207D5B8`: use at once.
 
 ## sub_207D5B8
 `export/plan0/arm9_main/sub_207D5B8_0207D5B8.c`
 
-- [vm_model/src/cpu.rs:171](../vm_model/src/cpu.rs#L171) `sub_207D4CC` / `sub_207D5B8`: use at once.
+- [vm_model/src/cpu.rs:173](../vm_model/src/cpu.rs#L173) `sub_207D4CC` / `sub_207D5B8`: use at once.
 
 ## sub_207D6A4
 `export/plan0/arm9_main/sub_207D6A4_0207D6A4.c`
@@ -15488,30 +15489,30 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207D8E4
 `export/plan0/arm9_main/sub_207D8E4_0207D8E4.c`
 
-- [vm_model/src/cpu.rs:120](../vm_model/src/cpu.rs#L120) Start-boost levels (1..5) per class: rivals take the last (`sub_207D8E4`).
+- [vm_model/src/cpu.rs:122](../vm_model/src/cpu.rs#L122) Start-boost levels (1..5) per class: rivals take the last (`sub_207D8E4`).
 
 ## sub_207D9F0
 `export/plan0/arm9_main/sub_207D9F0_0207D9F0.c`
 
-- [vm_model/src/cpu.rs:38](../vm_model/src/cpu.rs#L38) * Pace (rubber-banding, `sub_207DE84` / `sub_207D9F0`, see [`CpuPace`]): each CPU's speed
-- [vm_model/src/cpu.rs:728](../vm_model/src/cpu.rs#L728) A CPU's speed target (driver +0xE8, `sub_207E200` / `sub_207DE84` / `sub_207D9F0`).
-- [vm_model/src/cpu.rs:782](../vm_model/src/cpu.rs#L782) whose rank and slot become 1 (`sub_207D9F0`).
-- [vm_model/src/cpu.rs:805](../vm_model/src/cpu.rs#L805) `sub_207D9F0`.
+- [vm_model/src/cpu.rs:40](../vm_model/src/cpu.rs#L40) * Pace (rubber-banding, `sub_207DE84` / `sub_207D9F0`, see [`CpuPace`]): each CPU's speed
+- [vm_model/src/cpu.rs:735](../vm_model/src/cpu.rs#L735) A CPU's speed target (driver +0xE8, `sub_207E200` / `sub_207DE84` / `sub_207D9F0`).
+- [vm_model/src/cpu.rs:789](../vm_model/src/cpu.rs#L789) whose rank and slot become 1 (`sub_207D9F0`).
+- [vm_model/src/cpu.rs:812](../vm_model/src/cpu.rs#L812) `sub_207D9F0`.
 
 ## sub_207DE84
 `export/plan0/arm9_main/sub_207DE84_0207DE84.c`
 
-- [vm_model/src/cpu.rs:38](../vm_model/src/cpu.rs#L38) * Pace (rubber-banding, `sub_207DE84` / `sub_207D9F0`, see [`CpuPace`]): each CPU's speed
-- [vm_model/src/cpu.rs:728](../vm_model/src/cpu.rs#L728) A CPU's speed target (driver +0xE8, `sub_207E200` / `sub_207DE84` / `sub_207D9F0`).
-- [vm_model/src/cpu.rs:780](../vm_model/src/cpu.rs#L780) `sub_207DE84`, on this kart's turn: a new speed target. `peers` holds every kart's pace
+- [vm_model/src/cpu.rs:40](../vm_model/src/cpu.rs#L40) * Pace (rubber-banding, `sub_207DE84` / `sub_207D9F0`, see [`CpuPace`]): each CPU's speed
+- [vm_model/src/cpu.rs:735](../vm_model/src/cpu.rs#L735) A CPU's speed target (driver +0xE8, `sub_207E200` / `sub_207DE84` / `sub_207D9F0`).
+- [vm_model/src/cpu.rs:787](../vm_model/src/cpu.rs#L787) `sub_207DE84`, on this kart's turn: a new speed target. `peers` holds every kart's pace
 - [vm_model/src/kart/speed.rs:85](../vm_model/src/kart/speed.rs#L85) Blooper ink on a CPU kart (+0x4C bit 0x8000000): the target is scaled by 0.7 (`sub_207DE84`).
 - [vm_model/src/kart/speed.rs:96](../vm_model/src/kart/speed.rs#L96) (`sub_207DE84`, between `sub_1FFBE70` and `sub_1FFBE04`).
 
 ## sub_207E088
 `export/plan0/arm9_main/sub_207E088_0207E088.c`
 
-- [vm_model/src/cpu.rs:43](../vm_model/src/cpu.rs#L43) * Start (`sub_207E088`, decided when the driver is set up; applied at "GO" by `sub_206F914`):
-- [vm_model/src/cpu.rs:133](../vm_model/src/cpu.rs#L133) `sub_207E088`: the start for a CPU of `rank` (1..7) in engine class 0..2.
+- [vm_model/src/cpu.rs:45](../vm_model/src/cpu.rs#L45) * Start (`sub_207E088`, decided when the driver is set up; applied at "GO" by `sub_206F914`):
+- [vm_model/src/cpu.rs:135](../vm_model/src/cpu.rs#L135) `sub_207E088`: the start for a CPU of `rank` (1..7) in engine class 0..2.
 
 ## sub_207E1D4
 `export/plan0/arm9_main/sub_207E1D4_0207E1D4.c`
@@ -15521,14 +15522,14 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207E200
 `export/plan0/arm9_main/sub_207E200_0207E200.c`
 
-- [vm_model/src/cpu.rs:504](../vm_model/src/cpu.rs#L504) Skill from the CPU's rank 1..7 (`sub_207FA74`, `sub_207E200`): drift and mini-turbo
-- [vm_model/src/cpu.rs:728](../vm_model/src/cpu.rs#L728) A CPU's speed target (driver +0xE8, `sub_207E200` / `sub_207DE84` / `sub_207D9F0`).
-- [vm_model/src/cpu.rs:766](../vm_model/src/cpu.rs#L766) `sub_207E200`.
+- [vm_model/src/cpu.rs:517](../vm_model/src/cpu.rs#L517) Skill from the CPU's rank 1..7 (`sub_207FA74`, `sub_207E200`): drift and mini-turbo
+- [vm_model/src/cpu.rs:735](../vm_model/src/cpu.rs#L735) A CPU's speed target (driver +0xE8, `sub_207E200` / `sub_207DE84` / `sub_207D9F0`).
+- [vm_model/src/cpu.rs:773](../vm_model/src/cpu.rs#L773) `sub_207E200`.
 
 ## sub_207E268
 `export/plan0/arm9_main/sub_207E268_0207E268.c`
 
-- [vm_model/src/cpu.rs:109](../vm_model/src/cpu.rs#L109) `*0x0217AE2C`, set by `sub_207E268`).
+- [vm_model/src/cpu.rs:111](../vm_model/src/cpu.rs#L111) `*0x0217AE2C`, set by `sub_207E268`).
 
 ## sub_207E35C
 `export/plan0/arm9_main/sub_207E35C_0207E35C.c`
@@ -15579,14 +15580,14 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_207E7F0_0207E7F0.c`
 
 - [vm_model/src/cpu.rs:12](../vm_model/src/cpu.rs#L12) starts from where the kart stands across the route (`sub_207E7F0`), is reset to where the
-- [vm_model/src/cpu.rs:440](../vm_model/src/cpu.rs#L440) sub_207E7F0: aim across the route where the kart already is
+- [vm_model/src/cpu.rs:453](../vm_model/src/cpu.rs#L453) sub_207E7F0: aim across the route where the kart already is
 
 ## sub_207E944
 `export/plan0/arm9_main/sub_207E944_0207E944.c`
 
 - [vm_model/src/cpu.rs:11](../vm_model/src/cpu.rs#L11) ±0.15 at every node reached once the countdown is over, within ±0.7 (`sub_207E944`). It
-- [vm_model/src/cpu.rs:327](../vm_model/src/cpu.rs#L327) Largest random step of the lateral factor, and its limit (`sub_207E944`).
-- [vm_model/src/cpu.rs:468](../vm_model/src/cpu.rs#L468) `sub_207E944`: a random step for the lateral factor (two draws; the first is unused).
+- [vm_model/src/cpu.rs:329](../vm_model/src/cpu.rs#L329) Largest random step of the lateral factor, and its limit (`sub_207E944`).
+- [vm_model/src/cpu.rs:481](../vm_model/src/cpu.rs#L481) `sub_207E944`: a random step for the lateral factor (two draws; the first is unused).
 
 ## sub_207EAFC
 `export/plan0/arm9_main/sub_207EAFC_0207EAFC.c`
@@ -15597,19 +15598,19 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_207EBFC_0207EBFC.c`
 
 - [vm_model/src/cpu.rs:20](../vm_model/src/cpu.rs#L20) * Drifting (`sub_207F05C` on reaching a node, `sub_207EBFC` per tick): a node's drift hint
-- [vm_model/src/cpu.rs:333](../vm_model/src/cpu.rs#L333) Ticks into a drift at which the mini-turbo roll happens (`sub_207EBFC`).
-- [vm_model/src/cpu.rs:544](../vm_model/src/cpu.rs#L544) `sub_207EBFC`: the drift's buttons this tick.
+- [vm_model/src/cpu.rs:335](../vm_model/src/cpu.rs#L335) Ticks into a drift at which the mini-turbo roll happens (`sub_207EBFC`).
+- [vm_model/src/cpu.rs:557](../vm_model/src/cpu.rs#L557) `sub_207EBFC`: the drift's buttons this tick.
 
 ## sub_207F05C
 `export/plan0/arm9_main/sub_207F05C_0207F05C.c`
 
 - [vm_model/src/cpu.rs:20](../vm_model/src/cpu.rs#L20) * Drifting (`sub_207F05C` on reaching a node, `sub_207EBFC` per tick): a node's drift hint
-- [vm_model/src/cpu.rs:516](../vm_model/src/cpu.rs#L516) `sub_207F05C`: on reaching a node, its drift hint may start or end a drift.
+- [vm_model/src/cpu.rs:529](../vm_model/src/cpu.rs#L529) `sub_207F05C`: on reaching a node, its drift hint may start or end a drift.
 
 ## sub_207F2E4
 `export/plan0/arm9_main/sub_207F2E4_0207F2E4.c`
 
-- [vm_model/src/cpu.rs:220](../vm_model/src/cpu.rs#L220) A human races right ahead / anyone right behind (150cc aiming, `sub_207F2E4`).
+- [vm_model/src/cpu.rs:222](../vm_model/src/cpu.rs#L222) A human races right ahead / anyone right behind (150cc aiming, `sub_207F2E4`).
 
 ## sub_207F554
 `export/plan0/arm9_main/sub_207F554_0207F554.c`
@@ -15631,17 +15632,20 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_207F668_0207F668.c`
 
 - [vm_model/src/cpu.rs:9](../vm_model/src/cpu.rs#L9) * The target point is the node's position plus a sideways offset (`sub_207F668`): the route's
-- [vm_model/src/cpu.rs:632](../vm_model/src/cpu.rs#L632) sub_207F668: the target, offset across the route
+- [vm_model/src/cpu.rs:639](../vm_model/src/cpu.rs#L639) sub_207F668: the target, offset across the route
 
 ## sub_207F6F0
 `export/plan0/arm9_main/sub_207F6F0_0207F6F0.c`
 
 - [vm_model/src/cpu.rs:16](../vm_model/src/cpu.rs#L16) kart per frame in turn (`sub_207F6F0`). While it exceeds 2 degrees the yaw turns toward the
-- [vm_model/src/cpu.rs:610](../vm_model/src/cpu.rs#L610) sub_207F6F0: angle between forward and the target direction in the ground plane
+- [vm_model/src/cpu.rs:410](../vm_model/src/cpu.rs#L410) `sub_207F6F0`: absolute heading error in fx12 degrees. The SDK's quantized
+- [docs/function_notes.md:371](../docs/function_notes.md#L371) CPU route-following update: on the racer round-robin turn projects target minus kart position onto kart-up plane using rounded SDK dot then truncated scale, takes truncated cross/dot against facing or body-forward, SDK quantized atan2 and rounded fx12 radians-to-degrees constant0x394BB834C8, stores absolute heading error at driver+112. Kart+68 bit0x2000 recenters target via sub_207E7F0 before calculation; separately advances reached route nodes and applies drift hints. Rust floating-point angle replaced with original integer pipeline; numeric replay fixtures cover Figure-8 and Rainbow Road
+- [docs/function_notes.md:375](../docs/function_notes.md#L375) heading-error integer pipeline replay-confirmed against3500 original calls (875 Figure-8,2625 Rainbow Road including inverted track with upY=-4093); floating atan2 differed on3499. Capture records target after reset recentering. Native seed1 sweep has five falls before/six after; angle parity does not establish spiral-fall resolution
 
 ## sub_207F8F8
 `export/plan0/arm9_main/sub_207F8F8_0207F8F8.c`
 
+- [docs/function_notes.md:372](../docs/function_notes.md#L372) main CPU driving-state update: refreshes driver state, selects facing kart+80 when driver drift-state+144 equals2 or body-forward+312 otherwise, obtains tracked kart position, invokes sub_207F6F0, presses accelerator and yaw-steers through sub_1FFD224 when damage-state+384 is clear, then updates drift buttons and item-target selection
 - [docs/function_notes/NEEDS_REVIEW.md:395](../docs/function_notes/NEEDS_REVIEW.md#L395) probably CPU driver per-frame step: calls sub_207E668, picks target offset (+20 or +78), sub_207A948, sub_207F6F0, steering via sub_204360C/sub_21484D0/sub_1FFD224 when !v4[96]; then sub_207EBFC and sub_207F2E4.
 - [docs/function_notes/hk_13.md:19](../docs/function_notes/hk_13.md#L19) probably CPU driver per-frame step: calls sub_207E668, picks target offset (+20 or +78), sub_207A948, sub_207F6F0, steering via sub_204360C/sub_21484D0/sub_1FFD224 when !v4[96]; then sub_207EBFC and sub_207F2E4.
 
@@ -15658,13 +15662,13 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207FA74
 `export/plan0/arm9_main/sub_207FA74_0207FA74.c`
 
-- [vm_model/src/cpu.rs:33](../vm_model/src/cpu.rs#L33) * Skill (`sub_207FA74`): each CPU has a rank (`sub_2085AD8`: the two rivals named by the race
-- [vm_model/src/cpu.rs:504](../vm_model/src/cpu.rs#L504) Skill from the CPU's rank 1..7 (`sub_207FA74`, `sub_207E200`): drift and mini-turbo
+- [vm_model/src/cpu.rs:35](../vm_model/src/cpu.rs#L35) * Skill (`sub_207FA74`): each CPU has a rank (`sub_2085AD8`: the two rivals named by the race
+- [vm_model/src/cpu.rs:517](../vm_model/src/cpu.rs#L517) Skill from the CPU's rank 1..7 (`sub_207FA74`, `sub_207E200`): drift and mini-turbo
 
 ## sub_207FBA0
 `export/plan0/arm9_main/sub_207FBA0_0207FBA0.c`
 
-- [vm_model/src/cpu.rs:322](../vm_model/src/cpu.rs#L322) Yaw controller speed scale (`sub_207FBA0` points `*0x0217AE40` at 0x021557C0 in races,
+- [vm_model/src/cpu.rs:324](../vm_model/src/cpu.rs#L324) Yaw controller speed scale (`sub_207FBA0` points `*0x0217AE40` at 0x021557C0 in races,
 
 ## sub_207FD28
 `export/plan0/arm9_main/sub_207FD28_0207FD28.c`
@@ -15734,20 +15738,20 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_2080B1C_02080B1C.c`
 
 - [vm_model/src/cpu.rs:8](../vm_model/src/cpu.rs#L8) next node is picked at random (`sub_2080B1C`).
-- [vm_model/src/cpu.rs:372](../vm_model/src/cpu.rs#L372) Driving a Bullet Bill: always the first branch at a fork, no random pick (`sub_2080B1C`).
-- [vm_model/src/cpu.rs:490](../vm_model/src/cpu.rs#L490) `sub_2080B1C`: on to the next node (random pick at a fork).
+- [vm_model/src/cpu.rs:374](../vm_model/src/cpu.rs#L374) Driving a Bullet Bill: always the first branch at a fork, no random pick (`sub_2080B1C`).
+- [vm_model/src/cpu.rs:503](../vm_model/src/cpu.rs#L503) `sub_2080B1C`: on to the next node (random pick at a fork).
 
 ## sub_2080BF4
 `export/plan0/arm9_main/sub_2080BF4_02080BF4.c`
 
 - [vm_model/src/cpu.rs:7](../vm_model/src/cpu.rs#L7) along that direction, or inside its radius (`sub_2080BF4` / `sub_2080C64`). At a fork the
-- [vm_model/src/cpu.rs:479](../vm_model/src/cpu.rs#L479) `sub_2080BF4` / `sub_2080C64`: has the kart reached the node it is heading for?
+- [vm_model/src/cpu.rs:492](../vm_model/src/cpu.rs#L492) `sub_2080BF4` / `sub_2080C64`: has the kart reached the node it is heading for?
 
 ## sub_2080C64
 `export/plan0/arm9_main/sub_2080C64_02080C64.c`
 
 - [vm_model/src/cpu.rs:7](../vm_model/src/cpu.rs#L7) along that direction, or inside its radius (`sub_2080BF4` / `sub_2080C64`). At a fork the
-- [vm_model/src/cpu.rs:479](../vm_model/src/cpu.rs#L479) `sub_2080BF4` / `sub_2080C64`: has the kart reached the node it is heading for?
+- [vm_model/src/cpu.rs:492](../vm_model/src/cpu.rs#L492) `sub_2080BF4` / `sub_2080C64`: has the kart reached the node it is heading for?
 
 ## sub_2080CC0
 `export/plan0/arm9_main/sub_2080CC0_02080CC0.c`
@@ -16321,8 +16325,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_208552C
 `export/plan0/arm9_main/sub_208552C_0208552C.c`
 
-- [vm_model/src/cpu.rs:679](../vm_model/src/cpu.rs#L679) (`sub_208552C`).
-- [vm_model/src/cpu.rs:685](../vm_model/src/cpu.rs#L685) Where every kart stands (the CPU manager, `sub_208552C`), refreshed every frame.
+- [vm_model/src/cpu.rs:686](../vm_model/src/cpu.rs#L686) (`sub_208552C`).
+- [vm_model/src/cpu.rs:692](../vm_model/src/cpu.rs#L692) Where every kart stands (the CPU manager, `sub_208552C`), refreshed every frame.
 - [game/src/racers.rs:240](../game/src/racers.rs#L240) the CPU manager's view of the race (`sub_208552C`) and every CPU's pace, as of last tick
 
 ## sub_2085778
@@ -16350,7 +16354,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2085AD8
 `export/plan0/arm9_main/sub_2085AD8_02085AD8.c`
 
-- [vm_model/src/cpu.rs:33](../vm_model/src/cpu.rs#L33) * Skill (`sub_207FA74`): each CPU has a rank (`sub_2085AD8`: the two rivals named by the race
+- [vm_model/src/cpu.rs:35](../vm_model/src/cpu.rs#L35) * Skill (`sub_207FA74`): each CPU has a rank (`sub_2085AD8`: the two rivals named by the race
 - [game/src/racers.rs:143](../game/src/racers.rs#L143) CPU ranks (`sub_2085AD8`): the two rivals 1 and 2, the others draw 3..7 at random
 
 ## sub_2085BEC
@@ -16373,7 +16377,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2085FD8
 `export/plan0/arm9_main/sub_2085FD8_02085FD8.c`
 
-- [vm_model/src/cpu.rs:649](../vm_model/src/cpu.rs#L649) The race's CPU difficulty (`kartAIparam.bin`: 12 bytes per course and class, `sub_2085FD8`).
+- [vm_model/src/cpu.rs:656](../vm_model/src/cpu.rs#L656) The race's CPU difficulty (`kartAIparam.bin`: 12 bytes per course and class, `sub_2085FD8`).
 
 ## sub_2086058
 `export/plan0/arm9_main/sub_2086058_02086058.c`
