@@ -4594,23 +4594,27 @@ ports or explains it. Regenerate after porting something new.
 ## sub_201C4E8
 `export/plan0/arm9_main/sub_201C4E8_0201C4E8.c`
 
+- [docs/function_notes.md:365](../docs/function_notes.md#L365) builds row-vector fx12 Y-axis rotation from sine/cosine into a3; used by the drift world-quads' selector0. Matrix order/output replay-confirmed within721 original draw calls
 - [docs/function_notes/agent_01.md:38](../docs/function_notes/agent_01.md#L38) builds 3x3 fixed-point rotation matrix about the Y axis from sin a1 / cos a2 into a3
 
 ## sub_201C528
 `export/plan0/arm9_main/sub_201C528_0201C528.c`
 
+- [docs/function_notes.md:366](../docs/function_notes.md#L366) builds row-vector fx12 rotation about diagonal axis(1,1,1), using1365=1/3 and2365=1/sqrt3 approximations; source-derived selector1, not exercised by current drift resources. Corrects earlier generic annotation calling it a texture-center rotation
 - [docs/function_notes/agent_01.md:39](../docs/function_notes/agent_01.md#L39) builds 3x3 2D texture-rotation matrix (about texture center) from sin a1 / cos a2 into a3
 
 ## sub_201C5D4
 `export/plan0/arm9_main/sub_201C5D4_0201C5D4.c`
 
 - [vm_model/src/nitro_particle_draw.rs:23](../vm_model/src/nitro_particle_draw.rs#L23) sub_201C690 / sub_201C5D4: signed16 corners quantized by VTX10.
+- [docs/function_notes.md:368](../docs/function_notes.md#L368) emits an XZ QUADS primitive with signed16 offset +/-4096 corners quantized into VTX10 and four tiled UV corners. Source-derived; current drift capture exercises XY only, not this helper
 - [docs/function_notes/agent_01.md:40](../docs/function_notes/agent_01.md#L40) emits one textured quad (BEGIN_VTXS quads, TEXCOORD + 4 packed VTX_10) in the X/Z plane, center (a3,a4)
 
 ## sub_201C690
 `export/plan0/arm9_main/sub_201C690_0201C690.c`
 
 - [vm_model/src/nitro_particle_draw.rs:23](../vm_model/src/nitro_particle_draw.rs#L23) sub_201C690 / sub_201C5D4: signed16 corners quantized by VTX10.
+- [docs/function_notes.md:367](../docs/function_notes.md#L367) emits an XY QUADS primitive with signed16 offset +/-4096 corners quantized into VTX10 and four tiled UV corners. All721 drift captures verify its arguments; GPU vertex/UV command packing source-derived
 - [docs/function_notes/agent_01.md:41](../docs/function_notes/agent_01.md#L41) emits one textured quad (4 packed VTX_10 vertices) in the X/Y plane, texcoords (a1,a2), center (a3,a4)
 
 ## sub_201C74C
@@ -17195,6 +17199,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/nitro_particle_wheel.rs:1](../vm_model/src/nitro_particle_wheel.rs#L1) Rear-wheel transient callbacks sub_208C6DC / sub_208C930.
 - [docs/function_notes.md:196](../docs/function_notes.md#L196) attaches blue-flare pair to rear wheel positions/directions for eight ticks; pauses continuous wheel emitters meanwhile, destroys flares and resumes continuous emitters on tick nine. Timer and 16 emitter attachments match nine natural original callbacks; pause/resume flag actions source-derived, continuous emitter flags not included in this capture
+- [docs/function_notes.md:369](../docs/function_notes.md#L369) blue flare attaches for8 ticks then cancels on9; its pause/resume target is the SMOKE pair at controller+0/+4 when smoke-active+60, not the red continuous list at+16/+24 (active+56). Native bridge passes smoke-active to the transient clock; pause/resume flags source-derived, timers/16 attachments replay-confirmed
 
 ## sub_208C884
 `export/plan0/arm9_main/sub_208C884_0208C884.c`

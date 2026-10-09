@@ -361,3 +361,9 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_206C494: pivot wheel-smoke start/keep/stop gate and resulting smoke-active handle state replay-confirmed across3993 original calls with A+B pivot followed by acceleration/drift; pre-control native bridge uses this tested predicate. Native renderer currently assumes effects permitted (+76 bit0x8000); visibility-based original suppression remains unported
 
 - sub_206BF88: damage HitReset also stops wheel smoke and requests continuous red cleanup via sub_208C534, after clearing drift state. Native effects now observe new damage states because HitReset clears drift without emitting DriftEnded; prevents red emitters surviving a hit indefinitely (source-derived bridge)
+
+- sub_201C4E8: builds row-vector fx12 Y-axis rotation from sine/cosine into a3; used by the drift world-quads' selector0. Matrix order/output replay-confirmed within721 original draw calls
+- sub_201C528: builds row-vector fx12 rotation about diagonal axis(1,1,1), using1365=1/3 and2365=1/sqrt3 approximations; source-derived selector1, not exercised by current drift resources. Corrects earlier generic annotation calling it a texture-center rotation
+- sub_201C690: emits an XY QUADS primitive with signed16 offset +/-4096 corners quantized into VTX10 and four tiled UV corners. All721 drift captures verify its arguments; GPU vertex/UV command packing source-derived
+- sub_201C5D4: emits an XZ QUADS primitive with signed16 offset +/-4096 corners quantized into VTX10 and four tiled UV corners. Source-derived; current drift capture exercises XY only, not this helper
+- sub_208C6DC: blue flare attaches for8 ticks then cancels on9; its pause/resume target is the SMOKE pair at controller+0/+4 when smoke-active+60, not the red continuous list at+16/+24 (active+56). Native bridge passes smoke-active to the transient clock; pause/resume flags source-derived, timers/16 attachments replay-confirmed
