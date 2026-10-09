@@ -140,3 +140,48 @@ Validation: the driver/fall release build passed; the native game compiles with
 the new particle module. Current core library and integration suites total
 98 passed, zero failed, one existing ignored test, including Claude's concurrent
 object-behavior additions and the new particle-channel tests.
+
+
+## Lane B: particle behavior port (2026-10-08)
+
+`vm_model/src/nitro_particle_motion.rs` now decodes and evaluates all six
+behavior records, in preparation for original particle simulation. These are
+particle-local position/velocity operations and acceleration accumulation;
+they do not emit particles or drive native wheel effects by themselves.
+The original archive order must be retained by the future simulator.
+
+`tools/bizhawk/codex_particle_motion/run.ps1` loads the existing Figure-8
+start state in an isolated emulator. With `MKDS_PARTICLE_RESOURCES=1`, the
+original emitter allocator selects resource IDs 0,4,20,124 cyclically to
+exercise the three behavior families present in this archive. Original
+behavior routines and their caller execute normally. This is a controlled
+resource-selection experiment, not a natural race-effects trace. Without
+the option the normal drive/countersteer sequence is preserved.
+
+The controlled recording contains 9,794 calls with no hook errors:
+4,794 acceleration, 4,390 random-impulse and 610 rotation calls. Random
+impulses consume RNG in 756 calls; inactive periodic calls preserve it. Every
+captured acceleration, random impulse and rotation output matches Rust,
+including RNG state on active and inactive random-impulse ticks. The fixture
+retains behavior parameters and only the numeric particle fields read or
+written by those callbacks; it excludes linked-list pointers and unrelated
+channel fields. `make_fixture.py` creates `particle_motion.csv`.
+
+Attraction uses ARM MUL, wrapping the product to 32 bits **before** shifting
+by 12. A 64-bit fx12 multiply is incorrect here. Convergence instead uses
+64-bit products and +2048 rounding. Plane contact uses strict crossing;
+landing exactly on the plane from below does not trigger, while crossing
+from the plane toward below does. Killing sets age to lifetime; deletion
+occurs later when the caller increments age past lifetime. Those last three
+behaviors are source-derived and have boundary/rounding regressions but no
+original-runtime capture. Rotation rejects unsupported axis values and
+random records reject a zero interval, rather than reproducing undefined
+matrix/division cases; the selected original records are valid.
+
+Remaining for actual original drift effects: primary particle creation
+`sub_201CA6C`, spawn cadence/integration/death and optional child emission
+`sub_20192E0`, wheel transition/attachment timers, then textured native
+rendering. The current native spark cubes are still the approximation.
+
+Full shared core suite after this addition: 119 passed, zero failed, one
+existing ignored, including concurrent course-object work.

@@ -117,6 +117,7 @@ th[aria-sort="ascending"], th[aria-sort="descending"] { background: #cde5ff; }
 .address { color: #61758b; }
 .badge { color: #506074; background: #e9eef5; }
 .badge.known { color: #17613c; background: #dff3e6; }
+.badge.described { color: #775000; background: #fff1c9; }
 .badge.inferred { color: #775000; background: #fff1c9; }
 .badge.sdk { color: #16548c; background: #dceeff; }
 #function-count { color: #405f7c; }

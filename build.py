@@ -97,13 +97,14 @@ def build():
     data = [{key: row.get(key, '') for key in fields} for row in functions]
     (OUT / 'assets/functions.json').write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     counts = Counter(p['status'] for p in functions)
-    cards = ''.join(f'<div class="stat"><strong>{counts[s]:,}</strong><span>{label}</span></div>' for s, label in [('known', 'Documented meanings'), ('inferred', 'Inferred areas'), ('sdk', 'SDK classifications'), ('unknown', 'Still unknown')])
+    counts['annotated'] = counts['known'] + counts['described']
+    cards = ''.join(f'<div class="stat"><strong>{counts[s]:,}</strong><span>{label}</span></div>' for s, label in [('annotated', 'Recorded meanings'), ('inferred', 'Inferred areas'), ('sdk', 'SDK classifications'), ('unknown', 'Still unknown')])
     overview = f'''<section class="title-screen" aria-label="Mario Kart DS research"><div class="title-screen-copy"><div class="eyebrow">Mario Kart DS / Native Windows port</div>
 <h1>Understand the original.<br><span class="muted">Rebuild its behavior.</span></h1>
 <p class="lead">An open research log documenting Mario Kart DS routines, fixed-point gameplay logic, and a faithful native Rust implementation.</p>
 <div class="hero-actions"><a class="button" href="functions.html">Explore {len(functions):,} functions →</a><a class="text-link" href="{slug('docs/NEXT_GOALS.md')}">Current progress ↗</a></div></div><img class="title-screen-icon" src="assets/mkds-icon.png" width="96" height="96" alt=""></section>
 <section class="stats" aria-label="Function classification counts">{cards}</section>
-<p class="caption">Function classifications from the current export inventory. These are documentation counts, not a percentage of game completion. Inferred and SDK labels still require review.</p>
+<p class="caption">Function classifications from the current export inventory. These are documentation counts, not a percentage of game completion. Recorded meanings include {counts['known']:,} reviewed annotations and {counts['described']:,} unverified sweep descriptions. Inferred and SDK labels also require review.</p>
 <section class="section"><div class="section-heading"><span class="eyebrow">The project</span><h2>From evidence to a playable port</h2></div>
 <div class="feature-grid"><a class="feature" href="{slug('docs/ROADMAP.md')}"><span class="feature-number">01 / PROGRESS</span><h3>Game systems & roadmap</h3><p>Kart physics, items, race flow, CPU drivers, rendering, audio and the remaining work.</p><span>Read the roadmap →</span></a>
 <a class="feature" href="{slug('docs/FUNCTION_MAP.md')}"><span class="feature-number">02 / CODE MAPPING</span><h3>What each routine means</h3><p>Address-based correlations, field layouts and connections to the Rust implementation.</p><span>Browse identified functions →</span></a>
@@ -115,9 +116,9 @@ def build():
     explorer = '''<div class="eyebrow">Code inventory / Search & inspect</div><h1>Function explorer</h1>
 <p class="lead">Find a routine by address, meaning, subsystem or Rust counterpart. Click a column heading to sort; click it again to reverse. Scroll to load 200 more rows.</p>
 <div class="explorer-controls"><label class="search-label">Search functions<input id="function-search" type="search" placeholder="Try sub_2087B78, steering, animation…" autocomplete="off"></label>
-<label>Status<select id="status-filter"><option value="">All statuses</option><option>known</option><option>inferred</option><option>sdk</option><option>unknown</option></select></label>
+<label>Status<select id="status-filter"><option value="">All statuses</option><option>known</option><option>described</option><option>inferred</option><option>sdk</option><option>unknown</option></select></label>
 <label>Area<select id="area-filter"><option value="">All areas</option></select></label></div>
-<p class="caption">Known = a recorded meaning; inferred = a candidate area; SDK = a library classification; unknown = unmapped. None alone proves frame-exact behavior.</p>
+<p class="caption">Known = a reviewed annotation; described = an unverified sweep annotation; inferred = a candidate area; SDK = a library classification; unknown = unmapped. None alone proves frame-exact behavior.</p>
 <div id="function-count" role="status" aria-live="polite">Loading function inventory…</div>
 <div class="table-scroll"><table class="function-table"><thead><tr>
 <th scope="col" aria-sort="none"><button class="column-sort" data-sort="name" data-label="function">Function <span class="sort-indicator" aria-hidden="true">↕</span></button></th>

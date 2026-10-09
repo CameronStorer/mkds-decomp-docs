@@ -256,3 +256,59 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_20FA0B8: grows item target size +112 by supplied step, clamps to supplied target and returns whether it changed
 - sub_20FA030: copies target size to both visible scale axes, updates course/hit radii from item-type multipliers, marks resized flag 0x40 and updates broadphase radius
 - sub_20F9DC8: shared item scale spring: stiffness819, damping3072, strict +/-41 deadzone, squash = 2*target - size, updates collision radii when changing; all mushroom landing spring ticks match original
+- sub_20D5BF0: rolling rock / snowball init (speed, bounce, growth, max size, restart delay from settings)
+- sub_20D5DD0: rolling rock restart at its path start (hidden for the delay)
+- sub_20D5FB4: rolling rock tick (eased path walk, gravity, bounce with sideways kick, growth, burst at the end)
+- sub_20D634C: rolling rock burst (effects 84..87) and restart
+- sub_20D8654: table of horizontal directions across each path segment
+- sub_20D91DC: path position: Bezier x/z, straight y between the segment's ends
+- sub_20D8BC0: follower position via sub_20D91DC
+- sub_20DFD64: Bowser's Castle sliding block init (top speed setting 0 x 4096 / 100)
+- sub_20E01F0: sliding block tick (waits at points, state machine for the speed curve)
+- sub_20E012C: sliding block state 0: speed up on a sine over the first 1/16
+- sub_20E005C: sliding block state 1: cruise, brake before a stop
+- sub_20DFFAC: sliding block state 2: slow down on a sine
+- sub_209A7DC: crab tick (pause 30..90 random ticks, walk the path at 0.5, knocked / rising states)
+- sub_209AF98: crab init (random first pause)
+- sub_20A73B0: Pokey walk (stops at points, turns back at path ends; speed setting 0 x 4096 / 100)
+- sub_20D21EC: loads MapObj/<name> from the course archive
+- sub_20D2210: loads MapObj/<name> from the course texture archive
+
+## Items: star (Lane C)
+
+Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x10000040 refuses hits. Lightning's shrink is +76 bit 0x80. Kart +668 = mode (0 none, 1 star, 2 Boo, 3 Bullet Bill). +124 bit 0x2000 = Boo (ghost) active. Star timer = u16 at kart +0x53E (+0x538+6).
+
+- sub_2069C38: star on (skipped if kart +76 bit 0x10000000, i.e. a kart under Bullet Bill cannot start a star): ends a running Boo (clears +124 bits 0x2000/0xC000, +668, +76 bits 0x08000000/0x20000; SE 249 for the local player or stops mega particles via sub_208C5B8/sub_208C4E8; sub_210FA40(0,..)), sets +76 bit 0x40, +668 = 1, star timer = 0, sub_207B284, sub_2081A40, starts the star jingle (sub_2106E78, local player, once) and sub_2068A64(kart, 2, 1) (driver star pose)
+- sub_1FFB130: (kart per-tick, ITCM) while +76 bit 0x40: sub_208181C follows the star sparkle particles, holds driver animation 2, counts the star timer and ends the star when it exceeds 450 (dword_1FFB908), i.e. 451 ticks: clears bit 0x40, sub_207B1A8, +668 = 0, sub_20817B8, sub_2068A64(kart,0,1), stops the jingle (sub_2106DC8, local player)
+- sub_208181C: per-tick position/scale update of the 3 star sparkle particle objects around the kart
+- sub_206DE18: star touch (a1 = star kart, a2 = victim, a3 = direction): victim is blown away (sub_206ADD0 mode 1, SE 232) unless victim +76 has 0x400000 or mask 0x10000040 (star/bullet); local player victims also need +384 == 0 and +72 & 0x1800 == 0; other karts +384 in 0..2; sets item-HUD bits (+1300 -> +44) per victim index
+- sub_206B4D0 / sub_206BCB0 / sub_206BAB8: item-hit entry points (tumble / spin 1-2 / other); all refuse when +76 & 0x10000040 or 0x400000
+- sub_206A624: lightning strike on a kart; refused if +76 & 0x10000040 (star or bullet), +124 & 0x402000 or +72 & 0x10040
+- sub_206D18C: touching an item object: dispatches on object type (v2[17]): 0,1,7 tumble, 2 spin(1), 3 mushroom (boost 90, shove 0x100000), 4 star on (sub_2069C38), 6 lightning, 5/9 spin(2) or sub_206BAB8; plays SE 233 once per kart when the target is star/bullet (deflected)
+- sub_20695C4: Bullet Bill on (kart +668 = 3, sets +76 bit 0x10000000); also ends a star/Boo in progress
+- sub_2069AA0: Boo on (+668 = 2, +124 bit 0x2000); ends a star in progress
+- sub_2072930: full effect reset (respawn/finish): ends star, Boo and Bullet states
+- sub_20E2F0C: Monty Mole init (hole 18 below, bottom 24 below; hide times from setting 0)
+- sub_20E3584: Monty Mole state 0 (hidden, first wait)
+- sub_20E34F8: Monty Mole state 1 (peek up 1/tick to 17.1)
+- sub_20E34D0: Monty Mole state 2 (hold 20 ticks)
+- sub_20E3414: Monty Mole state 3 (duck back)
+- sub_20E337C: Monty Mole state 4 (jump 18432, gravity 614)
+- sub_20E331C: Monty Mole state 5 (hidden, wait)
+- sub_20E38A0: Delfino drawbridge (0xCC) init (amp = deg*65536/360/2, step = 65536/ticks/2, waits from settings 1)
+- sub_20E3BC0: Delfino drawbridge tick (phase eased angle, wait timer at phase 0x4000 / 0xC000, angle at +0x154)
+- sub_20E3A7C: Delfino drawbridge model/resource load
+- sub_20E3AF0: object-id test (id == 204, the drawbridge)
+- sub_20E3B08: drawbridge deck angle getter (+0x154 >> 12, whole degrees)
+- sub_20E3B28: drawbridge object create wrapper
+- sub_20E3B4C: drawbridge collision-transform update (copies pos>>4, publishes angle +0x154)
+- sub_20E3DEC: drawbridge static allocation/setup
+
+
+## SPL particle motion (Codex, Lane B, 2026-10-08)
+- sub_201E394: SPL constant acceleration: adds three signed-short components directly to tick acceleration; controlled original resource replay matches all captured calls
+- sub_201E2CC: SPL periodic random acceleration: only age modulo interval zero draws RNG three times, each impulse is (strength*(state>>23) - (strength<<8))>>8; inactive ticks preserve RNG; runtime replay matches
+- sub_201E170: SPL local-position rotation about selected X/Y/Z axis, angle quantized by >>4 SDK sine/cosine table; truncated matrix-vector products; runtime replay matches
+- sub_201E248: SPL attraction adds strength*(target-localPosition-velocity)>>12 to acceleration; ARM MUL confirms product wraps to 32 bits before shift (not 64-bit fx12 multiplication); source-derived, no runtime capture yet
+- sub_201E054: SPL plane behavior uses emitter +116 override unless INT_MIN, strict crossing against emitter Y plus local Y; mode0 sets age to lifetime, mode1 clamps Y and negates rounded damped Y velocity; source-derived, no runtime capture yet
+- sub_201DFC0: SPL rounded convergence changes local position toward target by signed-short strength, with +2048 rounding; leaves velocity and acceleration unchanged; source-derived, no runtime capture yet

@@ -84,6 +84,14 @@ setImmediate(() => {
   assert.equal(shown().length, 0); assert.equal(node("#load-more").hidden, true);
   assert(node("#function-rows").innerHTML.includes('colspan="5"'));
   setFilter("#function-search", "", "input");
+  assert(fs.readFileSync(path.join(root, "_site/functions.html"), "utf8").includes("<option>described</option>"));
+  for (const classification of new Set(data.map(row => row.status))) {
+    setFilter("#status-filter", classification);
+    const expectedCount = data.filter(row => row.status === classification).length;
+    assert.equal(shown().length, Math.min(200, expectedCount));
+    assert(shown().every(index => data[index].status === classification));
+    assert.equal(node("#load-more").hidden, expectedCount <= 200);
+  }
   setFilter("#status-filter", "unknown");
   const unknownCount = data.filter(row => row.status === "unknown").length;
   assert.equal(shown().length, Math.min(200, unknownCount));

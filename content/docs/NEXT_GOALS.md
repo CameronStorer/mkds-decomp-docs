@@ -5,6 +5,16 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Lane B particle motion: all six SPL behavior records ported; controlled
+  original resource capture matches 9,794 acceleration/random/rotation calls
+  and their RNG states. Attraction/plane/convergence are source-derived with
+  boundary regressions. Particle birth, full update, wheel timers and native
+  SPA effects integration remain next; see `analysis/CODEX_PARTICLE_MAP.md`.
+
+- Lane C item fidelity (star): hits (shell tumble, banana/hazard spin) and lightning are now refused
+  under a star or Bullet Bill, as the game's shared mask 0x10000040 (`kart_plugin::use_items`,
+  `strike_lightning`); star timer/on/off decoded in `docs/function_notes.md` (451 ticks = timer > 450).
+  Still approximated: star-on cancelling Boo, refusal of a star under Bullet Bill, star sparkle/jingle.
 - Corrected Goomba "debris" mapping: the original helper creates a mushroom pickup.
   Normal-race launch, flight, growth, landing and spring match all 538 original
   item updates; native qualifying kart hits now create the original mushroom
@@ -127,7 +137,11 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   flattens karts: `KartShrink::flatten`), path Chain Chomp 0x1A5, chained Chain Chomp 0x196
   (wander exact; its lunge aims through an uninitialised word in the game, approximated),
   Goomba walk. Object RNG `mapobj::ObjRng`, kart turn round-robin (`objects::ObjectWorld`).
-- Function table: tools/infer_functions.py guesses (getters, wrappers, hardware, SEs, effects,
+- Function table now: known 438 (checked), described 7675 (agent sweeps in docs/function_notes/,
+  unverified), sdk 511, out of scope 2472, open 79. Object models from game code
+  (`vm_model::obj_models`, tools/make_object_models.py); rocks, traffic, Bowser blocks ported
+  (replay-exact); Mover approximation removed.
+- (older) Function table: tools/infer_functions.py guesses (getters, wrappers, hardware, SEs, effects,
   state machines) + address-neighbour areas. 11175 functions: known 372, inferred 5750, sdk
   512, out of scope 2472 (overlay 0 = online play, overlay 3 = Wi-Fi setup utility; the user
   said to ignore them), unknown 2069. Overlay 1 (race: missions, bosses) C is in export/plan1.
@@ -167,8 +181,9 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
 1. (optional) exact trailing-item handlers (`0x0215524C` table) and player throw direction
    (hold up/down when releasing).
 3. Map objects: remaining behaviours: rocks 0x192/0x1B1, traffic 0x195/0x19A/0x19C,
-   Bowser blocks 0xCA (still `objects::Mover` approximations), walking trees 0x1A3, crabs
-   0x1AC, Pokeys 0x1B2 walk, iron balls 0x1B0, Piranha plants 0x1A6, Cheep Cheeps 0x19B,
+   (rocks, traffic, Bowser blocks, crab walk, Pokey walk, walking trees, Cheep Cheep hops,
+   pendulum, clock hands + their box collision: done; replay-exact or within 1 unit)
+   iron balls 0x1B0 (pinball path codes 10/11/100+/200+, random branches: sub_20A9268), Piranha plants 0x1A6, Cheep Cheeps 0x19B,
    Monty Moles 0x199, snowmen 0x19D, bats 0x19F, fire bars/flippers/bumpers, pendulum 0xCF,
    clock hand 0xCD, gear pauses 0xCB, drawbridge 0xCC; the objects' own reactions to karts
    (Goomba debris/airborne state, Chomp state 2). Method: obj_trace.lua -> writer pc -> state
