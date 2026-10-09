@@ -312,3 +312,18 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_201E248: SPL attraction adds strength*(target-localPosition-velocity)>>12 to acceleration; ARM MUL confirms product wraps to 32 bits before shift (not 64-bit fx12 multiplication); source-derived, no runtime capture yet
 - sub_201E054: SPL plane behavior uses emitter +116 override unless INT_MIN, strict crossing against emitter Y plus local Y; mode0 sets age to lifetime, mode1 clamps Y and negates rounded damped Y velocity; source-derived, no runtime capture yet
 - sub_201DFC0: SPL rounded convergence changes local position toward target by signed-short strength, with +2048 rounding; leaves velocity and acceleration unchanged; source-derived, no runtime capture yet
+- sub_2093CF4: Bullet Bill launcher (0x1A1) tick: state 0 wait (+0xA0, then speed 0x2000), 1 walk the straightened path (sub_20D8CC8, sub_20D879C), 2 wait 45+1, 3 fire a bullet (sub_20937C4) and wait 75; ported in vm_model/src/mapobj/airship.rs
+- sub_2093FA4: launcher init: follower start (sub_20D7DA8) and straighten all segments (sub_20D7D80: length/inverse := straight ones)
+- sub_20937C4: spawns a Bullet Bill (0x1A2) at the launcher +42 units, velocity = facing (+0x40) x 6, life 600
+- sub_2093910: Bullet Bill (0x1A2) tick: life countdown, moves by velocity; knocked down (+0xA4 = 1) it falls (-1024 a tick); deleted when life runs out
+- sub_2093B7C: Bullet Bill kart-hit handler: life 120, state 1, velocity / 4, y velocity 0x4000
+- sub_2093270: sliding hazard (0x1A4) tick (not growth/shrink only): states 0..3 open/close cycle, state 4 follows its path (sub_20D8CC8, sub_20D8A5C) hanging 80 x scale below it; animation clock +0xA4 mod frame count
+- sub_2093484: 0x1A4 init-all: path follower from settings (speed = setting1.hi x 4096 / 100), picks state 4 when settings word 0 and word1.lo are zero
+- sub_2095FEC: Rocky Wrench hatch (0x1A7) tick: six-state cycle rise/offset (+0xA0/+0xA4), timer +0xAC, state +0xB0, random waits; ported in airship.rs
+- sub_20968F4: 0x1A7 init-all: scale 4096, timer = setting0 +- 30 random, state 0, rise 0x2000
+
+
+## SPL point particle birth (Codex, Lane B)
+- sub_201CA6C: primary SPL birth consumes rate+fraction, retains low12 fraction; point-emitter branch now ported for all eight drift/wheel resources. Speed RNG draws precede random unit-vector generation; randomized size/color/angle/lifetime/texture/repeat phase follow in original order. All 280 captured particles match initialized fields and final RNG; non-point shapes and pool exhaustion remain separate
+- sub_201E540: SPL random unit vector: three RNG states cast signed then shifted right8, followed by SDK hardware normalize; confirmed through all 280 point-particle births
+- sub_2019B28: initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported

@@ -185,3 +185,43 @@ rendering. The current native spark cubes are still the approximation.
 
 Full shared core suite after this addition: 119 passed, zero failed, one
 existing ignored, including concurrent course-object work.
+
+
+## Lane B: original point particle birth
+
+`vm_model/src/nitro_particle_birth.rs` now ports the point-emission branch of
+`sub_201CA6C`. Every drift/wheel resource (17,18,19,20,21,22,23,126) uses
+shape0. The emitter field subset is initialized from the SPA, and supports
+wheel callback overrides of position, direction, initial velocity and speeds.
+Emission consumes rate+fraction, retains the low12 fractional bits, and
+reports the integer birth count separately from pool allocation.
+
+The original consumes both speed-randomization draws before generating
+its random unit vector: three signed RNG states shifted right8, normalized
+through the SDK hardware math. Birth then initializes size, optional random
+color, packed alpha preserving recycled polygon-ID bits, angle/angular speed,
+lifetime, texture and animation phase in the original draw order. Zero
+speed or zero randomness does not remove the corresponding RNG calls.
+
+`tools/bizhawk/codex_particle_birth/run.ps1` uses an isolated Figure-8
+start state and selects the eight existing resources cyclically at the
+original emitter allocator. It records 280 original births (including one
+existing resource59 emitter), with no hook errors. The continuous RNG and
+all modeled particle outputs match: local position/velocity, emitter
+position, size, scale/color/alpha/texture, angle/angular velocity, lifetime,
+age, life/repeat steps and repeat phase. All captured calls birth one
+particle; fractional rates, multi-birth calls, and pool exhaustion have not
+been independently recorded. The arithmetic accumulator is source-derived
+outside those measured inputs. Non-point geometry remains unsupported.
+
+Reproduce with the capture's `run.ps1`, then `make_fixture.py` to generate
+`vm_model/tests/data/particle_birth.csv`. The fixture replaces resource
+bytes with local archive IDs and excludes particle pool/list pointers.
+The replay reloads the SPA from the user's ROM and skips without it.
+
+Particle birth is now verified for the target resources; full particle
+update/child emission, controller timers/attachments and native rendering
+still need integration. Native drift sparks remain the current approximation.
+
+Validation after the birth port: shared core suite 126 passed, zero failed,
+one existing ignored. Site explorer sort/filter/200-row scrolling checks pass.

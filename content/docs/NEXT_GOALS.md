@@ -5,6 +5,30 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Lane B point-particle birth now matches 280 original births across all eight
+  drift/wheel resources, including initialized fields and RNG states. Full
+  particle update, wheel timers and native textured effects integration remain
+  next; see `analysis/CODEX_PARTICLE_MAP.md`.
+
+- Lane C Blooper ported from `docs/lane_c/blooper_boo_bullet.md`: victims are the karts AHEAD of the user
+  (4/4/3/3/2/2/1 by place), chosen at actor age 63, inked at 143, ink 451 ticks fading over the last 50;
+  CPU karts slow to 0.7 (`SpeedLimit::ink`); star/bullet end ink and are immune. Not ported: battle-mode
+  random victims, the CPU steering wobble, exact ink blots. Roulette refuses a second Blooper (`InPlay`).
+- Lane C sounds (specs in `docs/lane_c/sound.md`): countdown beeps (SE 39 at ticks 0/60/120, GO 40 at
+  175), item box smash 212, roulette 62, item get 63/64 for the player (`game/src/sfx.rs`). Still to do:
+  engine sound (needs live pitch/volume/pan in `SeqPlayer`), final-lap fanfare, 3D panning of other karts.
+- Lane C Boo ported from the spec: ghost state 451 ticks (item objects, lightning, star touch and Blooper
+  skip the ghost; star/bullet end it), steal victim by the weighted rank-distance walk (100,75,50,30,20,10,5,0)
+  taking the victim's whole slot. Steal is instant (original: Boo flies out/back, steal at frame 30 of 40);
+  ghost kart-kart contact / targeting by red shells not yet ignored.
+- Lane C specs ready in `docs/lane_c/` (blue shell + bob-omb: states, constants, damage state 6 is not in
+  damage.rs yet; sound: engine formulas need live pitch/volume/pan on `SeqPlayer`).
+- Lane C Bullet Bill ported from the spec: fixed speed 43008 on any terrain (`SpeedLimit::fixed`, also set
+  as forward speed), CPU driver always takes fork branch 0, ends after >480 ticks or >180 when first or
+  at/above the target place (rank minus 1,1,1,1,2,2,3,3 by racers) then 20 ticks of ramp-down; star and
+  mushroom refused while riding; invulnerable (mask 0x10000040). Not ported: stuck-120 end, damage state 5
+  for karts it touches (uses the star's blow), KillerItem model/scale, steering constants of `sub_2090638`.
+- Lane C remaining: blue shell and bob-omb (spec being written in `docs/lane_c/blue_shell_bomb.md`).
 - Lane B particle motion: all six SPL behavior records ported; controlled
   original resource capture matches 9,794 acceleration/random/rotation calls
   and their RNG states. Attraction/plane/convergence are source-derived with
@@ -183,7 +207,13 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
 3. Map objects: remaining behaviours: rocks 0x192/0x1B1, traffic 0x195/0x19A/0x19C,
    (rocks, traffic, Bowser blocks, crab walk, Pokey walk, walking trees, Cheep Cheep hops,
    pendulum, clock hands + their box collision: done; replay-exact or within 1 unit)
-   iron balls 0x1B0 (pinball path codes 10/11/100+/200+, random branches: sub_20A9268), Piranha plants 0x1A6, Cheep Cheeps 0x19B,
+   Done since: Monty Moles, drawbridge (agent; deck = hinged ramp/wall floor), fire rings
+   (hit test of outer fireballs, spin), pinball bumpers (bounce 12 units), moving-object
+   shove (handler flag 1). In progress (agents): Airship objects (0x1A1/0x1A2/0x1A4/0x1A7),
+   pinball (flippers, iron balls, drums), fallback decoration models.
+   Left: bats 0x19F (spawned by the course, not NKM), visual-only movers (Boos 0x13C/0x13D,
+   chandeliers 0x140, paintings 0x151/0x152, jumping fish 0x1A0), Mansion 0xC9 path item
+   boxes (Lane C), objects' star/mega reactions (crab knock, Pokey break, snowman), Piranha plants 0x1A6, Cheep Cheeps 0x19B,
    Monty Moles 0x199, snowmen 0x19D, bats 0x19F, fire bars/flippers/bumpers, pendulum 0xCF,
    clock hand 0xCD, gear pauses 0xCB, drawbridge 0xCC; the objects' own reactions to karts
    (Goomba debris/airborne state, Chomp state 2). Method: obj_trace.lua -> writer pc -> state
