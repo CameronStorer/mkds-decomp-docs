@@ -105,7 +105,7 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_208C520: enables continuous drift wheel effect and resets timer
 - sub_208C534: disables drift wheel effect, stops/detaches active wheel emitters and invokes cleanup callback when active
 - sub_208D650: stops and detaches the two continuous wheel emitters by setting emitter +36 bit 1
-- sub_208B7BC: game particle factory: converts world position to SPL units with fx12 right shift 4, selects resource, spawns emitter and applies resource rendering flags
+- sub_208B7BC: game particle factory: converts world position to SPL units with arithmetic right shift4, selects resource and spawns emitter; base[84] bit7 selects manager phase0, otherwise bit6 selects phase1, otherwise updates every manager frame (ported wrapper clock)
 - sub_208B710: immediately destroys a game particle emitter via sub_20184E4
 - sub_2018600: allocates and initializes SPL emitter from free pool, links active list; one-shot resource flag 0x4000 returns null despite successful creation
 - sub_20184E4: recycles primary/child particles, unlinks emitter and returns it to free pool
@@ -113,7 +113,7 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_2018D94: allocates SPL manager and emitter/particle pools (76/156/68-byte structures) and initializes free lists
 - sub_2019B28: initializes emitter from resource and supplied position: rate, size, lifetime, frequency, opacity, texture parameters and other state
 - sub_2019DF8: converts SPA texture flags to GX texture parameters; palette-zero transparency comes from resource flag bit 16
-- sub_201873C: ticks active SPL emitters, honors start delay/alternating update flags, recycles expired empty emitters
+- sub_201873C: SPL manager activates emitters when age>=base start delay then resets age; simulation-pause bit2 skips updates, selector bits16..18 choose manager phase 0/1; manager advances phase after traversal. Recycles empty emitters only when stop bit0 is set or auto-expiry bit14 has a nonzero lifetime and age strictly exceeds it. Clock/cadence replay matches 1050 controlled original decisions, including 279 birth calls and 4 removals; pre-tick callback state is supplied separately
 - sub_20192E0: emitter and particle simulation tick: spawn cadence, animated size/color/alpha/texture, behaviors, integration, death and child emission. Primary non-child tick now ported: life/repeat phase selection, follow-emitter bit15, ordered behaviors, wrapping32 drag multiply, parent translational velocity, polygon-ID allocation and strict age>lifetime expiry match 996 original updates across all eight drift resources; emitter scheduling and child emission remain separate
 - sub_201CA6C: allocates primary particles from fractional fx12 emission-rate accumulator; point-emission birth port matches 280 original births and RNG states (details below); other emission shapes and pool exhaustion remain separate
 
@@ -193,8 +193,8 @@ One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these int
 - sub_201E170: SPL rotates particle local position around selected coordinate axis using angle-indexed SDK rotation matrix
 - sub_201E054: SPL horizontal plane behavior: emitter plane override or resource plane, kill or damped bounce on crossing, mode in low two flag bits
 - sub_201DFC0: SPL converges particle local position toward target with rounded fx12 strength (direct position update)
-- sub_208C6DC: attaches blue-flare pair to rear wheel positions/directions for eight ticks; pauses continuous wheel emitters meanwhile, destroys flares and resumes continuous emitters on tick nine
-- sub_208C930: attaches both red-flare pairs to rear wheel positions/directions for ten ticks, destroys them on tick eleven
+- sub_208C6DC: attaches blue-flare pair to rear wheel positions/directions for eight ticks; pauses continuous wheel emitters meanwhile, destroys flares and resumes continuous emitters on tick nine. Timer and 16 emitter attachments match nine natural original callbacks; pause/resume flag actions source-derived, continuous emitter flags not included in this capture
+- sub_208C930: attaches both red-flare pairs to rear wheel positions/directions for ten ticks, destroys them on tick eleven. Timer and 40 emitter attachments match eleven natural original callbacks
 - sub_208CB8C: continuous drift-wheel effect lifecycle: ten-tick activation delay, callback-selected drawing/update and grounded/airborne handling
 - sub_208C5D0: resets wheel particle controller: detaches continuous effects, destroys red/blue flares, clears timers and callbacks' active state
 - sub_208CCF0: clears continuous wheel effect via cleanup callback and resets activation/expiry timers
@@ -326,4 +326,7 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 ## SPL point particle birth (Codex, Lane B)
 - sub_201CA6C: primary SPL birth consumes rate+fraction, retains low12 fraction; point-emitter branch now ported for all eight drift/wheel resources. Speed RNG draws precede random unit-vector generation; randomized size/color/angle/lifetime/texture/repeat phase follow in original order. All 280 captured particles match initialized fields and final RNG; non-point shapes and pool exhaustion remain separate
 - sub_201E540: SPL random unit vector: three RNG states cast signed then shifted right8, followed by SDK hardware normalize; confirmed through all 280 point-particle births
+- sub_20831BC: kart wheel emitter pre-tick callback: birth pause from sub_20675B4 and kart+676 threshold; optional byte timer stops at10; attaches direction/position from 88-byte wheel record and sets initial particle velocity from kart+944 vector times emitter-specific table factor. Captured callback changes scheduling flags before SPL birth tests; this callback itself is not yet ported
+- sub_2081E5C: kart attached transient emitter pre-tick callback: attaches kart+1288 XYZ shifted right4 plus resource offset; byte+154 advances to byte+153 limit, then sets emitter stop bit0. Controlled trace confirms callback can stop emission before the manager's birth test; callback arithmetic not yet replay-ported
+- sub_2083680: kart emitter pre-tick callback: stops on sub_2061818 or paused age>5; otherwise pauses when kart+72 lacks bit0x20, attaches to camera-facing offset and negates direction shorts. Retained by resource-selection experiment; full callback not ported
 - sub_2019B28: initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported

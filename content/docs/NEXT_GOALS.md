@@ -5,6 +5,10 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Lane B emitter scheduling matches 1,050 original decisions (279 birth calls,
+  four removals). Natural blue/red burst timing and all 56 wheel attachments
+  match 20 callbacks. Continuous-wheel switching/ground gate and textured native
+  rendering remain next; native effects still use the old cubes.
 - Flipper replay repaired: all 1,476 complete calls pass; three known stale
   return-hook exits are explicitly checked. Tracer now suppresses inactive exits.
 - Lane C status, specs and open work: `docs/lane_c/PROGRESS.md` (read it before touching items or sound).

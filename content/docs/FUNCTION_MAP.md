@@ -4457,7 +4457,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_201873C
 `export/plan0/arm9_main/sub_201873C_0201873C.c`
 
-- [docs/function_notes.md:116](../docs/function_notes.md#L116) ticks active SPL emitters, honors start delay/alternating update flags, recycles expired empty emitters
+- [vm_model/src/nitro_particle_emitter.rs:1](../vm_model/src/nitro_particle_emitter.rs#L1) SPL manager/emitter cadence (sub_201873C and scheduling in sub_20192E0).
+- [docs/function_notes.md:116](../docs/function_notes.md#L116) SPL manager activates emitters when age>=base start delay then resets age; simulation-pause bit2 skips updates, selector bits16..18 choose manager phase 0/1; manager advances phase after traversal. Recycles empty emitters only when stop bit0 is set or auto-expiry bit14 has a nonzero lifetime and age strictly exceeds it. Clock/cadence replay matches 1050 controlled original decisions, including 279 birth calls and 4 removals; pre-tick callback state is supplied separately
 
 ## sub_2018874
 `export/plan0/arm9_main/sub_2018874_02018874.c`
@@ -4515,6 +4516,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20192E0_020192E0.c`
 
 - [vm_model/src/nitro_particle.rs:68](../vm_model/src/nitro_particle.rs#L68) Evaluate one channel using the phase byte supplied by sub_20192E0.
+- [vm_model/src/nitro_particle_emitter.rs:1](../vm_model/src/nitro_particle_emitter.rs#L1) SPL manager/emitter cadence (sub_201873C and scheduling in sub_20192E0).
 - [vm_model/src/nitro_particle_update.rs:1](../vm_model/src/nitro_particle_update.rs#L1) Primary SPL particle tick from sub_20192E0. Child spawning is not implemented.
 - [docs/function_notes.md:117](../docs/function_notes.md#L117) emitter and particle simulation tick: spawn cadence, animated size/color/alpha/texture, behaviors, integration, death and child emission. Primary non-child tick now ported: life/repeat phase selection, follow-emitter bit15, ordered behaviors, wrapping32 drag multiply, parent translational velocity, polygon-ID allocation and strict age>lifetime expiry match 996 original updates across all eight drift resources; emitter scheduling and child emission remain separate
 
@@ -4524,7 +4526,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/nitro_particle_birth.rs:31](../vm_model/src/nitro_particle_birth.rs#L31) Relevant initialization from sub_2019B28, before wheel callbacks override fields.
 - [vm_model/src/nitro_spa.rs:2](../vm_model/src/nitro_spa.rs#L2) sub_2018A1C, emitter fields from sub_2019B28, texture parameters from sub_2019DF8.
 - [docs/function_notes.md:114](../docs/function_notes.md#L114) initializes emitter from resource and supplied position: rate, size, lifetime, frequency, opacity, texture parameters and other state
-- [docs/function_notes.md:329](../docs/function_notes.md#L329) initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported
+- [docs/function_notes.md:332](../docs/function_notes.md#L332) initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported
 
 ## sub_2019DF4
 `(not in export)`
@@ -4606,7 +4608,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_201CA6C_0201CA6C.c`
 
 - [vm_model/src/nitro_particle_birth.rs:1](../vm_model/src/nitro_particle_birth.rs#L1) Original point-emitter particle birth (`sub_201CA6C`), used by all drift resources.
-- [docs/function_notes.md:118](../docs/function_notes.md#L118) allocates primary particles from fractional fx12 emission-rate accumulator, initializes positions by emission shape and remaining particle state (not yet ported)
+- [docs/function_notes.md:118](../docs/function_notes.md#L118) allocates primary particles from fractional fx12 emission-rate accumulator; point-emission birth port matches 280 original births and RNG states (details below); other emission shapes and pool exhaustion remain separate
 - [docs/function_notes.md:327](../docs/function_notes.md#L327) primary SPL birth consumes rate+fraction, retains low12 fraction; point-emitter branch now ported for all eight drift/wheel resources. Speed RNG draws precede random unit-vector generation; randomized size/color/angle/lifetime/texture/repeat phase follow in original order. All 280 captured particles match initialized fields and final RNG; non-point shapes and pool exhaustion remain separate
 
 ## sub_201D798
@@ -15846,6 +15848,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2081E5C
 `export/plan0/arm9_main/sub_2081E5C_02081E5C.c`
 
+- [docs/function_notes.md:330](../docs/function_notes.md#L330) kart attached transient emitter pre-tick callback: attaches kart+1288 XYZ shifted right4 plus resource offset; byte+154 advances to byte+153 limit, then sets emitter stop bit0. Controlled trace confirms callback can stop emission before the manager's birth test; callback arithmetic not yet replay-ported
 - [docs/function_notes/hk_13.md:66](../docs/function_notes/hk_13.md#L66) per-frame effect step: sets position from owner's +1288 vector plus kart base; advances state byte +154 up to +153, sets done bit on finish.
 
 ## sub_2081F10
@@ -15921,6 +15924,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20831BC
 `export/plan0/arm9_main/sub_20831BC_020831BC.c`
 
+- [docs/function_notes.md:329](../docs/function_notes.md#L329) kart wheel emitter pre-tick callback: birth pause from sub_20675B4 and kart+676 threshold; optional byte timer stops at10; attaches direction/position from 88-byte wheel record and sets initial particle velocity from kart+944 vector times emitter-specific table factor. Captured callback changes scheduling flags before SPL birth tests; this callback itself is not yet ported
 - [docs/function_notes/hk_13.md:81](../docs/function_notes/hk_13.md#L81) per-frame kart effect update like sub_2082FEC using table off_2083350 and speed threshold dword_2083358 (with sub_20675B4 input check); vectors scaled by off_2083354.
 
 ## sub_208335C
@@ -15936,6 +15940,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2083680
 `export/plan0/arm9_main/sub_2083680_02083680.c`
 
+- [docs/function_notes.md:331](../docs/function_notes.md#L331) kart emitter pre-tick callback: stops on sub_2061818 or paused age>5; otherwise pauses when kart+72 lacks bit0x20, attaches to camera-facing offset and negates direction shorts. Retained by resource-selection experiment; full callback not ported
 - [docs/function_notes/hk_13.md:84](../docs/function_notes/hk_13.md#L84) per-frame effect update: reads sub_20748A8 velocity (+39..41), if sub_2061818 or repeat counter (+38 > 5) ends, sets done bit 1 and clears off_2083830; else sets bit 2, scales vector by 20480 via sub_2148504 and writes position +40..48 and rotation +80..84.
 
 ## sub_2083834
@@ -16901,8 +16906,9 @@ ports or explains it. Regenerate after porting something new.
 ## sub_208B7BC
 `export/plan0/arm9_main/sub_208B7BC_0208B7BC.c`
 
+- [vm_model/src/nitro_particle_emitter.rs:30](../vm_model/src/nitro_particle_emitter.rs#L30) Kart wrapper sub_208B7BC overrides the update selector from base[84].
 - [vm_model/src/mapobj/airship.rs:14](../vm_model/src/mapobj/airship.rs#L14) Not ported (all of them): sounds and effects (`sub_210B7A8` / `sub_208B7BC` / `sub_20D275C`),
-- [docs/function_notes.md:108](../docs/function_notes.md#L108) game particle factory: converts world position to SPL units with fx12 right shift 4, selects resource, spawns emitter and applies resource rendering flags
+- [docs/function_notes.md:108](../docs/function_notes.md#L108) game particle factory: converts world position to SPL units with arithmetic right shift4, selects resource and spawns emitter; base[84] bit7 selects manager phase0, otherwise bit6 selects phase1, otherwise updates every manager frame (ported wrapper clock)
 
 ## sub_208B870
 `export/plan0/arm9_main/sub_208B870_0208B870.c`
@@ -17117,7 +17123,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_208C6DC
 `export/plan0/arm9_main/sub_208C6DC_0208C6DC.c`
 
-- [docs/function_notes.md:196](../docs/function_notes.md#L196) attaches blue-flare pair to rear wheel positions/directions for eight ticks; pauses continuous wheel emitters meanwhile, destroys flares and resumes continuous emitters on tick nine
+- [vm_model/src/nitro_particle_wheel.rs:1](../vm_model/src/nitro_particle_wheel.rs#L1) Rear-wheel transient callbacks sub_208C6DC / sub_208C930.
+- [docs/function_notes.md:196](../docs/function_notes.md#L196) attaches blue-flare pair to rear wheel positions/directions for eight ticks; pauses continuous wheel emitters meanwhile, destroys flares and resumes continuous emitters on tick nine. Timer and 16 emitter attachments match nine natural original callbacks; pause/resume flag actions source-derived, continuous emitter flags not included in this capture
 
 ## sub_208C884
 `export/plan0/arm9_main/sub_208C884_0208C884.c`
@@ -17127,7 +17134,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_208C930
 `export/plan0/arm9_main/sub_208C930_0208C930.c`
 
-- [docs/function_notes.md:197](../docs/function_notes.md#L197) attaches both red-flare pairs to rear wheel positions/directions for ten ticks, destroys them on tick eleven
+- [vm_model/src/nitro_particle_wheel.rs:1](../vm_model/src/nitro_particle_wheel.rs#L1) Rear-wheel transient callbacks sub_208C6DC / sub_208C930.
+- [docs/function_notes.md:197](../docs/function_notes.md#L197) attaches both red-flare pairs to rear wheel positions/directions for ten ticks, destroys them on tick eleven. Timer and 40 emitter attachments match eleven natural original callbacks
 
 ## sub_208CACC
 `export/plan0/arm9_main/sub_208CACC_0208CACC.c`

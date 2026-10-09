@@ -267,3 +267,58 @@ address. One pre-existing CPU replay remains ignored.
 
 Final validation: 130 core and integration tests passed, zero failed, one ignored;
 the Windows game release build passed.
+
+## Lane B: emitter scheduling and wheel transients
+
+`vm_model/src/nitro_particle_emitter.rs` ports manager scheduling from
+`sub_201873C` and birth eligibility from `sub_20192E0`. Start delay activates
+at age>=base[50..52], sets started bit4 and resets age to zero before phase
+selection. Simulation pause bit2 freezes this tick; birth pause bit1 suppresses
+new births while existing particles still simulate. Selector bits16..18 choose
+one of the manager's alternating phases. The kart factory `sub_208B7BC` sets
+these from base[84]: bit7 chooses phase0, otherwise bit6 chooses phase1.
+
+Pre-tick callback(emitter,0) executes after update selection but before the
+birth checks. The controlled capture exposed callbacks changing pause/stop
+flags at this point, so the Rust API includes that callback stage explicitly.
+Resource selection does not remove the original caller-installed callbacks:
+348 measured decisions retained `sub_20831BC`, 41 `sub_2083680`, 31
+`sub_2081E5C`; 630 had none. The replay supplies their recorded post-callback
+clock state, rather than claiming those three callbacks have been ported.
+They changed scheduling flags in 25 active-emitter decisions.
+
+Birth is eligible only before the nonzero emitter lifetime limit, at an age
+divisible by frequency, with started set and stop/birth-pause clear. Age advances
+after particle simulation. Manager recycling requires no remaining primary or
+child particles and either stop bit0, or auto-expiry flag0x4000 with nonzero
+lifetime and age strictly greater than it. This preserves the distinction
+between stopping births and removing an emitter once its particles finish.
+
+`tools/bizhawk/codex_particle_emitter/run.ps1` recorded 1,057 manager iterations
+in the controlled Figure-8 drive/countersteer replay. The fixture retains 1,050
+decisions for all eight target resources, excluding seven incidental resource59
+iterations. Rust matches every update decision, 279 birth calls, four removals,
+and resulting flags/age. Additional source-boundary tests cover delay, pause,
+alternate phases, strict expiry, live child counts, and factory phase precedence.
+The manager does not model pool ownership or callback arithmetic; zero birth
+frequency is rejected instead of emulating SDK divide-by-zero behavior.
+
+`vm_model/src/nitro_particle_wheel.rs` ports the blue/red transient timers from
+`sub_208C6DC` and `sub_208C930`, plus wheel attachment arithmetic. A separate
+natural race capture, with no resource substitution or state modification,
+recorded nine blue callbacks and eleven red callbacks. Blue attaches on updates
+1..8 and stops on9; red attaches on1..10 and stops on11. All 56 emitter
+attachments match original XYZ positions and signed direction shorts. Positions
+already use SPL units; each callback adds the resource XYZ offset. Its fixture
+contains numerical fields and excludes handles/pool pointers and resource headers.
+Blue pause/resume actions on continuous emitters are source-derived; those
+continuous flags were not recorded in this transient attachment fixture.
+
+Remaining for game integration: continuous-wheel switching and grounded/delay
+gate (`sub_208CB8C`), kart emitter callbacks, particle pool ordering, and the
+original draw routine's textured billboard geometry. The old native spark cubes
+have not yet been replaced.
+
+Validation after scheduling/transient ports: 133 core and integration tests
+passed, zero failed, one existing ignored CPU replay. Windows release build and
+site explorer sort/filter/200-row scrolling checks passed.
