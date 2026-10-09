@@ -5,6 +5,10 @@ How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Car
 Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
 
 ## Done recently
+- Lane B primary particle pool added: 1,396 natural list operations match; whole
+  birth/update/death/reuse composition matches 1,050 controlled original emitter
+  ticks, including free-slot order/alpha, particle fields, RNG and polygon state.
+  Next: original draw geometry and native effects integration; cubes unchanged.
 - Lane B continuous-wheel gate now matches 645 natural updates and a second
   645-update capture with four controlled airborne calls. Drift starts/switches
   after eleven drifting ticks; ground resumes births, air pauses them. Corrected
@@ -44,7 +48,14 @@ Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKD
   at/above the target place (rank minus 1,1,1,1,2,2,3,3 by racers) then 20 ticks of ramp-down; star and
   mushroom refused while riding; invulnerable (mask 0x10000040). Not ported: stuck-120 end, damage state 5
   for karts it touches (uses the star's blow), KillerItem model/scale, steering constants of `sub_2090638`.
-- Lane C remaining: blue shell and bob-omb (spec being written in `docs/lane_c/blue_shell_bomb.md`).
+- Lane C blue shell: states 3 to 7 (home, spiral, rise, dive, blast) replay a BizHawk recording exactly
+  (`vm_model/src/kart/blue_shell.rs`); in the game it targets the unfinished leader and runs the item route
+  (approximate state 1); karts in the blast get `Blow` then `Spin(2)` until damage state 6 exists.
+- Lane C bob-omb: flight with bounces, landing, rest, fuse and blast replay a BizHawk recording exactly
+  (`vm_model/src/kart/bomb.rs`); in the game it is thrown (or dropped behind when aiming back) and any
+  kart sets it off.
+- Lane C remaining: blue shell state 1 spline, damage state 6 (both items' blast), bob-omb throw speed
+  with the kart's motion, engine sound / 3D sound (`SeqPlayer` live parameters), see `docs/lane_c/PROGRESS.md`.
 - Lane B particle motion: all six SPL behavior records ported; controlled
   original resource capture matches 9,794 acceleration/random/rotation calls
   and their RNG states. Attraction/plane/convergence are source-derived with

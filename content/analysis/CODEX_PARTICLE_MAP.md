@@ -369,3 +369,59 @@ spark cubes remain unchanged.
 
 Validation after the continuous-wheel gate: 137 shared core/integration tests
 passed, zero failed, one existing CPU replay ignored; Windows release build passed.
+
+## Lane B: pool ordering and composed simulation
+
+`vm_model/src/nitro_particle_pool.rs` adds stable slot IDs, head-first lists and
+the primary particle pool. `sub_201E448` pops the head; `sub_201E494` pushes the
+head; `sub_201E3C8` removes a specific node while preserving survivor order.
+Particles born during an emitter update become its newest head and update before
+older particles. Expired particles return to the shared free head immediately.
+`sub_20184E4` cancellation repeatedly pops active heads and pushes free heads,
+reversing the cancelled order. Cached packed alpha, including polygon bits,
+survives recycling and is supplied to the next birth.
+
+The source manager constructor `sub_2018D94` zeroes the manager and each slot
+array, then head-inserts ascending addresses. Thus the highest-address slot is
+allocated first, with initial cached alpha zero. The current original manager
+uses 40 emitter slots and 120 particle slots. Rust initializes the primary pool
+with the same order; source-derived constructor initialization is distinguished
+from the runtime trace, which starts after construction.
+
+`tools/bizhawk/codex_particle_pool/run.ps1` makes no game-state changes. It traces
+the original list helpers, replacing pointers with stable numeric identities
+and recording initial list order plus before/after head/tail/count and results.
+All 1,396 operations across 19 lists and 160 nodes match: 365 pops (including
+20 empty allocations), 688 pushes and 343 removes. The removals include head,
+tail and middle cases. `make_fixture.py` retains only numeric records. The
+head/tail/count replay follows complete operation history, rather than resetting
+the expected list at every mutation. Internal stale link bytes on removed nodes
+are not modeled; stable ownership and live-list order are.
+
+The pool integrates verified point birth and primary update. Birth consumes the
+fractional rate before allocation; exhaustion stops further births without RNG
+draws or fraction refund. A two-slot regression checks a fractional multi-birth
+request, complete exhaustion, untouched particles/RNG and cancellation order.
+The natural list trace verifies actual empty allocations; the arithmetic
+multi-birth boundary itself remains source-derived outside recorded birth inputs.
+
+`tools/bizhawk/codex_particle_sim/run.ps1` performs a separate controlled original
+resource-selection experiment with the eight drift resources. Each snapshot starts
+after the original pre-tick callback and ends after particle processing/age
+increment, before the post-tick callback. Its 1,050 complete emitter ticks cover
+279 births. Rust restores numerical free-slot/alpha and live-particle snapshots,
+runs birth eligibility, allocation, birth, head-first particle updates, expiry and
+recycling together. Every particle field, free order and cached alpha, emission
+fraction, age, RNG and polygon allocator state matches. Reserved slots owned by
+other emitters stay unavailable. Local SPA resource bytes are replaced by archive
+IDs in the fixture; replay reloads resources from the user's ROM.
+
+This is a composed **per-emitter tick** replay, not a claim that an entire race's
+global effects stream has been reconstructed: original pre-callback outputs and
+other emitters' activity are supplied as numerical inputs at each snapshot.
+Unsupported child emission and non-point geometries remain explicit limits.
+Remaining: original textured draw geometry, smoke/kart callback wiring, global
+manager integration and visual comparison. Native spark cubes are unchanged.
+
+Validation after pool/composed simulation: 141 shared core and integration tests
+passed, zero failed, one existing CPU replay ignored; Windows release build passed.
