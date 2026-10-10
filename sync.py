@@ -9,6 +9,7 @@ import shutil
 
 ROOT = Path(__file__).resolve().parent
 DOCUMENTS = [
+    ('PROGRESS.md', 'Shared progress', 'Progress'),
     ('docs/NEXT_GOALS.md', 'Current progress', 'Progress'),
     ('docs/ROADMAP.md', 'Roadmap', 'Progress'),
     ('docs/KART_PORT.md', 'Kart port findings', 'Progress'),

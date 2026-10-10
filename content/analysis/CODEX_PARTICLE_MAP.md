@@ -537,3 +537,34 @@ comparison: `analysis/cpu_heading_fall_comparison.csv`.
 The full core suite passes156 tests, with one existing CPU replay ignored.
 Remaining work is to isolate CPU route decisions, ground/contact evolution
 and missing driver substates against original race traces.
+
+## CPU wall-stall recovery timer (2026-10-09)
+
+`sub_207E668` has now been modeled separately in `cpu_recovery.rs`.
+All7,000 recorded timer updates match:6,782 natural state0 calls and218
+controlled state0 probes, including78 transitions into state1. Probes cover
+unsigned counter wrap, zero limits, the speed boundary12287/12288, wall
+flags0/0x40/0x80/0xC0 and signed16 latch boundaries. Probe inputs and state
+are restored after each call; later callback stages are never injected.
+This is controlled per-call validation, not a natural full-race replay.
+
+Continued slow wall contact refreshes a10-tick latch. Active recovery takes
+20 ticks to state1, then120 to state2, then180 to state3 and180 to state4.
+Loss of the latch resets progress/state and the20-tick limit. Mode2 skips
+state2. Later stages and mode2 have source-based tests; their callback side
+effects have not been replayed and the model is not wired into native driving.
+
+`sub_2080AC0` latches the predecessor as a temporary route override, rather
+than reversing the graph. Local race-start RAM resolves the misleading C
+no-argument thunks: `sub_208C1D0` dispatches to `sub_208C000` (node position
+and segment direction), and `sub_208C1F4` to `sub_208C050` (lazy area-selected
+recovery target). The latter calls `sub_2041588`; this selection needs further
+area/callback analysis before integration. The missing recovery sequence is
+a candidate for native stalls, not a proven cause of the observed falls.
+
+Shared coordination now lives in root `PROGRESS.md`; Codex updates its Lane B
+section alongside the detailed maps and goal notes.
+
+Validation after the recovery module:158 core tests passed,0 failed,1
+existing CPU replay ignored. Windows release builds with the new module;
+its callbacks remain intentionally unwired pending original-game evidence.

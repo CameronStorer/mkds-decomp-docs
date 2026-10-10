@@ -2541,7 +2541,7 @@ sub_2061944,arm9_main,0x02061944,672,described,race scene frame / fade / init (0
 sub_2061C28,arm9_main,0x02061C28,788,described,race scene frame / fade / init (0x02061874-0x02063800),sets up fade tables for the race scene: builds 32-step ramp (quadratic in/out or linear) into 8 words and programs it via sub_214A7EC/sub_214A748 (fog/edge-marking table),1,sub_2061944 sub_214A748 sub_214A7EC,,
 sub_2061F7C,arm9_main,0x02061F7C,16,described,race scene frame / fade / init (0x02061874-0x02063800),getter: field +16 of struct at 0x0217AA34,3,,,
 sub_2061F90,arm9_main,0x02061F90,16,known,race scene frame / fade / init (0x02061874-0x02063800),returns shared update slot at scheduler +12; traffic samples its floor normal only when slot equals instance index +212 modulo eight (collision flight bypasses staggering),20,,,
-sub_2061FA4,arm9_main,0x02061FA4,16,known,map objects,kart slot whose turn it is this tick (round robin),1,,,vm_model/src/mapobj/chomp.rs:289 game/src/objects.rs:367
+sub_2061FA4,arm9_main,0x02061FA4,16,known,map objects,kart slot whose turn it is this tick (round robin),1,,,vm_model/src/mapobj/chomp.rs:339 game/src/objects.rs:367
 sub_2061FB8,arm9_main,0x02061FB8,16,described,race scene frame / fade / init (0x02061874-0x02063800),getter: field +4 of struct at 0x0217AA34,19,,,
 sub_2061FCC,arm9_main,0x02061FCC,24,described,race scene frame / fade / init (0x02061874-0x02063800),sets a halfword global to 1 then tail-calls a function pointer,1,,,
 sub_2061FEC,arm9_main,0x02061FEC,16,described,race scene frame / fade / init (0x02061874-0x02063800),getter: signed halfword global,19,,,
@@ -2678,7 +2678,7 @@ sub_206BF88,arm9_main,0x0206BF88,260,known,effects,"damage HitReset also stops w
 sub_206C094,arm9_main,0x0206C094,20,described,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",getter: kart flag 0x800000 of +76,1,,,
 sub_206C0A8,arm9_main,0x0206C0A8,8,described,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",getter: kart +1216 (0x4C0),3,,,
 sub_206C0B0,arm9_main,0x0206C0B0,44,known,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",Not trackable now (`sub_206C0B0`): the shell keeps the last position it saw.,3,,,vm_model/src/kart/blue_shell.rs:111
-sub_206C0E0,arm9_main,0x0206C0E0,56,known,map objects,kart cannot be targeted (damaged / invisible / respawning),4,,,vm_model/src/kart/red_shell.rs:61 vm_model/src/kart/shell.rs:54 vm_model/src/mapobj/chomp.rs:145
+sub_206C0E0,arm9_main,0x0206C0E0,56,known,map objects,kart cannot be targeted (damaged / invisible / respawning),4,,,vm_model/src/kart/red_shell.rs:61 vm_model/src/kart/shell.rs:54 vm_model/src/mapobj/chomp.rs:195
 sub_206C11C,arm9_main,0x0206C11C,48,described,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",for local player kart (flag 2): sub_208C188 on its HUD struct,1,sub_208C188,,
 sub_206C14C,arm9_main,0x0206C14C,48,described,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",for local player kart (flag 2): sub_208C1AC on its HUD struct,2,sub_208C1AC,,
 sub_206C17C,arm9_main,0x0206C17C,48,described,"kart update / draw / init (0x02063830-0x02065xxx; kart +0x80 pos, +0x74 id, +0x7c flags, +0x514 sub-struct)",sets kart flag 0x400000 (+76) and clears timer fields +1286/+1284 unless disabled,2,,,
@@ -2978,7 +2978,7 @@ sub_207E564,arm9_main,0x0207E564,48,described,misc,"thin wrapper: sub_2080CD0(a1
 sub_207E594,arm9_main,0x0207E594,176,described,misc,"probably CPU driver init variant of sub_207E400: a1[140] is 0 or 4096 depending on off_207E644 type ==5, a1[156] scaled by dword_207E648; calls sub_2080D34, sub_207F9CC(a1,0).",1,sub_207F9CC sub_2080D34,,
 sub_207E64C,arm9_main,0x0207E64C,8,described,misc,trivial getter returning int at a1+180.,1,,,
 sub_207E654,arm9_main,0x0207E654,20,described,misc,"trivial predicate, returns (a1+176) != 0.",1,,,
-sub_207E668,arm9_main,0x0207E668,388,described,misc,"probably per-kart item/AI action timer state machine: decrements u16 at a1+172, resets to 10 when kart flags (+68 & 0xC0) set and speed (+676) < 12288; cycles state a1[42] 0..3 calling sub_2080AC0, sub_208C1F4, sub_2063A68.",3,sub_2063A68 sub_2080AC0 sub_208C1F4,,
+sub_207E668,arm9_main,0x0207E668,388,known,effects,"CPU wall-stall recovery timer: kart flags+68 mask0xC0 and speed+676 below12288 refresh signed16 contact latch+172 to10; otherwise decrements latch. Active latch advances unsigned16 counter+120 to limit+122; no active latch resets state+168=0,counter0,limit20. Transitions0->1(limit120),1->2(limit180, previous-node target),2->3(limit180, area-selected recovery target),3->4(kart callback); mode2 skips state2. Timer fields replay-confirmed in7000 calls,6782 natural state0 calls plus218 labeled state0 probes (78 transitions0->1). Later callbacks/mode2 are source-derived, not runtime replay-covered; native wiring pending",3,sub_2063A68 sub_2080AC0 sub_208C1F4,,vm_model/src/cpu_recovery.rs:1
 sub_207E7F0,arm9_main,0x0207E7F0,336,known,CPU driver,"starts from where the kart stands across the route (`sub_207E7F0`), is reset to where the",2,sub_20397A8 sub_2039828 sub_20738F8 sub_2147F34 sub_21484D0 sub_2148504,,vm_model/src/cpu.rs:12 vm_model/src/cpu.rs:453
 sub_207E944,arm9_main,0x0207E944,424,known,CPU driver,"±0.15 at every node reached once the countdown is over, within ±0.7 (`sub_207E944`). It",1,sub_20397A8 sub_20738F8 sub_208537C,,vm_model/src/cpu.rs:11 vm_model/src/cpu.rs:329 vm_model/src/cpu.rs:481
 sub_207EAFC,arm9_main,0x0207EAFC,252,described,misc,"computes a signed scalar between two vectors: sub_21484D0 difference, sub_214848C scale, sub_20397A8 cross, sub_21482CC length, sub_2039828 dot; sign from dot with a3; scaled by dword_207EBF8.",1,sub_20397A8 sub_2039828 sub_21482CC sub_214848C sub_21484D0 sub_2148538,,
@@ -3004,7 +3004,7 @@ sub_20800A0,arm9_main,0x020800A0,80,described,misc,returns scaled first u16 of t
 sub_20800F4,arm9_main,0x020800F4,2012,described,misc,"large (2 KB) probably CPU target selection: scans kart list (*a1, count u16 +44) with flag byte +46 bitmask, picks nearest/ahead/behind candidates via sub_2039828 dot and sub_214848C distance; writes target into a1[0], direction a1[2..4].",1,sub_2039828 sub_2039860 sub_207A974 sub_208537C sub_214848C sub_21484D0,,
 sub_20808D4,arm9_main,0x020808D4,48,described,misc,"init: a1[0]=a1[1]=a2, copies constant vector from off_2080904 into a1[2..4], zeros a1[5..6], returns 0.",1,,,
 sub_2080908,arm9_main,0x02080908,432,described,misc,"probably nearest-kart search: scans list at *off_2080AB8+132 (count +136), keeps 3 closest by sub_21482CC, picks the one with best dot (sub_2039828) against a3; writes result to a1[0..1], constant vector a1[2..4].",1,sub_2039828 sub_2039860 sub_21482CC sub_21484D0,,
-sub_2080AC0,arm9_main,0x02080AC0,28,described,misc,"small helper: if result[5]==0, sets result[5]=result[1] and result[6]=0 (latches a value once).",1,,,
+sub_2080AC0,arm9_main,0x02080AC0,28,known,effects,"if route-cursor override+20 is null, latches previous-node pointer+4 into override+20 and clears override-progress+24. CPU recovery state2 thereby targets its predecessor; does not reverse or swap the route graph",1,,,
 sub_2080ADC,arm9_main,0x02080ADC,64,described,misc,"shifts a1[0] into a1[1], sets a1[0]=a2, computes normalized direction a1+2 from position pointers (+24) via sub_21484D0 and sub_2039860.",1,sub_2039860 sub_21484D0,,
 sub_2080B1C,arm9_main,0x02080B1C,216,known,CPU driver,next node is picked at random (`sub_2080B1C`).,0,sub_2039860 sub_207A974 sub_208537C sub_21484D0,,vm_model/src/cpu.rs:8 vm_model/src/cpu.rs:374 vm_model/src/cpu.rs:503
 sub_2080BF4,arm9_main,0x02080BF4,112,known,CPU driver,"along that direction, or inside its radius (`sub_2080BF4` / `sub_2080C64`). At a fork the",2,sub_2039828 sub_21484D0,,vm_model/src/cpu.rs:7 vm_model/src/cpu.rs:492
@@ -3257,9 +3257,9 @@ sub_208BF6C,arm9_main,0x0208BF6C,40,described,misc,"probably teardown chain: sub
 sub_208BF94,arm9_main,0x0208BF94,68,described,misc,"probably init for kart slot a2: sub_207A974 lookup, sub_2089788, sub_2089CE4(a1+320), sub_2090348(a1+284), sub_2089A24(a1, a1+232)",0,sub_207A974 sub_2089788 sub_2089A24 sub_2089CE4 sub_2090348,,
 sub_208BFD8,arm9_main,0x0208BFD8,16,described,misc,"thunk; calls off_208BFE8(a1+284, a1)",0,sub_207BECC,,
 sub_208BFEC,arm9_main,0x0208BFEC,16,described,misc,"thunk; calls off_208BFFC(a1+284, a1)",0,sub_207C144,,
-sub_208C000,arm9_main,0x0208C000,60,described,misc,mirror of sub_208BEA4 with other offsets: copies 3-vector from (*(a3+8)+24) into a1 and a3+8 +8..+16 into a2; returns x component,0,,,
+sub_208C000,arm9_main,0x0208C000,60,known,effects,copies current CPU cursor node position via driver+8/node+24 into first output and segment direction driver+16/+20/+24 into second; these drive steering-recovery state1 calculations,0,,,
 sub_208C03C,arm9_main,0x0208C03C,20,described,misc,returns nonzero when a1+28 is non-null,0,,,
-sub_208C050,arm9_main,0x0208C050,76,described,misc,lazily caches the course AREA (type-4) containing *a1+128 in a1[7] via sub_2041588; a1[8] is the cache-valid flag; returns 1 when found,0,sub_2041588,,
+sub_208C050,arm9_main,0x0208C050,76,known,effects,recovery target controller lazily calls sub_2041588(kart position+128) if target+28 is absent or active+32 is clear; stores returned record pointer at+28 and marks+32=1 only when non-null,0,sub_2041588,,
 sub_208C09C,arm9_main,0x0208C09C,44,described,misc,"probably CPU-driver init: sub_207F8F8, sub_207DE84 (pace logic) on a1+232, sub_207C270 on a1+284",0,sub_207C270 sub_207DE84 sub_207F8F8,,
 sub_208C0C8,arm9_main,0x0208C0C8,40,described,misc,"probably CPU-driver teardown: sub_207F9A8, sub_207E1D4 on a1+232, sub_207C448 on a1+284",0,sub_207C448 sub_207E1D4 sub_207F9A8,,
 sub_208C0F0,arm9_main,0x0208C0F0,120,described,misc,"probably CPU-driver init for slot a2: sub_207A974 lookup, sets +340 from a table flag, then sub_207FA74, sub_207E200, sub_207C448, sub_207E088",0,sub_207A974 sub_207C448 sub_207E088 sub_207E200 sub_207FA74,,
@@ -3268,8 +3268,8 @@ sub_208C178,arm9_main,0x0208C178,8,described,misc,getter; returns word at a1+276
 sub_208C180,arm9_main,0x0208C180,8,described,misc,getter; returns word at a1+272,1,,,
 sub_208C188,arm9_main,0x0208C188,32,described,misc,thunk; calls no-arg function pointer at off_208C1A8,1,sub_217B04C,,
 sub_208C1AC,arm9_main,0x0208C1AC,32,described,misc,thunk; calls no-arg function pointer at off_208C1CC,1,sub_217B048,,
-sub_208C1D0,arm9_main,0x0208C1D0,32,described,misc,thunk; calls no-arg function pointer at off_208C1F0,1,sub_217B044,,
-sub_208C1F4,arm9_main,0x0208C1F4,32,described,misc,thunk; calls no-arg function pointer at off_208C214,2,sub_217B050,,
+sub_208C1D0,arm9_main,0x0208C1D0,32,known,effects,"route position/direction thunk through runtime slot0x0217B044, pointing to sub_208C000 in Figure-8 race-start dump; caller arguments are forwarded despite no-argument C cast",1,sub_217B044,,
+sub_208C1F4,arm9_main,0x0208C1F4,32,known,effects,"recovery callback thunk via runtime slot0x0217B050, pointing to sub_208C050 in the local Figure-8 race-start RAM dump; C omits forwarded argument, caller passes kart+784 controller. Target-selection side effects remain source-derived",2,sub_217B050,,
 sub_208C218,arm9_main,0x0208C218,32,described,misc,thunk; calls no-arg function pointer at off_208C238,1,sub_217B038,,
 sub_208C23C,arm9_main,0x0208C23C,32,described,misc,thunk; calls no-arg function pointer at off_208C25C,1,sub_217B040,,
 sub_208C260,arm9_main,0x0208C260,32,described,misc,thunk; calls no-arg function pointer at off_208C280,3,sub_217B03C,,
@@ -3684,7 +3684,7 @@ sub_209C7A8,arm9_main,0x0209C7A8,204,described,"model wrapper / class allocation
 sub_209C878,arm9_main,0x0209C878,44,described,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)",loads bound.nsbmd and bound.nsbtp,0,sub_209BDE8 sub_209BE84,bound.nsbmd | bound.nsbtp,
 sub_209C8B0,arm9_main,0x0209C8B0,180,known,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)",the pinball bumper's own test (`sub_209C8B0`): a cylinder up its axis from its base,0,sub_20EAD80,,vm_model/src/obj_collision.rs:277
 sub_209C964,arm9_main,0x0209C964,148,described,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)",object hit callback: on hit kind 2 starts wobble spring (state 1) and sets kart bit,0,,,
-sub_209C9FC,arm9_main,0x0209C9FC,1180,known,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)","a pinball bumper struck by a kart (`sub_209C9FC`, own-table kind 3 or 4) throws it",0,sub_2039860 sub_208B7BC sub_20A21BC sub_20D26EC sub_2103544 sub_2147FD8 sub_214848C sub_21484D0,,game/src/objects.rs:867
+sub_209C9FC,arm9_main,0x0209C9FC,1180,known,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)","a pinball bumper struck by a kart (`sub_209C9FC`, own-table kind 3 or 4) throws it",0,sub_2039860 sub_208B7BC sub_20A21BC sub_20D26EC sub_2103544 sub_2147FD8 sub_214848C sub_21484D0,,game/src/objects.rs:884
 sub_209CEBC,arm9_main,0x0209CEBC,48,described,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)","object delete callback: marks object, resets random state, stores +0x1C into +0xB4",0,sub_20D2450,,
 sub_209CF34,arm9_main,0x0209CF34,1084,described,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)","sun tick: waits for kart proximity or timer, follows path, bobbing; sounds 546/5625",0,sub_203C8C0 sub_207A974 sub_209B758 sub_209D694 sub_20D22D0 sub_20D8A5C sub_20D8CC8,,
 sub_209D394,arm9_main,0x0209D394,100,described,"model wrapper / class allocation helpers, berry & cream (cream cake), bound, sun (sub_209bd90-209d84c)",per-object init loop: sets timer +0xA8 from class by game mode (1 or 5),0,,,
@@ -3706,7 +3706,7 @@ sub_209E310,arm9_main,0x0209E310,500,known,map objects,"Wario Stadium's fire rin
 sub_209E508,arm9_main,0x0209E508,1064,described,map objects,"fireball draw: for each fireball (up to count at +0xA0), matrix with rotation, scale, model draw; faces camera",0,sub_1FF9048 sub_2039828 sub_2061808 sub_209B940 sub_209BB2C sub_20D3C44 sub_20E6CF8 sub_2146D60,,
 sub_209E938,arm9_main,0x0209E938,16,described,map objects,thunk: calls sub_209BBD0 with the fireball2 model,0,sub_209BBD0,,
 sub_209E950,arm9_main,0x0209E950,48,described,map objects,loads fireball2.nsbmd,0,sub_209B940 sub_209BD08,fireball2.nsbmd,
-sub_209E988,arm9_main,0x0209E988,136,known,map objects,hit test `sub_209E988`.,0,,,vm_model/src/mapobj/fire_ring.rs:2 vm_model/src/mapobj/fire_ring.rs:76 game/src/objects.rs:792
+sub_209E988,arm9_main,0x0209E988,136,known,map objects,hit test `sub_209E988`.,0,,,vm_model/src/mapobj/fire_ring.rs:2 vm_model/src/mapobj/fire_ring.rs:76 game/src/objects.rs:804
 sub_209EA10,arm9_main,0x0209EA10,124,described,map objects,"fireball hit callback: sets knock flag on kart (11-tick cooldown per kart), hit effect",0,sub_20D26F8,,
 sub_209EA90,arm9_main,0x0209EA90,112,known,map objects,"Wario Stadium's fire rings (0x1AF): init `sub_209EA90` / `sub_209E310`, tick `sub_209DF84`,",0,sub_20D28E0,,vm_model/src/mapobj/fire_ring.rs:1
 sub_209EB04,arm9_main,0x0209EB04,20,described,map objects,registers decoration draw descriptor (sub_209BEF0) for puddle,0,sub_209BEF0,,
@@ -4783,7 +4783,7 @@ sub_20D21EC,arm9_main,0x020D21EC,28,known,"goomba squash dispatcher (codex, 2026
 sub_20D2210,arm9_main,0x020D2210,28,known,"goomba squash dispatcher (codex, 2026-10-08)",loads MapObj/<name> from the course texture archive,2,sub_2047B08 sub_2135048,MapObj/%s,
 sub_20D2234,arm9_main,0x020D2234,140,described,misc,splits u16 id *a1 into hundreds and remainder (base 100) and returns sub_20D6D8C(...) && sub_20D6D34(...)==2 on object +68 [REVIEW],1,sub_20D6D34 sub_20D6D8C,,
 sub_20D22C0,arm9_main,0x020D22C0,12,described,misc,"trivial getter, returns the int behind global pointer off_20D22CC",1,,,
-sub_20D22D0,arm9_main,0x020D22D0,12,known,map objects,the objects' random context (NitroSDK MATH_Rand32 at *0x0217B49C),31,,,vm_model/src/mapobj/mod.rs:20 game/src/objects.rs:366
+sub_20D22D0,arm9_main,0x020D22D0,12,known,map objects,the objects' random context (NitroSDK MATH_Rand32 at *0x0217B49C),31,,,vm_model/src/mapobj/mod.rs:21 game/src/objects.rs:366
 sub_20D22E0,arm9_main,0x020D22E0,72,described,misc,"picks one of two global value sets based on *(*off_20D2328[0]+8)==5, writes a computed value to a global pointer and stores the sum with dword_20D2334 into off_20D2338 [REVIEW]",1,,,
 sub_20D233C,arm9_main,0x020D233C,92,described,misc,"resets object flags a1[1] (folds low nibble into high nibble, clears bit 0x100), sets a1[51]=31 when bit 1 is clear, calls sub_20D50EC(a1[50],-1) if slot valid",3,sub_20D50EC,,
 sub_20D2398,arm9_main,0x020D2398,164,described,misc,"rebuilds object flag word a1+2: keeps low 12 bits, copies low nibble to top, ORs four global flag words, calls sub_20D5114 if a1+100 != -1 [REVIEW]",37,sub_20D5114,,
@@ -4896,7 +4896,7 @@ sub_20D6A54,arm9_main,0x020D6A54,384,described,misc,"id split plus two table loo
 sub_20D6BE0,arm9_main,0x020D6BE0,328,known,"traffic hit and recovery (codex, 2026-10-08)","separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers",1,sub_218173C,,vm_model/src/obj_collision.rs:5 vm_model/src/obj_collision.rs:120 vm_model/src/obj_collision.rs:141
 sub_20D6D34,arm9_main,0x020D6D34,84,described,misc,table lookup off_20D6D88[14*a3+a2][a4]; when a1 is nonzero and the value is 1 it calls a function pointer (a5 selects value 2) [REVIEW],1,,,
 sub_20D6D8C,arm9_main,0x020D6D8C,48,described,misc,"table lookup off_20D6DBC[14*a3+a2][a4]; returns the value only when a1 is zero, else 0 [REVIEW]",1,,,
-sub_20D6DC0,arm9_main,0x020D6DC0,44,known,map objects,handler table lookup for an explicit id group/index,1,,,game/src/objects.rs:845
+sub_20D6DC0,arm9_main,0x020D6DC0,44,known,map objects,handler table lookup for an explicit id group/index,1,,,game/src/objects.rs:862
 sub_20D6DF0,arm9_main,0x020D6DF0,296,described,misc,builds a fixed-point rotation from the vector a1 via sine/cosine tables off_20D6F1C and composes matrices with sub_2146D28/sub_2146D44/sub_2146D60/sub_2146DFC into a2 [REVIEW],1,sub_2146D28 sub_2146D44 sub_2146D60 sub_2146DFC,,
 sub_20D6F20,arm9_main,0x020D6F20,84,described,misc,builds a rotation matrix for angle a2 from table off_20D6F74 and multiplies it into a3 with sub_2146D78 [REVIEW],1,sub_2146D44 sub_2146D78,,
 sub_20D6F78,arm9_main,0x020D6F78,280,described,misc,"normalises the x,z vector (a1[0], a1[2]) using the hardware square root/divide registers; returns 0 if squared length < 16, otherwise writes scaled x,z to a2 [REVIEW]",3,,,
@@ -4904,17 +4904,17 @@ sub_20D70AC,arm9_main,0x020D70AC,324,known,map objects,unit vector and rounded l
 sub_20D720C,arm9_main,0x020D720C,476,described,misc,builds a 4-component rotation (quaternion-like) from two table-driven angles (off_20D73EC indexed by a1[0] and a1[1]/a1[2]) into a2 [REVIEW],2,,,
 sub_20D73F0,arm9_main,0x020D73F0,392,described,misc,normalises a 4-component vector a1 (quaternion) via hardware sqrt/divide when its squared length is outside a range; otherwise copies it to a2 [REVIEW],1,,,
 sub_20D759C,arm9_main,0x020D759C,268,known,npc and traffic presentation (codex; 2026-10-08),"sign-corrected per-component quaternion easing (negates target if dot product is negative), without normalization; traffic helper matches 899 original bus transitions with recorded tilt/yaw/rate inputs",3,,,vm_model/src/mapobj/presentation.rs:29
-sub_20D76A8,arm9_main,0x020D76A8,136,described,misc,"rotates the 2D pair a1[1],a1[3] by table-driven sin/cos of angle a2 (off_20D7730) and writes 4 products to a3 [REVIEW]",1,,,
+sub_20D76A8,arm9_main,0x020D76A8,136,known,misc,"Its draw pitch: +0xE8 plus the hop lean (`sub_20D76A8`), u16 angle units.",1,,,vm_model/src/mapobj/chomp.rs:82
 sub_20D7734,arm9_main,0x020D7734,168,known,misc,The game turns the arm with a quaternion (`sub_20D7734`); here sine and cosine directly.,1,,,vm_model/src/mapobj/pendulum.rs:8
 sub_20D77E0,arm9_main,0x020D77E0,168,described,misc,"rotates a 4-component value a1 by table-driven angle a2 (off_20D7888) into a3, a variant of sub_20D7734 with a different axis [REVIEW]",1,,,
 sub_20D788C,arm9_main,0x020D788C,168,described,misc,"rotates a 4-component value a1 by table-driven angle a2 (off_20D7934) into a3, another axis variant [REVIEW]",1,,,
 sub_20D7938,arm9_main,0x020D7938,120,described,misc,"quaternion product of a1 with the sin/cos pair at a2+4/+12, writes 4 components to a3 [REVIEW]",3,,,
 sub_20D79B0,arm9_main,0x020D79B0,136,known,npc and traffic presentation (codex; 2026-10-08),combines terrain tilt quaternion's X/Z/W with half-angle XZ heading; traffic heading helper verified as part of all 899 bus orientation transitions,2,,,vm_model/src/mapobj/presentation.rs:21
 sub_20D7A3C,arm9_main,0x020D7A3C,236,described,misc,"computes a 3-value offset from angle a2 (table off_20D7B30) using the hardware divide/sqrt helpers sub_2147D88, sub_2147DC0 and sub_2147E28 [REVIEW]",4,sub_2147D88 sub_2147DC0 sub_2147E28,,
-sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:680
+sub_20D7B34,arm9_main,0x020D7B34,80,known,map objects,facing its travel (sub_20D7B34 from the walk's direction),5,,,game/src/objects.rs:689
 sub_20D7B88,arm9_main,0x020D7B88,100,known,npc and traffic presentation (codex; 2026-10-08),"traffic terrain tilt: denominator FX_Sqrt(2*(normalY+4096)); quaternion [FX_Div(normalZ,denominator),0,FX_Div(-normalX,denominator),denominator/2]; native KCL probe plus tilt/heading/easing/body matrix matches all 899 bus transitions",7,sub_2147D88 sub_2147E28 sub_2147E8C,,vm_model/src/mapobj/presentation.rs:5
 sub_20D7BEC,arm9_main,0x020D7BEC,136,described,misc,"computes FX_Atan2 of object +8 and +32 via sub_2148538, maps the angle to a sin/cos pair from off_20D7C80 and stores it in the global at off_20D7C7C (+4/+12) [REVIEW]",1,sub_2148538,,
-sub_20D7C84,arm9_main,0x020D7C84,144,known,map objects,single-segment curve advance to new points (carry),3,sub_20D80E4 sub_2133048,,vm_model/src/kart/blue_shell.rs:437 vm_model/src/mapobj/chomp.rs:270
+sub_20D7C84,arm9_main,0x020D7C84,144,known,map objects,single-segment curve advance to new points (carry),3,sub_20D80E4 sub_2133048,,vm_model/src/kart/blue_shell.rs:437 vm_model/src/mapobj/chomp.rs:320
 sub_20D7D18,arm9_main,0x020D7D18,50,known,map objects,single-segment curve build (wander curves),4,sub_20D80E4 sub_20D84C0,,
 sub_20D7D4C,arm9_main,0x020D7D4C,50,known,map objects,"eased follower init (unit speed / 100, object speed)",3,sub_20D7DA8 sub_20D859C sub_2133068,,vm_model/src/mapobj/path.rs:314 vm_model/src/mapobj/path.rs:337
 sub_20D7D80,arm9_main,0x020D7D80,38,known,misc,The route with straight segments (`sub_20D7D80` at init).,1,,,vm_model/src/mapobj/airship.rs:94 vm_model/src/mapobj/airship.rs:106
@@ -4926,7 +4926,7 @@ sub_20D8460,arm9_main,0x020D8460,16,described,misc,"thunk, tail-calls off_20D847
 sub_20D8474,arm9_main,0x020D8474,16,known,map objects,single-segment curve x/z,2,sub_20D9340,,
 sub_20D8488,arm9_main,0x020D8488,16,described,misc,"thunk, tail-calls off_20D8498(a1, a1+92, a2)",3,sub_20D9480,,
 sub_20D849C,arm9_main,0x020D849C,36,known,map objects,single-segment curve progress step,4,,,
-sub_20D84C0,arm9_main,0x020D84C0,36,known,kart,`sub_20D84C0`: progress per tick at `speed` along a segment (a whole segment if it has no length).,3,,,vm_model/src/kart/blue_shell.rs:415 vm_model/src/mapobj/chomp.rs:206
+sub_20D84C0,arm9_main,0x020D84C0,36,known,kart,`sub_20D84C0`: progress per tick at `speed` along a segment (a whole segment if it has no length).,3,,,vm_model/src/kart/blue_shell.rs:415 vm_model/src/mapobj/chomp.rs:256
 sub_20D84E4,arm9_main,0x020D84E4,184,known,map objects,eased follower advance (speed blends between point speeds),4,sub_20D8CAC sub_20D8CC8,,vm_model/src/mapobj/path.rs:315 vm_model/src/mapobj/path.rs:362
 sub_20D859C,arm9_main,0x020D859C,132,known,map objects,eased follower start with per-point speeds,4,sub_20D90A8,,vm_model/src/mapobj/path.rs:314 vm_model/src/mapobj/path.rs:353
 sub_20D8620,arm9_main,0x020D8620,40,known,map objects,follower reverse,2,,,vm_model/src/mapobj/path.rs:262
@@ -4994,31 +4994,31 @@ sub_20DB2B8,arm9_main,0x020DB2B8,260,known,map objects,Thwomp init,0,sub_20D27FC
 sub_20DB3E4,arm9_main,0x020DB3E4,56,described,thwomp (dossun),loads dossun.nsbmd and dossun_shadow.nsbmd (Thwomp model and shadow),0,sub_2084968 sub_20D21EC sub_20EA55C sub_20EA588,dossun.nsbmd | dossun_shadow.nsbmd,
 sub_20DB430,arm9_main,0x020DB430,146,known,map objects,Thwomp start on its path,1,sub_20D8A5C sub_20D90A8,,vm_model/src/mapobj/thwomp.rs:1
 sub_20DB4C4,arm9_main,0x020DB4C4,132,described,thwomp (dossun),Thwomp path factor: follower fraction (sub_20D8CAC) mapped to 0..4096 depending on state (+0xA0) and direction,1,sub_20D8CAC,,
-sub_20DB548,arm9_main,0x020DB548,532,known,map objects,"Thwomp class callback (star knock, crush handler 11 for karts below)",0,sub_2039828 sub_2061FB8 sub_20D26F8 sub_20D6DC0 sub_20D8620 sub_21484D0,,vm_model/src/mapobj/thwomp.rs:10 game/src/objects.rs:784
+sub_20DB548,arm9_main,0x020DB548,532,known,map objects,"Thwomp class callback (star knock, crush handler 11 for karts below)",0,sub_2039828 sub_2061FB8 sub_20D26F8 sub_20D6DC0 sub_20D8620 sub_21484D0,,vm_model/src/mapobj/thwomp.rs:10 game/src/objects.rs:796
 sub_20DB760,arm9_main,0x020DB760,1580,known,map objects,"Thwomp tick (shudder, hop, slam, wait, rise; glide)",0,sub_208B7BC sub_20D275C sub_20D4DDC sub_20D4EF4 sub_20D8620 sub_20D8648 sub_20D8A5C sub_20D8CC8 sub_210B7A8,,vm_model/src/mapobj/thwomp.rs:1 vm_model/src/mapobj/thwomp.rs:82
 sub_20DBDAC,arm9_main,0x020DBDAC,184,described,thwomp (dossun),"Thwomp draw callback: optional tilt from sine table by +0xBA, position >>4, draws body and shadow (sub_20EA8A8/20EA868)",0,sub_20EA868 sub_20EA8A8 sub_2146D44 sub_2146DFC,,
 sub_20DBE74,arm9_main,0x020DBE74,84,described,thwomp (dossun),"Thwomp logic class record factory (40 bytes, tick = sub_20DB760), global 0x0217B670",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,
 sub_20DBED0,arm9_main,0x020DBED0,84,described,thwomp (dossun),"Thwomp draw class record factory (44 bytes, loader sub_20DB3E5, draw sub_20DBDAC), global 0x0217B678",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20D49D8,,
 sub_20DBF2C,arm9_main,0x020DBF2C,76,described,thwomp (dossun),"Thwomp collision record factory (64 bytes, hit handler sub_20DB548, shape 2, sizes 0x24000/0x2D000, id 0x18A)",0,sub_20364E0 sub_20364E8 sub_2036BEC,,
-sub_20DBF7C,arm9_main,0x020DBF7C,342,known,map objects,Chain Chomp reset to its stake,3,sub_1FFCCD0 sub_20D7938 sub_20D7B34 sub_20DE184 sub_2133048 sub_2147FD8 sub_2148538,,vm_model/src/mapobj/chomp.rs:43 vm_model/src/mapobj/chomp.rs:156
-sub_20DC11C,arm9_main,0x020DC11C,168,known,map objects,path Chain Chomp init (0x1A5),0,sub_2046BCC sub_2046BE8 sub_20D7D4C sub_20DBF7C sub_2133048,,vm_model/src/mapobj/chomp.rs:3 vm_model/src/mapobj/chomp.rs:43
-sub_20DC1D8,arm9_main,0x020DC1D8,252,known,map objects,chained Chain Chomp init (0x196),0,sub_2046BCC sub_2046BE8 sub_20D34D4 sub_20D555C sub_20DBF7C sub_2133048,,vm_model/src/mapobj/chomp.rs:10 vm_model/src/mapobj/chomp.rs:156
+sub_20DBF7C,arm9_main,0x020DBF7C,342,known,map objects,Chain Chomp reset to its stake,3,sub_1FFCCD0 sub_20D7938 sub_20D7B34 sub_20DE184 sub_2133048 sub_2147FD8 sub_2148538,,vm_model/src/mapobj/chomp.rs:54 vm_model/src/mapobj/chomp.rs:206
+sub_20DC11C,arm9_main,0x020DC11C,168,known,map objects,path Chain Chomp init (0x1A5),0,sub_2046BCC sub_2046BE8 sub_20D7D4C sub_20DBF7C sub_2133048,,vm_model/src/mapobj/chomp.rs:3 vm_model/src/mapobj/chomp.rs:54
+sub_20DC1D8,arm9_main,0x020DC1D8,252,known,map objects,chained Chain Chomp init (0x196),0,sub_2046BCC sub_2046BE8 sub_20D34D4 sub_20D555C sub_20DBF7C sub_2133048,,vm_model/src/mapobj/chomp.rs:10 vm_model/src/mapobj/chomp.rs:206
 sub_20DC308,arm9_main,0x020DC308,56,described,chain chomp (wanwan) and chain/stake,loads wanwan.nsbmd and rock_shadow.nsbmd (Chain Chomp model and shadow),0,sub_2084968 sub_20D21EC sub_20EA55C sub_20EA588,rock_shadow.nsbmd | wanwan.nsbmd,
-sub_20DC354,arm9_main,0x020DC354,204,known,map objects,Chain Chomp state 5 path walk,0,sub_20D7B34 sub_20D84E4 sub_20D8B88 sub_2148538,,vm_model/src/mapobj/chomp.rs:4 vm_model/src/mapobj/chomp.rs:59
+sub_20DC354,arm9_main,0x020DC354,204,known,map objects,Chain Chomp state 5 path walk,0,sub_20D7B34 sub_20D84E4 sub_20D8B88 sub_2148538,,vm_model/src/mapobj/chomp.rs:4 vm_model/src/mapobj/chomp.rs:87
 sub_20DC428,arm9_main,0x020DC428,20,known,map objects,Chain Chomp state 5 enter (path),0,,,
 nullsub_55,arm9_main,0x020DC444,4,unknown,,,0,,,
 sub_20DC448,arm9_main,0x020DC448,32,described,chain chomp (wanwan) and chain/stake,uncertain: Chain Chomp init constants: sets +0xE8/+0xEC to 0x555/0x1C2 and linked object +0xA8 to 0x599,0,,,
-sub_20DC474,arm9_main,0x020DC474,356,known,map objects,Chain Chomp state 3 return toward the stake,0,sub_21484D0,,vm_model/src/mapobj/chomp.rs:16 vm_model/src/mapobj/chomp.rs:356
+sub_20DC474,arm9_main,0x020DC474,356,known,map objects,Chain Chomp state 3 return toward the stake,0,sub_21484D0,,vm_model/src/mapobj/chomp.rs:16 vm_model/src/mapobj/chomp.rs:406
 sub_20DC5DC,arm9_main,0x020DC5DC,32,known,map objects,Chain Chomp state 3 enter,0,,,vm_model/src/mapobj/chomp.rs:16
-sub_20DC608,arm9_main,0x020DC608,364,known,map objects,Chain Chomp state 2 (hit jump),0,sub_20D7B34 sub_20D84E4 sub_20D8B88 sub_2148538,,
-sub_20DC788,arm9_main,0x020DC788,48,known,map objects,Chain Chomp state 2 enter (hit),0,,,
-sub_20DC7C0,arm9_main,0x020DC7C0,1088,known,map objects,"Chain Chomp state 1 lunge (chase predicted kart, chain limit)",0,sub_20D6F78 sub_20D7B34 sub_21484D0 sub_2148504 sub_2148538,,vm_model/src/mapobj/chomp.rs:14 vm_model/src/mapobj/chomp.rs:300 vm_model/src/mapobj/chomp.rs:471
-sub_20DCC0C,arm9_main,0x020DCC0C,176,known,map objects,Chain Chomp state 1 enter (lunge),0,sub_20D4EF4 sub_210B7A8,,vm_model/src/mapobj/chomp.rs:14 vm_model/src/mapobj/chomp.rs:222
-sub_20DCCC8,arm9_main,0x020DCCC8,1028,known,map objects,"Chain Chomp state 0 wander (random points, lunge trigger)",0,sub_2061FA4 sub_206C0E0 sub_207A974 sub_20D22D0 sub_20D7B34 sub_20D7C84 sub_20D8474 sub_20D849C sub_2148538,,vm_model/src/mapobj/chomp.rs:11 vm_model/src/mapobj/chomp.rs:236
-sub_20DD0D8,arm9_main,0x020DD0D8,272,known,map objects,Chain Chomp state 0 enter (wander curve ahead),0,sub_20D7D18,,vm_model/src/mapobj/chomp.rs:10 vm_model/src/mapobj/chomp.rs:195 vm_model/src/mapobj/chomp.rs:227
+sub_20DC608,arm9_main,0x020DC608,364,known,map objects,Chain Chomp state 2 (hit jump),0,sub_20D7B34 sub_20D84E4 sub_20D8B88 sub_2148538,,vm_model/src/mapobj/chomp.rs:20
+sub_20DC788,arm9_main,0x020DC788,48,known,map objects,Chain Chomp state 2 enter (hit),0,,,vm_model/src/mapobj/chomp.rs:20
+sub_20DC7C0,arm9_main,0x020DC7C0,1088,known,map objects,"Chain Chomp state 1 lunge (chase predicted kart, chain limit)",0,sub_20D6F78 sub_20D7B34 sub_21484D0 sub_2148504 sub_2148538,,vm_model/src/mapobj/chomp.rs:14 vm_model/src/mapobj/chomp.rs:350 vm_model/src/mapobj/chomp.rs:521
+sub_20DCC0C,arm9_main,0x020DCC0C,176,known,map objects,Chain Chomp state 1 enter (lunge),0,sub_20D4EF4 sub_210B7A8,,vm_model/src/mapobj/chomp.rs:14 vm_model/src/mapobj/chomp.rs:272
+sub_20DCCC8,arm9_main,0x020DCCC8,1028,known,map objects,"Chain Chomp state 0 wander (random points, lunge trigger)",0,sub_2061FA4 sub_206C0E0 sub_207A974 sub_20D22D0 sub_20D7B34 sub_20D7C84 sub_20D8474 sub_20D849C sub_2148538,,vm_model/src/mapobj/chomp.rs:11 vm_model/src/mapobj/chomp.rs:286
+sub_20DD0D8,arm9_main,0x020DD0D8,272,known,map objects,Chain Chomp state 0 enter (wander curve ahead),0,sub_20D7D18,,vm_model/src/mapobj/chomp.rs:10 vm_model/src/mapobj/chomp.rs:245 vm_model/src/mapobj/chomp.rs:277
 sub_20DD1F4,arm9_main,0x020DD1F4,60,described,chain chomp (wanwan) and chain/stake,"Chain Chomp kart-hit handler: on hit type 1 (unless already state 2 and low), requests state 2",0,,,
-sub_20DD230,arm9_main,0x020DD230,76,described,chain chomp (wanwan) and chain/stake,Chain Chomp kart-hit handler: as sub_20DD1F4 and also runs the object's own hit reaction (sub_20D26F8),0,sub_20D26F8,,
-sub_20DD27C,arm9_main,0x020DD27C,1076,known,map objects,"Chain Chomp tick (state machine, hop physics on plane or course)",0,sub_1FFCCD0 sub_1FFDEE4 sub_2046B40 sub_20D4EF4 sub_20D73F0 sub_20D759C sub_20D76A8 sub_20D788C sub_20D7938 sub_20D7B88 sub_20DBF7C sub_210B7A8,,vm_model/src/mapobj/chomp.rs:6 vm_model/src/mapobj/chomp.rs:59 vm_model/src/mapobj/chomp.rs:374
+sub_20DD230,arm9_main,0x020DD230,76,known,chain chomp (wanwan) and chain/stake,"Hit by a star kart (`sub_20DD230`, own-reaction 1, unless already flying up in state 2):",0,sub_20D26F8,,vm_model/src/mapobj/chomp.rs:19 vm_model/src/mapobj/chomp.rs:75
+sub_20DD27C,arm9_main,0x020DD27C,1076,known,map objects,"Chain Chomp tick (state machine, hop physics on plane or course)",0,sub_1FFCCD0 sub_1FFDEE4 sub_2046B40 sub_20D4EF4 sub_20D73F0 sub_20D759C sub_20D76A8 sub_20D788C sub_20D7938 sub_20D7B88 sub_20DBF7C sub_210B7A8,,vm_model/src/mapobj/chomp.rs:6 vm_model/src/mapobj/chomp.rs:87 vm_model/src/mapobj/chomp.rs:424
 sub_20DD6C8,arm9_main,0x020DD6C8,216,described,chain chomp (wanwan) and chain/stake,"Chain Chomp draw: while state 4 and not paused moves by velocity, draws body (sub_20EA8A8) and shadow (sub_20EA868)",0,sub_1FFCCD0 sub_20B2EC0 sub_20EA868 sub_20EA8A8,,
 sub_20DD7A8,arm9_main,0x020DD7A8,84,described,chain chomp (wanwan) and chain/stake,"Chain Chomp logic class record factory (40 bytes, tick = sub_20DD27C), global 0x0217B6B4",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20E6F50,,
 sub_20DD804,arm9_main,0x020DD804,84,described,chain chomp (wanwan) and chain/stake,"Chain Chomp draw class record factory (44 bytes, loader sub_20DC309, draw sub_20DD6C8), global 0x0217B6B8",0,sub_20364E0 sub_20364E8 sub_2036BEC sub_20D49D8,,
@@ -5188,14 +5188,14 @@ sub_20E4768,arm9_main,0x020E4768,92,described,misc,"Heap-allocates 64 bytes, cop
 sub_20E47C8,arm9_main,0x020E47C8,198,known,misc,"Cheep Cheep (0x19B, Cheep Cheep Beach / SNES Koopa Beach): init `sub_20E47C8`, hopping",0,sub_2046BE8 sub_20E516C sub_20EC854 sub_2133048 sub_2147F34,,vm_model/src/mapobj/cheep.rs:1
 sub_20E48B4,arm9_main,0x020E48B4,36,described,misc,"Loads a model resource via sub_20D21EC (existing guess: pukupuku.nsbmd), builds it with sub_20E6488 and returns sub_20E6AB8 on it. [REVIEW]",0,sub_20D21EC sub_20E6488 sub_20E6AB8,pukupuku.nsbmd,
 sub_20E48E0,arm9_main,0x020E48E0,80,described,misc,"Event handler: when *a3==1, calls sub_20EC538, ORs *off_20E4930 into a1[1], sets a1[72]=1 and a1[73]=1. Returns *a4.",0,sub_20EC538,,
-sub_20E4934,arm9_main,0x020E4934,88,known,map objects,Cheep Cheep (0x19B) class callback,0,sub_20D26F8 sub_20EC6E4,,
+sub_20E4934,arm9_main,0x020E4934,88,known,map objects,Cheep Cheep (0x19B) class callback,0,sub_20D26F8 sub_20EC6E4,,vm_model/src/mapobj/cheep.rs:9 vm_model/src/mapobj/cheep.rs:56
 sub_20E4990,arm9_main,0x020E4990,48,described,misc,"Per-frame: a1+8 += a1+20; when a1+8 > a1+188, sets state 0.",0,,,
-sub_20E49C0,arm9_main,0x020E49C0,84,described,misc,"Reset/respawn: copies a1+184 to a1+4 and a1+192 to a1+12, zeroes a1+16 and a1+24, sets a1+20 = dword_20E4A14, clears flag bits 1, 2 and 8 in a1+2, sets word a1+102 = 31.",0,,,
+sub_20E49C0,arm9_main,0x020E49C0,84,known,misc,sub_20E49C0,0,,,vm_model/src/mapobj/cheep.rs:83
 sub_20E4A18,arm9_main,0x020E4A18,28,described,misc,"State check: if a1+132 > 300, sets state a1+144=3.",0,,,
 sub_20E4A34,arm9_main,0x020E4A34,44,described,misc,ORs flag words from off_20E4A60 / off_20E4A64 into a1+2.,0,,,
 sub_20E4A68,arm9_main,0x020E4A68,76,described,misc,"If sub_20EC7E8() returns nonzero: calls sub_20D2398(a1) when the object at a1+156 has a nonzero field +40, otherwise sets state 2 and returns 1.",0,sub_20D2398 sub_20EC7E8,,
 sub_20E4AB4,arm9_main,0x020E4AB4,24,described,misc,ORs the flag word from off_20E4ACC into a1+2.,0,,,
-sub_20E4AD0,arm9_main,0x020E4AD0,768,known,misc,`sub_20E4AD0`.,0,sub_20D22D0 sub_20D4EF4 sub_210B7A8 sub_2148504,,vm_model/src/mapobj/cheep.rs:2 vm_model/src/mapobj/cheep.rs:44
+sub_20E4AD0,arm9_main,0x020E4AD0,768,known,misc,`sub_20E4AD0`.,0,sub_20D22D0 sub_20D4EF4 sub_210B7A8 sub_2148504,,vm_model/src/mapobj/cheep.rs:2 vm_model/src/mapobj/cheep.rs:115
 sub_20E4DEC,arm9_main,0x020E4DEC,12,described,misc,Sets the 16-bit field a1+172 = 0.,0,,,
 sub_20E4DF8,arm9_main,0x020E4DF8,12,described,misc,Thin indirect wrapper: calls function pointer off_20E4E04 with a2+128. [REVIEW],0,sub_2046B40,,
 sub_20E4E08,arm9_main,0x020E4E08,148,described,misc,"If a2+142 is 0 or 1: computes an alpha value from a2+8 minus a2+188 (>>6), calls sub_20E5634 on a2+200 with the position, then draws through sub_20E54E4; otherwise returns the state unchanged. [REVIEW]",0,sub_20E54E4 sub_20E5634,,
@@ -5254,7 +5254,7 @@ sub_20E6488,arm9_main,0x020E6488,48,described,misc,heap-allocates 44-byte struct
 sub_20E64B8,arm9_main,0x020E64B8,92,described,misc,"builds model instance: 108-byte record at a1+36 (sub_2084E28 with a2), optional 56-byte anim record at a1+40 via sub_20EA514, then sub_20E6514.",5,sub_20364E0 sub_20364E8 sub_2036BEC sub_2084E28 sub_20E6514 sub_20EA514,,
 sub_20E6514,arm9_main,0x020E6514,270,described,misc,"fills render-instance record from resource header a1+4 (pointers, flags); with a2 allocates per-joint arrays and sets per-frame values (sub_2015B9C). [REVIEW]",1,sub_2015B9C sub_20364E0 sub_20364E8 sub_2036BEC sub_2087D0C,,
 sub_20E662C,arm9_main,0x020E662C,146,described,misc,"allocates eight 48-byte buffers and one 36-byte buffer from a pool into global slots, then sub_21471BC. Work-buffer init. [REVIEW]",1,sub_2036BEC sub_21471BC,,
-sub_20E66E4,arm9_main,0x020E66E4,216,known,map objects,"+0xB8 roll about the model's z (drawn by `sub_20E66E4`), +0xB4 its direction.",4,sub_1FF9048 sub_20E6854 sub_2146D60,,vm_model/src/mapobj/monty.rs:23 game/src/objects.rs:582
+sub_20E66E4,arm9_main,0x020E66E4,216,known,map objects,"+0xB8 roll about the model's z (drawn by `sub_20E66E4`), +0xB4 its direction.",4,sub_1FF9048 sub_20E6854 sub_2146D60,,vm_model/src/mapobj/monty.rs:23 game/src/objects.rs:586
 sub_20E67C4,arm9_main,0x020E67C4,144,described,misc,"draw submit like sub_20E66E4 without texture matrix; sends color (cmd 27) from a3, then sub_20E6854.",12,sub_1FF9048 sub_20E6854,,
 sub_20E6854,arm9_main,0x020E6854,356,described,misc,"core model draw: sends GX cmds 27/41 (polygon attrs, alpha/LOD from a1+20, depth via sub_20E69BC), 42/43 buffers if a1+26 != 1, then sub_1FF9144 submit.",6,sub_1FF9048 sub_1FF9144 sub_20D3C44,,
 sub_20E69BC,arm9_main,0x020E69BC,88,described,misc,"returns depth-like scalar: dot of vector a1 with a row of camera matrix (*off_20E6A14), >>9.",1,,,
@@ -5357,9 +5357,9 @@ sub_20EC484,arm9_main,0x020EC484,12,described,misc,thunk; tail-calls function po
 sub_20EC490,arm9_main,0x020EC490,116,described,misc,"per-frame move-along-axis step: a1+172 +/-= a1+174 (sign from a1+168), a1+20 -= a1+164, integrates a1+4; if a1+8 < a1+160 sets state 2 [REVIEW]",0,sub_2148504,,
 sub_20EC504,arm9_main,0x020EC504,48,described,misc,"ORs flag word from off_20EC534 into a1+2, then maps 16-bit ID a1+100 through sub_20D5344 and stores it back.",0,sub_20D5344,,
 sub_20EC538,arm9_main,0x020EC538,416,described,misc,"side/direction of object a1 vs reference vector, normal from off_20EC6DC/6E0, sets a1[42], writes scaled a1+4..6 [REVIEW]",2,sub_20D6F78 sub_21484D0,,
-sub_20EC6E4,arm9_main,0x020EC6E4,260,described,misc,"alternate-side variant of sub_20EC538 using a2+20/22/41/43 for the normal; sets a1[42], writes a1+4..6 scaled by a1[45] [REVIEW]",2,sub_21484D0,,
-sub_20EC7E8,arm9_main,0x020EC7E8,108,described,misc,same step as sub_20EC490 but returns bool a1+8 < a1+160 without changing state.,1,sub_2148504,,
-sub_20EC854,arm9_main,0x020EC854,48,described,misc,"setter for a 1-D step record: stores a2 at +160, a3 at +164, sets +168=1, +172=0, +174=a4, +176=a5, +180=a6.",3,,,
+sub_20EC6E4,arm9_main,0x020EC6E4,260,known,misc,"+0xA0..+0xB4 set by `sub_20EC854`, launched by `sub_20EC6E4` when a star kart hits, stepped",2,sub_21484D0,,vm_model/src/mapobj/knock.rs:2 vm_model/src/mapobj/knock.rs:27
+sub_20EC7E8,arm9_main,0x020EC7E8,108,known,misc,by `sub_20EC7E8` until the object drops below its floor.,1,sub_2148504,,vm_model/src/mapobj/knock.rs:3 vm_model/src/mapobj/knock.rs:46
+sub_20EC854,arm9_main,0x020EC854,48,known,misc,"+0xA0..+0xB4 set by `sub_20EC854`, launched by `sub_20EC6E4` when a star kart hits, stepped",3,,,vm_model/src/mapobj/knock.rs:2 vm_model/src/mapobj/knock.rs:22
 sub_20EC884,arm9_main,0x020EC884,52,described,misc,"registers callback table off_20EC8B8 via sub_2046BE8 (count 3, owner a1+128); sets a1+144=0, a1+146=1; returns 1.",2,sub_2046BE8,,
 sub_20EC8BC,arm9_main,0x020EC8BC,92,described,misc,"init for a 137-word object: flag from a5 into sub_20F1EA4(a1,-a2,a6), stores a1[133]=a2, a1[134]=a3, inits sub-object a1+135; returns 0.",2,sub_20F1EA4 sub_20F371C,,
 sub_20EC918,arm9_main,0x020EC918,164,known,kart,State 3 (`sub_20F5978` / `sub_20EC918`).,3,sub_20EC9C0 sub_20ECE1C sub_20ED0F4,,vm_model/src/kart/red_shell.rs:128
@@ -7240,7 +7240,7 @@ sub_21483A0,arm9_main,0x021483A0,156,known,kart,"Cross product, rounded (`sub_21
 sub_214843C,arm9_main,0x0214843C,80,sdk,NitroSDK / NNS,,1,,,
 sub_214848C,arm9_main,0x0214848C,68,known,kart,"Dot product, rounded (`VEC_DotProduct`, `sub_214848C`).",53,,,vm_model/src/kart/fxmath.rs:39
 sub_21484D0,arm9_main,0x021484D0,52,sdk,NitroSDK / NNS,,152,,,
-sub_2148504,arm9_main,0x02148504,52,sdk,NitroSDK / NNS,,82,,,
+sub_2148504,arm9_main,0x02148504,52,known,items,relative to the kart. The kart's own velocity is added (`sub_20F3150` -> `sub_2148504` with kart +508).,82,,,game/src/items.rs:71
 sub_2148538,arm9_main,0x02148538,444,known,kart,"`FX_Atan2(y, x)` in fx12 radians (`sub_2148538`).",16,sub_2147F34,,vm_model/src/kart/fxmath.rs:182
 sub_2148714,arm9_main,0x02148714,464,sdk,NitroSDK / NNS,,20,sub_2147F34,,
 sub_21488E8,arm9_main,0x021488E8,28,sdk,NitroSDK / NNS,,3,,,

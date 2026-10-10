@@ -1,5 +1,7 @@
 # Next goals (resume here)
 
+- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery timer port matches7000 calls including218 labeled state0 probes; later callback stages/native integration remain open.
+
 - Lane B CPU heading now uses original quantized SDK atan2 and rounded integer degrees, replacing floats. Original Figure-8/Rainbow Road calls replay exactly; seed1 native Rainbow Road sweep changed five falls to six, so spiral falls remain open. See `analysis/CODEX_PARTICLE_MAP.md` and `analysis/cpu_heading_fall_comparison.csv`.
 
 - Lane B: ROM-textured drift smoke/flares/sparks now replace cubes; draw matrices/quad args match 721 original calls, rear contacts 645 calls, smoke attachment 100 wheel records, pivot smoke gate 3,993 calls. Native charge rendering and active-effects race restart verified; remaining second-matrix/GPU differences are tracked in `analysis/CODEX_PARTICLE_MAP.md`.

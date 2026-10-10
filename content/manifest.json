@@ -1,11 +1,17 @@
 {
-  "updated": "2026-10-09 08:24 UTC",
+  "updated": "2026-10-10 00:02 UTC",
   "documents": [
+    {
+      "path": "PROGRESS.md",
+      "title": "Shared progress",
+      "group": "Progress",
+      "modified": "2026-10-10"
+    },
     {
       "path": "docs/NEXT_GOALS.md",
       "title": "Current progress",
       "group": "Progress",
-      "modified": "2026-10-09"
+      "modified": "2026-10-10"
     },
     {
       "path": "docs/ROADMAP.md",
@@ -23,19 +29,19 @@
       "path": "docs/FUNCTION_MAP.md",
       "title": "Identified functions",
       "group": "Function maps",
-      "modified": "2026-10-09"
+      "modified": "2026-10-10"
     },
     {
       "path": "docs/FUNCTION_TABLE.md",
       "title": "Inventory coverage",
       "group": "Function maps",
-      "modified": "2026-10-09"
+      "modified": "2026-10-10"
     },
     {
       "path": "docs/function_notes.md",
       "title": "Function meanings",
       "group": "Function maps",
-      "modified": "2026-10-09"
+      "modified": "2026-10-10"
     },
     {
       "path": "analysis/race_logic_map.md",
@@ -83,7 +89,7 @@
       "path": "analysis/CODEX_PARTICLE_MAP.md",
       "title": "Particles and fall contacts",
       "group": "Research",
-      "modified": "2026-10-09"
+      "modified": "2026-10-10"
     },
     {
       "path": "analysis/CODEX_NPC_MAP.md",
