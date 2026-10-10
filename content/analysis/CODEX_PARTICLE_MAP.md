@@ -692,3 +692,73 @@ The native forced-stall check again passed all four stages and placement,
 exit0,0 falls, capture tick900/frame446
 (`scratchpad/codex_respawn_freeze_native.png`). This checks integration;
 it is not an original-function replay for the new host checkpoint gate.
+
+
+## Supplied-route CPU respawn reset (2026-10-09)
+
+`sub_2072B94` passes the route pointer returned by JGPT lookup into the
+`sub_208C23C` thunk. Figure-8 RAM slot0217B040 resolves to `sub_208C0C8`.
+That calls `sub_207F9A8`, which forwards r1 into `sub_2080CD0`; the exported
+C incorrectly omits that second argument. ARM disassembly confirms the forwarding.
+The supplied node becomes the current target, its first predecessor supplies
+travel direction, and `sub_207E7F0` computes the lateral offset at that node.
+Rust formerly initialized at the nearest node and then advanced to the next.
+
+Added `CpuDriver::reset_respawn`, connected through `Falling.route_node` from
+`RespawnPoint.cpu_point`. The supplied-node branch resets recovery and drift,
+recomputes target/offset using SDK fixed math, and clears transient pacing per
+`sub_207E1D4` while retaining skill and rank/slot configuration.
+
+Controlled original-game proof: `tools/bizhawk/codex_cpu_respawn/capture.lua`
+forces final recovery every16 driver calls and substitutes a different valid
+runtime node at the supplied-node callback. All306 calls across37 Figure-8
+nodes match direction, lateral fraction, offset, target, recovery timer/latch,
+drift state, heading error and seven pacing fields;250 exercise lateral clamps.
+These are varied-pointer probes, not natural falls. Numeric fixtures in
+`vm_model/tests/data/cpu_respawn.csv` contain no ROM or extracted assets.
+
+Still open: absent-route branch `sub_208C0F0` (including skill/RNG reset),
+CPU item-controller cleanup `sub_207C448`, battle reset dispatch, full rescue
+motion/timing/visuals, native callback ordering and the sliding-block fall cause.
+The native autopilot's player reset is a host behavior; the original player
+uses a human controller, and these CPU probes do not validate that host behavior.
+
+
+Native validation: full core suite171 passed,0 failed,1 existing replay ignored
+(including concurrent object additions); Windows release built. Forced-stall
+probe again passed stages259/379/559/739, immediate placement and supplied
+JGPT node29 reset (capture tick900/frame420,0 falls, exit0). Fresh binary:
+`game/target/release/mkds_game_codex_cpu_respawn.exe`.
+
+Bowser fixed-tick comparison after freeze/id cache and supplied-route reset:
+8 falls before capture at6001 ticks/frame2655, exit0. CPU3 fell twice, CPU4
+five times, CPU7 once; player0 had no falls. All8 native respawns logged a
+successful supplied-route reset. This differs from the earlier8-fall distribution
+(player0:5, CPU4:3), but does not establish a total-fall reduction or isolate a
+cause: the earlier binary preceded the checkpoint-freeze fix, and other bots
+continue changing the shared game. Sliding-block falls remain unresolved.
+Logs: `scratchpad/codex_cpu_respawn_bowser.stderr.log`.
+
+
+Original Bowser fall tracer being hardened: an initial boot capture saved a
+setup-only state (no initialized kart slots, zero CPU driver callbacks). Its
+zero-fall output was discarded; it is **not** original-race evidence. The tracer
+now validates all eight racer IDs and course32 before saving/recording and
+requires CPU driver execution. A valid race capture is required before making
+any comparison against native sliding-block falls.
+
+
+Validated original Bowser diagnostic recording completed: course32, all eight
+racer IDs checked before saving,6000 emulator frames,39,844 CPU driver calls,
+zero calls to `sub_206FF50` and zero recorded fall starts. Position snapshots
+show the seven CPUs moving through the course; player0 holding A stays against
+a wall. Files: `tools/bizhawk/codex_bowser_falls/{status.txt,positions.csv,samples.csv}`.
+The initial setup-only observation described above remains discarded.
+
+This recording starts when kart slots initialize and includes the countdown;
+the native run starts from its own race tick0. Controller, roster/settings,
+RNG and object timing are not synchronized. Zero observed original falls versus
+8 native falls is a diagnostic lead, not a matched-input regression proof.
+Next comparison should capture CPU pose, target and KCL contact around the
+sliding block, where native karts reach the lava rather than keeping the original
+trajectory. Do not suppress valid type11 falls to conceal the divergence.

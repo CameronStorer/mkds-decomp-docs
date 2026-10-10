@@ -454,3 +454,41 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 
 - sub_207A5C4: per-racer checkpoint freeze predicate: reads kart+72 bit0x800 using the requested racer index, not just the player. sub_203DF74 returns before checkpoint lookup when true. Native race tracker now skips falling CPUs as well as the player
 - sub_206FF50: fall start stores the checkpoint's respawn id in kart+964 immediately (or the battle cycling index) before the carry/placement phase. Native now caches the race checkpoint id at fall start rather than recomputing it after its placeholder delay; battle selection still needs porting
+- sub_20FFDA0: drum state 0: wait (setting 1 hi) ticks -> 2
+- sub_20FFD94: drum state 2 enter: speed factor 0
+- sub_20FFD40: drum state 2: factor += step, angle += factor*speed; after the ramp -> 3
+- sub_20FFD04: drum state 3: angle += speed; after the run (setting 0 hi) -> 4
+- sub_20FFCF8: drum state 4 enter: factor 4096
+- sub_20FFC98: drum state 4: factor -= step, angle += max(factor*speed, 150); after the ramp -> 5
+- sub_20FFC4C: drum state 5 enter: the way to the next of 10 faces (0x1999 each)
+- sub_20FFC08: drum state 5: +150 a tick to the face, then idle (state 1)
+- sub_20FFDD4: drum manager: when every drum is idle, a random order (off_20FFEB4, 6 permutations) of the fast/middle/slow speeds, all to state 0
+- sub_20FFEB8: drum draw: rotation about x by -angle replaces the object's matrix
+- sub_2146D28: MTX_RotX33 (rows 1,0,0 / 0,c,s / 0,-s,c)
+- sub_209F338: chandelier tick: state 0 waits (+0xA4), state 1 plays chandelier.nsbca once (sounds at frames 70, 175, 250), back to 0 (no wait after the first)
+- sub_209F514: chandelier init: wait 60 + rand(60) (race RNG at global + 1176)
+- sub_209F5CC: chandelier draw (billboard-free matrix, nsbca frame +0xA0)
+- sub_209EC80: painting tick: state 1 waits, state 2 plays picture1/2.nsbca once (sounds at set frames), then a new wait 60 + rand(120)
+- sub_209EFB4: painting draw (picture1 or picture2 by +0xA4, frame +0xA0)
+- sub_209F124: 0x152 painting ctor: kind 1 (picture2)
+- sub_209F130: 0x151 painting ctor: kind 0 (picture1)
+
+- sub_208C23C: CPU supplied-route reset thunk; Figure-8 runtime slot0217B040 resolves to sub_208C0C8. Argument r1 carries the JGPT route pointer despite no arguments shown by the C thunk. Native bridge now passes RespawnPoint.cpu_point to CpuDriver.reset_respawn
+- sub_208C0C8: supplied-node CPU reset: sub_207F9A8 resets driving cursor/state, sub_207E1D4 clears transient pacing, sub_207C448 clears CPU item-controller state. Driving geometry/recovery/drift/pace fields match306 controlled original callbacks across all37 Figure-8 route nodes; native supplied-node reset wired. CPU item-controller reset remains separate/unported
+- sub_207F9A8: supplied route reset: forwards original r1 through sub_2080CD0(a1+8,node), then sub_207F9CC(a1,1). ARM disassembly confirms r1 is not overwritten before CD0, resolving missing argument in exported C
+- sub_2080CD0: cursor initialization to supplied node, first predecessor at node+12, clears override/latch, normalizes target-position minus predecessor-position. Target is the supplied node itself, not its next node. Native respawn previously used nearest point then next; replaced with this branch
+- sub_207E1D4: reset transient CPU pace fields +4/+16 to preserved base+0, +8/+12/+24=0, cpu-place+20=-1. Preserve rank/slot/rival and gap fields beyond the reset range. Native supplied-node respawn now performs this instead of preserving stale target/cap/bonus
+- sub_208C260: fallback CPU reset thunk; Figure-8 runtime slot0217B03C resolves to sub_208C0F0. Used when respawn point has no route pointer; native still retains nearest-route fallback pending this branch's reset/RNG/skill replay
+- sub_20E5FB4: pendulum collision (shape 5): the bob as a disc facing the arm's z axis (+0x40), radius +0x104 (100 x scale x), half thickness +0x108 (50 x scale z); pushed out along the face, or radially (never down) past the rim
+- sub_20E5E24: pendulum init: arm 500 x scale y below the pivot, amplitude, step, bob radius/thickness
+- sub_2096DF0: Rocky Wrench hatch shape test (0x1A7 shape 5): below the cover height (+0xA0) + r and within radius (+0x58) + r; pushed out radially only while the wrench is up (state 4, or 5 above 30720), else touch only
+- sub_209702C: hatch kart callback (own codes 3/4): while up, non-star karts get the knock (table handler 7) and the hatch's velocity 14336 up; otherwise per-kart landing bits, sound, cover bounce
+- sub_2094E8C: Boo spawner (NKM 0x13D) tick; +0xA0 15-tick kart check (range = setting0 low16 units, view kart xz), +0xA4 near, +0xA8 delay, +0xAC state 0 start / 1 idle / 2 spawning; mode 0 spawns 4 (max 6 alive), then 1 per 0..19 ticks; kart leaving -> sub_20946B8 and idle. Ported in vm_model/src/mapobj/boo.rs
+- sub_20954E4: Boo spawner ctor: sub_20AC588(0x13B, setting0 high16) creates the pool of Boos; sub_2095228 (class init) draws the first +0xA0 = 15*rand>>32; sub_2094E3C factory makes no spawner when *(g+8) is 3 or 5 and sub_2061818()==0
+- sub_20952DC: spawn group (max alive, count, radius units, delay range): offset = random radius (sub_2091F6C = rand*n>>32) at random angle (sub_20951B4 = high 16 bits), y = spawner y; then sub_2094000 per Boo; finally +0xA8 = rand*delay>>32
+- sub_2094000: takes a free pool Boo (sub_209BBFC) and fills it from 12 draws: speed +0xD4, amp +0xCC, centre +0xC8 (camera heading via sub_2148714(target.z-eye.z, target.x-eye.x) +-60 deg in mode 0), phase +0xBC, bob (+0xE8..+0xF8), radius +0x10C, fade bounds, wait +0xB4 0..74, life +0xB8 300..449; ++live count (*0x217B0B8)
+- sub_2094768: Boo tick: fade +0xFC bounces between 2.0 and 14..26, alpha +0xAC = fade>>12; orbit the view kart at +0x10C radius with two damped oscillators; after life ends fades 1.0 a tick then sub_20D2398 and --live
+- sub_2094C70: Boo draw: alpha +0xAC, frame +0xAE (slot&1), flip +0xB0 ((slot/2)&1), billboard matrix sub_20E6CF8, scale +0x1C (x2 in mode 2); sub_2094C24 sets frame/flip from the pool index
+- Boo RNG: *0x021755FC+0x498 (sub_209520C), a MATH_Rand32 distinct from the objects' one at *0x0217B49C; also drawn by the ambient sound code now and then (resync in tests)
+- sub_2095544: bakubaku (0x13C) tick, +0xB0 state: 0 waits for the view kart within 800 units of the trigger point (sub_20957EC: nkm pos + 800*facing), 1 rises from 50 units below at 12 units/tick up and 0.25 gravity, 2 above ground (only drawn then, sound 390 on entry), 3 sinks (sound 391), 4 waits 1800 ticks
+- sub_2095848: bakubaku draw: matrix + scale, body model (bakubaku) then baku_shadow tilted by atan2(-vy, 12.0) about x
