@@ -31,6 +31,9 @@ python "C:\path\My MKDS Build\play.py"
 
 `--run` builds and launches; `--course cross_course` skips the menu.
 `--offline` tells Cargo to use only dependencies already available locally.
+`--target-dir "C:\path\My Cargo Cache"` isolates the compiler's artifacts from
+other development builds or running executables. A fresh cache needs a full
+dependency compile; the tool continues to use Cargo's reported executable path.
 The output directory must be empty, and defaults to `~/MKDS Builds/<ROM hash prefix>`.
 The launcher supports moving the output bundle; it retains an absolute reference to
 the user's ROM. If that ROM is moved or changed, generate a fresh bundle.

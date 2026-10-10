@@ -1,5 +1,15 @@
 # Next goals (resume here)
 
+- Crab frame-driver fix (codex-audit, 2026-10-10): restored crab_hand and wired
+  body/claw clocks with independent materials. Fresh original 600-call replay
+  checks all four states, wait/clocks/RNG; natural replay strengthened; native
+  close-up and release pass. Full isolated core:206 passed,1 existing ignored.
+  Source-backed draw mapping still needs original visible-draw capture; body
+  wobble remains unported. Piranha definitions reconciled: complex bite tick
+  belongs to large 0x1AA, not small 0x1A6. Scalar Rust replay passes 169 original
+  calls in states 0/1 including RNG. Next: run the revised follow-kart capture
+  for states 2..6, then articulated model/path/contact/sound integration.
+
 - Codex continuation (2026-10-10): shared child emission/pool/update now matches all 17 controlled original emitter snapshots, including RNG/list order/newborn ticking; native child drawing remains open. Sound sequencer now handles portamento, signed sweeps, tied-note retuning, live bend/pan and modulation. 13 sound-filter tests pass; hardware playback parity is not yet measured. Logs: `docs/CODEX_CHILD_PARTICLE_WORK_LOG.md`, `docs/CODEX_SOUND_WORK_LOG.md`.
 
 - Moving terrain (Codex, 2026-10-10): ordinary Bowser box contact now ported from `sub_20E0BAC`/`sub_20E16DC`/`sub_20E1A80`;30 original probes match hit/push/normal/floor-wall and the installed ground adapter flags. SDK map-object Euler axes also match the real1-degree block tilt; block initialization uses them. Cylinders remain the existing approximation. Full core suite passed; final axes replay passes; Windows release check exited0 at6000 ticks/frame3776 with1 CPU6 fall outside the block region. Next: cylinder contacts, multi-contact accumulation/lowest/platform-motion output, and remaining natural falls. Evidence: `tools/bizhawk/codex_bowser_box/README.md`, `analysis/CODEX_PARTICLE_MAP.md`.
@@ -284,3 +294,5 @@ All 32 courses exit 0, no panics. 18 falls in all: Rainbow Road 13 (baseline abo
 - Water (found from the engine-sound work, see docs/lane_c/sound.md 'Resolved'): `sub_206FE08` slows/sinks karts below the course water surface (`sub_20D3D48`, object `*0x217B4C4`) and drives the underwater engine pitch; none of it is ported. Needs the water object (map-object lane) and the kart step.
 
 - 2026-10-10 Codex moving-box precision follow-up:30 original-world probes match core/adapter after signed negative scale-add center correction. Final private Windows run exited0 at6000 ticks/frame1224 with1 fall outside the blocks, no sliding-block falls; screenshot reviewed. All79 BizHawk Lua scripts parse after fixing mt_run.lua and autodrive_plan_triple.lua path escapes. Remaining terrain motion/lowest/aggregation belongs to T022.
+
+- 2026-10-10 Codex CPU input/order: prevent keyboard, screenshot and manual countdown writers from overwriting Cpu-controlled PlayerKart; sort CPU updates by Racer.index (364 original calls/52 frames verify1..7 order). Regression/private release pass; twin6000-tick seed1 Bowser runs zero falls, all69 selected debug records identical. Original player0 takeover order/full RNG/trajectory parity still unverified.

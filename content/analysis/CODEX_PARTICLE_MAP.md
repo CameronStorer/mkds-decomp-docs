@@ -905,3 +905,45 @@ flags, follow-position, polygon choice and lifetime. All17 controlled full emitt
 snapshots match fields, RNG, polygon state and all list ordering/ownership.
 See tools/bizhawk/codex_particle_child_sim/README.md. The older primary-only API
 still rejects child resources; native child drawing/integration remains open.
+
+
+Input ownership follow-up (2026-10-10, in progress): the frozen
+mkds_game_codex_box_center.exe repeated with MKDS_KCL_TRACE produced0falls
+at6000 ticks/frame5556, versus the earlier1fall/frame1224. RNG counts differ
+already at tick300 (304 versus306); fixed-tick screenshots alone do not prove
+deterministic simulation. Original Bowser positions.csv has104 sparse
+snapshots; nearest horizontal sample to the logged fall is164.6 DS units
+away, insufficient to infer an exact original CPU decision there. No causal
+trajectory claim is made.
+
+Native read_input and autoshot run in Update, while drive_cpus and
+hold_at_start run in FixedUpdate. These player control writers targeted
+PlayerKart even when it also carries Cpu (autopilot/finish/Bullet Bill).
+Added Without<Cpu> filters to keyboard, screenshot input, fixed screenshot
+input and manual countdown control writers; CPU start/burnout remains owned
+by drive_cpus. Keyboard ownership regression and private release validation passed; final twin-run result below.
+Other system ordering/RNG/archetype iteration may still affect determinism.
+
+
+CPU call order follow-up: completed read-only original capture364 calls over
+52 complete frames308..359, always IDs1..7 ascending. Hook sub_207E668
+reads CPU+0 kart and kart+116 racer ID; no memory/register changes.
+Native drive_cpus now sorts by Racer.index before shared RNG consumption.
+This protects order when Bevy archetypes change on player CPU takeover.
+Player0 takeover order has not been separately captured. Discarded120-frame
+no-call attempt and600-frame timeout; only completed360-frame capture used.
+Harness/data: tools/bizhawk/codex_cpu_order/.
+
+Keyboard ownership regression passed (manual input updates; Cpu-owned controls
+remain intact across Update calls). Private playable release built in
+scratchpad/codex_bowser_build; twin6000-tick native validation passed.
+
+
+Final input/order native validation: two independent runs of the same private
+release and seed1 exit0 at6000 ticks, render frames5948/5939, zero falls each.
+All69 selected debug records match (checkpoint/standings, RNG counts, item
+and recovery events); tick6000 RNG draws7698 in both. Screenshot reviewed;
+Mario driving normally on lap2. Comparison record:
+scratchpad/codex_bowser_order_comparison.json. This is two-run repeatability
+for selected logs, not every kart field every tick or original-RNG/trajectory
+parity. Other system ordering and starting-state differences remain to audit.

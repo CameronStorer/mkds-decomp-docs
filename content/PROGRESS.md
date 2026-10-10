@@ -8,6 +8,21 @@ One place to see where the port stands. Team memo: `docs/TEAM_MEMO.md`. Agents: 
 `docs/WORK_PLAN.md` (lanes), `docs/function_notes.md` / `docs/FUNCTION_TABLE.csv` (function meanings).
 
 ## Lane A: course objects (Claude)
+
+- Large Piranha audit (codex-audit): confirmed missing `0x1AA` behavior on
+  Mario Circuit; its tick is `sub_20983C4`, separate from the existing small
+  `0x1A6` plant. Added a scalar Rust translation and isolated capture/reducer.
+  Replay matches 169 complete original calls (states 0/1, including RNG).
+  Bite states 2..6 and native integration remain pending. See
+  `CODEX_FIDELITY_AUDIT.md`.
+
+- Crab presentation follow-up (codex-audit, 2026-10-10): restored the separate
+  claw sprite; body/claw use original walk/idle clocks and independent actor
+  materials. Natural clock/wait replay and 600 controlled original updates
+  across all four states pass, including RNG; native close-up shows both parts.
+  Full isolated core check:206 passed,0 failed,1 existing ignored; release build
+  passes. Original draw callbacks were not captured; body wobble remains open.
+  Harness: `tools/bizhawk/codex_crab_pattern/README.md`.
 Ported from the game's code, replay-tested against BizHawk where possible (`vm_model/src/mapobj/`,
 wired up in `game/src/objects.rs`):
 
@@ -86,3 +101,9 @@ See `docs/NEXT_GOALS.md` item 4 onward.
 - `cargo test` in `vm_model` (object tests: `cargo test --lib mapobj`), `cargo build` in `game`.
 - Falls sweep (autopilot): Airship 0-1 falls per race (from Bullet Bill blows), Delfino 0, Pinball 0,
   Cheep Cheep Beach 0, Peach Gardens 0, Mario Circuit 1, DK Pass 1.
+
+- Codex input-ownership investigation (2026-10-10): same frozen precise-box binary produced1 fall/frame1224 and0 falls/frame5556 at6000 ticks with seed1; RNG draw totals already differ at tick300. Original position snapshots are sparse (104), insufficient for a matched CPU trajectory. Found Update keyboard/autoshot and FixedUpdate countdown writers targeting PlayerKart even while Cpu drives it; exclude Cpu from those writers. Keyboard ownership regression and private playable release passed. Twin native validation completed; see result below. No claim that this resolves all determinism issues. Public docs deployment d327b24 succeeded.
+
+- CPU call order (Codex, 2026-10-10): completed read-only original capture364 calls/52 frames, always racer IDs1..7 ascending. Native drive_cpus now sorts by Racer.index before shared RNG consumption. Player0 takeover order remains uncaptured. Input-ownership regression and private playable release passed. Twin native validation completed; see result below. Prior empty-route test fixture corrected.
+
+- CPU input/order validation (Codex, 2026-10-10): private release regression passed. Two same-executable/seed1 Bowser runs exited0 at6000 ticks (render frames5948/5939), zero falls each. All69 selected debug records match: progress/standings, RNG counts, item and recovery events; tick6000 has7698 draws each. Screenshot reviewed. This validates repeatability for these two runs, not complete state-every-tick determinism or original-game trajectory parity. Build: scratchpad/codex_bowser_build/release/mkds_game.exe. Completed original CPU-order capture364 calls and expanded original box replay30 probes remain the direct source/runtime evidence.
