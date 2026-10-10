@@ -953,3 +953,5 @@ Rainbow Road follow-up (Codex, 2026-10-10): same private input/order release exi
 Next T006 evidence should pair real native swept/CPU inputs at these regions
 with original callbacks; do not infer a geometry or steering cause from falls
 alone. CPU order/input fixes do not constitute a spiral solution.
+
+- 2026-10-10 Codex final ramp/particle verification: corrected private Windows release built; completed seed1 native6000-tick runs exit0. Bowser:0 falls, render2219. Rainbow:18 falls, render2232 (CPU6:7, CPU1:4, CPU4:3, CPU5:2, CPU2/7:1; player0 and CPU3:0); player0 and CPU3 reach lap2. Both screenshots reviewed. Compared with prior frozen19-fall Rainbow run, shared source changed concurrently; no isolated causal improvement claim. Spiral falls remain open. Numeric results/positions: scratchpad/codex_ramp_guards_results.json. Source-backed ramp guards and optional-child fix retained; focused release regressions and3500 original heading replay pass. Next: capture cursor targets, body up/facing and motion at the first spiral divergence, rather than changing the already89-query-exact fall detector.
