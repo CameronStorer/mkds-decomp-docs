@@ -1,5 +1,32 @@
 # Original drift particles and SPA resource layout
 
+## Child birth arithmetic (2026-10-10)
+
+`sub_201C74C` is now ported as `nitro_particle_child::child_birth`, with a
+checked decoder for the 20-byte optional child record. ARM disassembly
+confirms the signed rounded 64-bit inherited velocity and two wrapping
+32-bit size multiplies. Child opacity inherits the parent's effective alpha;
+polygon bits survive slot reuse. Rotation mode 3 writes neither angle field.
+Animation steps divide by parent lifetime, with SDK numerator fallback at zero.
+
+Isolated BizHawk capture completed 16 calls / 40 successful births, without
+hook errors. Existing child-bearing resources were selected at emitter
+creation; each birth call temporarily varied child-record rotation, color,
+signed randomness, velocity/size ratios, lifetime and count, then restored it.
+These are controlled original-function probes, not natural timing captures.
+Every modeled particle field and per-child RNG state matches Rust. The numeric
+fixture runs without a ROM; synthetic checks cover life 0/1 and size overflow.
+
+Harness and commands: `tools/bizhawk/codex_particle_child/README.md`.
+Replay: `vm_model/tests/particle_child.rs`, fixture `data/particle_child.csv`.
+This completes birth arithmetic only. Shared pool child allocation, spawn
+cadence, child tick/draw and native integration remain open. Existing primary
+simulation continues explicitly rejecting resources with child spawning.
+
+Game development build passed. Full core validation found a separate Lane C
+blue-shell transition test failure; the remaining suite passed with that test
+skipped. Run details and limitations: `docs/CODEX_CHILD_PARTICLE_WORK_LOG.md`.
+
 Recorded 2026-10-08 from local AMCE `export/plan2` C, checked against ARM where
 the exports omit arguments. The native drift/pivot subset now uses original
 particle arithmetic and textured drawing. The latest section below records
@@ -780,3 +807,38 @@ Harness/limitations: `tools/bizhawk/codex_bowser_kcl/README.md`; numeric replay
 Next isolate actual native swept queries, CPU trajectory and moving-block
 contact against the original; the controlled emulator trajectory is not an
 unmodified race reference.
+
+
+### Actual native Bowser swept-query replay (2026-10-10)
+
+Opt-in `MKDS_KCL_TRACE` now captures real terrain queries without changing their
+decisions. Fresh shared Windows release linked successfully; Cargo final copy
+failed because the normal exe was in use, so the fresh deps exe was copied to
+`game/target/release/mkds_game_codex_swept.exe`. Native seed1 Bowser run exited0
+at race_tick6000/render_frame4431 with two falls: CPU7 western x=-7581022,
+z=-8226534 and CPU6 eastern x=7120651,z=2544648. These are not the historical
+sliding-block fall region. Other bots' concurrent source changes were included;
+two falls versus the earlier eight is not attributable to a specific fix.
+
+Six real terrain queries around the falls were replayed through original
+`sub_1FFDEE4`: actual center/previous center, radius32768 and facing. All six
+match native hit/no-hit, push and flags exactly (0x88000800, zero push), also
+replayed by Rust integration test. This closes the synthetic sphere-offset
+limitation for these two observed falls, not for every historical fall.
+Moving objects were excluded with a6=-2; original queries are controlled and
+are not an unmodified emulated race trajectory. Harness:
+`tools/bizhawk/codex_bowser_swept/README.md`; fixture `data/bowser_swept.csv`;
+new replay plus existing 96-probe and Rainbow backface regressions all pass.
+
+New source lead: the moving-terrain branch at 0x01FFEF14 calls `sub_20E1D10`,
+which dispatches object+308 0 to oriented box `sub_20E0BAC`, 1 to cylinder
+`sub_20E0764`. This is separate from the later kart/map-object damage response.
+The block's box is centered at object+244, axes+40/+52/+64, half extents
+400/50/175/175 times scale at +256/+260/+264/+268. `sub_20E01F0` places the
+center at object position minus half-height times up, so the flat top really
+is at the object position (native top height is correct). Face/edge/corner
+selection and response still differ from the native inside-top-rectangle
+helper. `sub_20E1A80` classifies floor/wall by configured face and signed
+normal y threshold, accumulates push/normals; `sub_20E0680` supplies contact
+motion using velocity and the old basis. Matched moving-box contact probes
+are the next necessary validation before changing the floor helper.
