@@ -842,3 +842,66 @@ helper. `sub_20E1A80` classifies floor/wall by configured face and signed
 normal y threshold, accumulates push/normals; `sub_20E0680` supplies contact
 motion using velocity and the old basis. Matched moving-box contact probes
 are the next necessary validation before changing the floor helper.
+
+
+### Moving-box contact port and native adapter (2026-10-10)
+
+Captured30 controlled original Bowser queries relative to a real block's center
+(+244), dimensions (+256/+260/+264) and tilted axes (+40/+52/+64). Full query
+a6=-1 includes moving terrain, flags1, radius32768, previous/facing null. Only
+moving-terrain hits (0x40000001 floor/0x40000100 wall) or misses appear.
+The natural-race trajectory is not preserved by these controlled probes.
+Failed ideal-axis / larger60-query / repeated-state-reload attempts discarded;
+only completed30-query capture is fixture evidence.
+
+New isolated kart/moving_terrain.rs reproduces sub_20E0BAC ordinary box contact:
+truncated local dot products; inside minimum face with original tie order;
+face penetration; edge/corner world separation scaled1024, SDK normalize and
+length, then push=normal*radius-separation. Floor eligibility uses configured
+faces and signed face normal y>2048; a downward cap is a wall, not a floor.
+All30 hit/push/normal/classification results match; the actual WithFloors
+adapter also matches their hit, push, floor/wall normals and flags exactly.
+The concurrently added MovingSolid box branch now calls this core, retaining
+original normals rather than normalizing the rounded push. Moving-terrain
+hits carry0x40000000, distinct from terrain KCL's0x80000000. Cylinder code
+remains the existing approximation.
+
+NKM confirms all4 Bowser blocks have rotation(4096,0,0), exactly1 degree X.
+Original sub_20D6DF0 builds quantized row matrices X*Y*Z with truncated SDK
+products. Floating native Euler gave a different sine; source-derived
+object_axes now initializes Bowser block solids and matches all recorded
+axes (up0,4095,69). Other object axes still use their existing initialization.
+
+Fixture: vm_model/tests/data/moving_box.csv (numeric only); replay:
+vm_model/tests/moving_box.rs; harness tools/bizhawk/codex_bowser_box/README.md.
+Full core suite passed (one existing ignored CPU replay), before final SDK
+axes-only change; targeted complete box/adapter/axes replay also passes after
+that change. Final Windows release built and exited0 at6000 ticks/frame3776
+with1 fall (CPU6, positive-z region outside the sliding blocks); first box
+build before exact axes also had1 fall/6002 ticks/frame5368. No sliding-block
+falls observed in either check. Other bots edited this shared build, so no
+clean causal reduction claim versus earlier2/8-fall runs. Fresh final binary:
+game/target/release/mkds_game_codex_box_sdk.exe. Remaining: special
+flags, asymmetric z/alternate surfaces, multiple-solid max/min accumulation,
+lowest point, contact motion outputs, original cylinders, and natural falls.
+
+
+Moving-box center precision follow-up (2026-10-10): repeated all30 original
+queries with object positions and actual box centers captured (fixture now33
+columns). `sub_2147FD8` constructs center as position + up.scale(-half_height),
+not position - up.scale(half_height): signed truncation differs by one unit
+for the tilted Bowser block. Native adapter now uses the original expression.
+Replay compares recorded world center and actual world-space queries through
+WithFloors, in addition to hit/push/normal/flags; passes. Final release/native
+recheck passed: exit0,6000 ticks/frame1224,1 CPU4 fall at (-7562646,1826688,-9591635), outside the block region. No sliding-block falls before capture. Screenshot shows Mario driving normally on lap2. Fresh private executable: game/target/release/mkds_game_codex_box_center.exe. Shared RNG/item/other changes are included, so this is not a controlled causal comparison. The preceding6000-tick check predates this tiny correction.
+Cylinder work was subsequently completed by claude-lane-a in moving_cylinder.rs;
+remaining motion/lowest/aggregation work is owned by their T022 claim.
+
+## Child simulation continuation (2026-10-10)
+
+`PrimaryParticlePool::tick_with_children` now supports the shared primary/child
+pool, birth cadence, preserved recycled fields, child scale/alpha and behavior
+flags, follow-position, polygon choice and lifetime. All17 controlled full emitter
+snapshots match fields, RNG, polygon state and all list ordering/ownership.
+See tools/bizhawk/codex_particle_child_sim/README.md. The older primary-only API
+still rejects child resources; native child drawing/integration remains open.

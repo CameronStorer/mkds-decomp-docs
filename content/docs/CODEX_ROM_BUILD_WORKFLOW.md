@@ -5,6 +5,56 @@ their own ROM locally. This describes engineering boundaries, not legal clearanc
 
 ## Existing foundation
 
+### Rust builder (rom_builder/, 2026-10-10)
+
+`rom_builder/` (crate `mkds_builder`) is the Rust port of `tools/rom_builder.py` with a ratatui TUI.
+No Python needed. Run `cargo run --release --manifest-path rom_builder/Cargo.toml` for the TUI, or
+`mkds_builder ROM --inspect|--build|--run [--out DIR] [--source CHECKOUT] [--allow-unverified] [--offline] [--course NAME] [--json]`.
+The bundle contains the game exe, `manifest.json` and `play.exe` (a copy of the builder that re-checks the ROM hash, then launches).
+Tests: `cargo test --manifest-path rom_builder/Cargo.toml`.
+
+### First local builder (2026-10-10)
+
+Python 3.11+ and Rust/Cargo are required. Start the plain terminal menu:
+
+```powershell
+python tools/rom_builder.py
+```
+
+Or use explicit commands from the repository root:
+
+```powershell
+python tools/rom_builder.py "C:\path\owned-copy.nds" --inspect
+python tools/rom_builder.py "C:\path\owned-copy.nds" --build --out "C:\path\My MKDS Build"
+python "C:\path\My MKDS Build\play.py"
+```
+
+`--run` builds and launches; `--course cross_course` skips the menu.
+`--offline` tells Cargo to use only dependencies already available locally.
+The output directory must be empty, and defaults to `~/MKDS Builds/<ROM hash prefix>`.
+The launcher supports moving the output bundle; it retains an absolute reference to
+the user's ROM. If that ROM is moved or changed, generate a fresh bundle.
+
+The tool checks header ranges, directory traversal, file allocation ranges and
+required assets, then records SHA-256, game code, revision, ARM9 fingerprint,
+lockfile fingerprint and executable fingerprint in `manifest.json`. It accepts
+the locally studied AMCE revision-0 reference dump by full SHA-256. Other AMCE
+revision-0 files need `--allow-unverified` (or the menu's experimental choice);
+that permits experimentation with modified courses without claiming parity.
+Other game codes/revisions are rejected. Validation is structural and does not
+prove all game archives are intact or all modifications compatible.
+
+Builds use `cargo build --release --locked` and Cargo's reported executable path.
+The bundle contains the native executable, `play.py` and a provenance manifest.
+The ROM is read externally at runtime; it is neither copied nor extracted.
+The launcher rechecks its ROM hash before starting and runs with the bundle as
+its working directory. This is a development builder for our current Rust port;
+it does not generate arbitrary game source from an NDS file. Existing ROM-derived
+tables and incomplete gameplay still need the separate fidelity/release work
+described below. The tool builds the current checkout, including local changes.
+
+Builder checks: `python -m unittest discover -s tools/tests -p test_rom_builder.py -v`.
+
 `vm_model/src/assets.rs` already reads the NDS filesystem, LZ10-compressed CARC
 archives and NARC entries directly. `game/src/main.rs` accepts `--rom PATH` or
 `MKDS_ROM`; extracted assets do not need to be distributed for that path.

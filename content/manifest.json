@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-10 05:46 UTC",
+  "updated": "2026-10-10 10:07 UTC",
   "documents": [
     {
       "path": "PROGRESS.md",
@@ -113,7 +113,7 @@
       "path": "docs/CODEX_ROM_BUILD_WORKFLOW.md",
       "title": "Future ROM workflow",
       "group": "Project notes",
-      "modified": "2026-10-08"
+      "modified": "2026-10-10"
     }
   ]
 }

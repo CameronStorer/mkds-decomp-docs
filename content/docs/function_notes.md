@@ -1,5 +1,9 @@
 # Function notes
 
+- sub_209B088: crab draw: body frame is walk clock +0xA8 >> 12, claw frame is idle clock +0xAC >> 12; draws crab and crab_hand independently, with body/claw roll matrices. Rust pattern_frames and native CrabPattern now consume the two clocks. Original update clocks/wait/RNG replayed across 600 controlled calls in all four states; fresh draw-hook coverage remains unavailable.
+- sub_209B634: object model wrapper animation length: sprite helper +12 -> u16 +26, otherwise joint/pattern helper +16 -> sub_2087D0C(+32) converted to integer frames. Original reference crab body/claw wrappers both return 2.
+- sub_209B688: set object wrapper animation frame: write sprite helper u16 +24, otherwise helper +32 frame +12 and animation object frame as a2 << 12. Crab draw passes separate walk/idle frame indices.
+
 Hand-kept meanings of game functions that are not (yet) described in our source comments.
 One per line as `sub_XXXXXXX: meaning`; `tools/function_map.py` merges these into
 `docs/FUNCTION_MAP.md`.
@@ -339,7 +343,7 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_201E494: SPL list push-head: prepends node, sets old-head previous link; empty list sets both head and tail; increments count. New particles update before older particles and recycled slots are allocated first; replay-confirmed in 688 original pushes
 - sub_201E3C8: SPL list remove-node: handles head/middle/tail/sole-node removal and decrements count without reordering survivors; all 343 recorded removes match stable slot/list identities and headers
 - sub_2018D94: SPL manager constructor: allocates/zeros 76-byte manager, initializes polygon min/max/current/fixed IDs, then zeros 156-byte emitter slots and 68-byte particle slots and head-inserts each in ascending address order. Highest-address slot allocated first; primary pool constructor ported; initial zero-fill/order source-derived
-- sub_20184E4: immediate emitter cancellation: repeatedly pops primary then child list heads into shared free-particle head, removes emitter from active list and pushes it onto free-emitter head. Primary cancellation pool ported; reversal and later reuse ordering confirmed through natural list-operation replay; child particle arithmetic remains unsupported
+- sub_20184E4: immediate emitter cancellation: repeatedly pops primary then child list heads into shared free-particle head, removes emitter from active list and pushes it onto free-emitter head. Primary and child cancellation pools ported; reversal and reuse ordering covered by list-operation replay and synthetic child-pool tests
 - sub_2019B28: initializes emitter from 88-byte SPA base: position offset, signed-short direction, speed/size/lifetime/rate controls, opacity, zero age/fraction/velocity, INT_MIN plane override and texture repeat; point-birth field subset ported
 
 - sub_201C09C: SPL primary camera-facing billboard draw; native row-vector fx12 matrix port matches captured original drift smoke calls (part of 721 draw replay calls)
@@ -348,7 +352,7 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_201C690 / sub_201C5D4: SPL XY/XZ quad emitters: signed16 offset corners quantized into VTX10, four tiled UV corners; XY helper arguments replay-confirmed; XZ path and GPU vertex packing source-derived
 - sub_201C4E8 / sub_201C528: SPL world-particle Y-axis / diagonal-axis rotation builders; Y-axis matrix order replay-confirmed; diagonal-axis constants1365/2365 source-derived and not exercised by drift resources
 - sub_2019DF8: SPL binds particle texture and texture-size scaling matrix (texgen mode1); normalized quad UVs become texel coordinates; source-derived native texture bridge
-- sub_201C74C: SPL child birth from a primary particle into an allocated recycled slot: copied relative/emitter positions, rounded64 inherited velocity plus three signed random draws, wrapping32 scaled size, inherited effective opacity, optional child color, rotation modes 0..2 and untouched recycled angles for mode3. Child life comes from optional record; animation steps divide by parent life (SDK numerator fallback at zero). Ported in nitro_particle_child.rs; 40 controlled original births across all four rotation modes match every modeled field and RNG. Pool/cadence, updates, drawing and native integration remain separate.
+- sub_201C74C: SPL child birth from a primary particle into an allocated recycled slot: copied relative/emitter positions, rounded64 inherited velocity plus three signed random draws, wrapping32 scaled size, inherited effective opacity, optional child color, rotation modes 0..2 and untouched recycled angles for mode3. Child life comes from optional record; animation steps divide by parent life (SDK numerator fallback at zero). Ported in nitro_particle_child.rs; 40 controlled original births across all four rotation modes match every modeled field and RNG. Shared pool/cadence and child updates now ported; all17 controlled full emitter snapshots match particle fields, RNG, polygon state and list ownership/order. Drawing/native integration remain separate.
 - sub_2084478: rear-wheel particle contact/direction update: ignores wheel Y, offsets X outward by +6144/-6144, scales X/Z, transforms by kart second matrix then position >>4; spray vectors (+/-1843,3277,-1843). Both contacts/directions match all 645 natural original calls
 - sub_208D4C4: wheel smoke attach: initial SPL velocity=kart+944 displacement times2867 truncated fx12; emitter position=wheel minus velocity plus resource offset; grounded bit0x10 clears birth pause, airborne sets pause. Position/velocity match 100 original wheel records; pause flag handling source-derived
 - sub_1FF9B70: runs continuous/smoke/red/blue wheel callbacks before refreshing previous SPL velocity at kart+944; refresh copies velocity+164, subtracts vertical speed+608 when grounded and not resting (bit0x1000 clear), then >>4. Native bridge preserves previous-tick attachment input; source-derived call order
@@ -505,7 +509,7 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_20ECE1C: route steering: move (sub_20F2228), lift a ground-hugging airborne shell to owner y (+0x9C) + 30 units, advance the route cursor (sub_20F3BB4/sub_20F371C), turn the heading toward the next node with sub_20EACC0 (rate 328, 614 if the node is behind, scaled by 4096 - countdown*scale) and set direction/velocity with sub_20F1D70
 
 - sub_20E1D10: moving terrain shape dispatcher used by sub_1FFDEE4 at 0x01FFEF14; object+308 shape 0 calls oriented box sub_20E0BAC, shape 1 calls cylinder sub_20E0764, other values reject. Separate from kart/map-object damage collision.
-- sub_20E0BAC: moving-terrain sphere versus oriented box; center object+244, axes +40/+52/+64, x half extent +256, y +260, asymmetric z +264/+268. Classifies inside/outside each slab and face/edge/corner contact; not just a top rectangle test. Bowser block initializes half extents 400/50/175/175 times scale; tick sub_20E01F0 moves center to position minus half-height times local up. Native MovingBox floor currently approximates this.
+- sub_20E0BAC: moving-terrain sphere versus oriented box; center object+244, axes +40/+52/+64, x half extent +256, y +260, asymmetric z +264/+268. Classifies inside/outside each slab and face/edge/corner contact; not just a top rectangle test. Bowser block initializes half extents 400/50/175/175 times scale; tick sub_20E01F0 uses sub_2147FD8: position + signed scale(-half-height, local up); negative signed truncation matters. Ordinary box contact is now replay-backed in kart/moving_terrain.rs; special flags and other output paths remain open.
 - sub_20E1A80: moving-terrain box face contact accumulator; a7 permits floor classification when signed face normal y exceeds object+288 threshold, otherwise type8 wall. Surface type0 or type18 selected for floor, per-axis maximum/minimum push, deepest floor/wall normal, lowest contact; floor contact calls sub_20E0680 for platform motion output.
 - sub_20E0680: moving-terrain contact motion outputs; uses object velocity +16/+20/+24 and old basis +160/+172/+184 to compute displacement at the contact point, plus direction dotted with object+292 to optional signed 16-bit output.
 - sub_20E4320: is a turning platform (ids 203, 206, 208, 209)
@@ -515,3 +519,1134 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_20D555C: broadphase registration (28-byte records: x range, object, radius, flags, owner); turning platforms, lava blocks, 204 and 11 get flag 0x1000
 - sub_20E44E4: turning platform tick: state machine, yaw delta x up axis as angular velocity (+0x124), matrix = RotY(yaw) x NKM matrix, position along -y by +0x104
 - sub_20D252C: object broadphase radius: |sizes| for shapes 3..5, else size x
+- sub_20FCBB8: blue shell reachability of kart a2: not when the kart cannot be targeted (sub_206C0B0); reachable when the kart's item-record route node (**0x027E00C8 + 528*k + 496) equals the shell's target node (+360), else within 40000 (flat, units^2 >> 24... 9.8 units^2 if the shell has +116 & 0x40000000 or the kart has +72 & 1) or 160000 flat and 2500 height^2; then stores the target record (+552 side) and its position (+580..)
+- sub_20FBAE0: blue shell state 2 (route follow with a locked target): speed cap +636 oscillates around 53248 by 3277, the route run of sub_20EC918, sub_20FC654/sub_20FC2E8 target updates, then state 3 once the shell's node is one of the target's next 4 route nodes
+
+- Moving terrain (claude-lane-a, 2026-10-10, T001): `sub_20D34E4` gives broadphase flag 0x1000 to map objects whose id passes `sub_20DFF70` (202 lava block), `sub_20E4320` (203, 206, 208, 209 turning platforms), `sub_20E3AF0` (204 drawbridge) or `sub_20FFABC` (11). The only consumer is the kart swept-sphere query `sub_1FFDEE4` (`sub_20D5180(pos, r, 0x1000)` builds the near list, or the cached index via `sub_1FFD900`), which calls `sub_20E1D10` per object: object +308 (`a1[77]`) 0 = oriented box `sub_20E0BAC`, 1 = cylinder `sub_20E0764`, anything else = no hit.
+- sub_20E0764: sphere (centre a2, radius a3) against a cylinder object: object centre +244 (`a1+61`), axes x +40 (`a1+10`), y/cylinder axis +52 (`a1+13`), z +64 (`a1+16`), radius +256 (`a1[64]`), half length +260 (`a1[65]`), side attributes +272 (`a1[68]`), cap attributes +276 (`a1[69]`). Radial test `|(d.x, d.z)|^2 < (R + r)^2` else miss; axial test `|d.y| <= half + r` else miss. Zone flags: base 0x1000-or-other from two literal words (inside the radius vs in the ring), then 0x50/0x60 (below: within / past the end) or 0x90/0xA0 (above); 0x1000 + 0x10 = cap contact (depth `half + r -/+ d.y`, result via `sub_20E1A80(r, depth, ..., 128, ..., cap attrs)`), otherwise side/edge via `sub_20D6F78` (2D normalise) and `sub_20E1A80(..., 12288, ..., side attrs)` or the edge case `sub_20E16DC`. The Rust `MovingSolid::contact` is a generic closest-point stand-in for this; exact port needs `sub_20E1A80`, `sub_20E16DC` and the two flag literals.
+
+- sub_20E0BAC: ordinary moving-terrain oriented-box contact now ported in kart/moving_terrain.rs;30 original Bowser probes match hit/push/normal/floor-wall classification and installed WithFloors adapter flags. SDK truncated local projections, minimum-face tie order, 1024-scaled edge/corner normalization; configured face and signed normal y threshold determine floor. Special flags/asymmetric z/alternate surfaces/multiple contact merge remain unverified.
+- sub_20E16DC: moving-box two-axis edge contact; sum world-space axis separations, scale1024, SDK normalize+length, reject distance>radius*1024, push=normal*radius-separation; floor if either eligible signed face y exceeds object+288 and flags0x60 clear. Port replay includes tilted edges.
+- sub_20D70AC: SDK vector length+normalization combined; squared length<16 returns0, hardware reciprocal and sqrt with rounded unit components; moving-box edge/corner callers use input scaled1024 to preserve precision.
+- sub_20D6DF0: map-object fx12-degree Euler axes: rounded binary-angle conversion via0xB60B60B60B then quantized SDK trig; row matrices X*Y*Z, products truncate via sub_2146DFC. Bowser blocks all have1-degree X and captured up=(0,4095,69); native box initialization now uses this helper instead of floating Euler.
+- sub_1FFD900: broadphase query: entries overlapping a racer's box whose flags match the mask (0x1000 = moving terrain, 0x2000/0x4000 objects)
+- sub_1FFDEE4: course KCL swept-sphere query; also queries moving terrain (broadphase mask 0x1000) and tests each with sub_20E1D10
+- sub_20E1D10: moving terrain shape dispatch by object +0x134: 0 oriented box sub_20E0BAC, 1 cylinder sub_20E0764
+- sub_20E0BAC: moving terrain box: centre +0xF4, half extents +0x100/+0x104/+0x108 along the object's axes; face/edge/corner contacts with attributes +0x110 (sides) / +0x114 (top, bottom)
+- sub_20E0764: moving terrain cylinder along the object's y: centre +0xF4, radius +0x100, half length +0x104; cap/side/rim contacts (sub_20E1A80 plane, sub_20E16DC rim) with attributes +0x110 (side) / +0x114 (caps)
+- sub_20DFD64: lava block init: path, moving terrain box 400 x scale x, 50 x scale y, 175 x scale z, top attribute 1 (floor), sides 0
+- sub_20E0764 (cylinder) now ported exactly: `vm_model/src/kart/moving_cylinder.rs`, replay `vm_model/tests/moving_cylinder.rs` (30 controlled original queries, `tools/bizhawk/claude_bowser_cyl/`). Zones: radial `R*R >= x^2+z^2` (inside) / `<= (R+r)^2` (ring), axial `|y| <= half` (within) / `<= half+r` (margin). Inside + margin = cap; inside + within = cap if `(R+r-radial) >= (half+r-|y|)` else side; ring + within = side; ring + margin = rim edge (`sub_20E16DC`: separation = radial*(radial-R) + axis*(|y|-half), normalised at 1024x). `sub_20D6F78` is the hardware 2D normalise (= `Vec3(x,0,z).normalize()`), fallback unit (1,0,0).
+- sub_20EFC74: per-kart item route node update (item record +496/+500; once every 8 frames per kart): override from sub_20F4090, else sub_20F3C54 (nearest node within two links), then sub_20F3A58 (walk ahead) if the kart is more than 1200 units flat from the node
+- sub_20F3C54: nearest route node to a position among the current node, its next/previous nodes and theirs (two links, strict-less ties)
+- sub_20F3A58: from a node walk along the nearest next node each step (at most route-length steps) until a node nearer to the position than the start is found
+
+## Child-emitter update and ARM7 sound controllers (Codex, 2026-10-10)
+
+- sub_201DBD8: child particle linear scale channel: signed end scale + trunc((end scale -4096)*(phase-255)/255), phase is age*256/lifetime castu8; ported in nitro_particle_update.rs and full child-emitter replay.
+- sub_201DB80: child particle fade channel: linear alpha31*(255-phase)/255; ported in nitro_particle_update.rs and full child-emitter replay.
+- sub_2019334: SPL emitter update now includes modeled primary-to-child cadence, shared recycled-slot allocation, same-tick newborn child updates, inherited behaviors, follow-position and separate fixed child polygon flag. tick_with_children replay matches all17 controlled original updates; native child drawing remains open.
+- ARM7 037FDFB8..037FE028: channel signed sweep and portamento setup: track sweep plus (previous key-current key)*64, signed16; CF time0 uses note tick length, else time squared times abs(sweep)>>11 sound frames. Implemented in sound.rs; static original disassembly verified, live ARM7 replay unavailable.
+- ARM7 037FC478/037FC73C/037FC78C: modulation target scaling, delayed per-channel quantized sine and phase increment speed*64 mod32768; pitch/pan raw>>8, volume(raw*60)>>14. Implemented with generated sine arithmetic; focused tests pass, hardware playback parity not yet measured.
+- Path item boxes (0xC9, Luigi's Mansion; claude-lane-a, 2026-10-10): class `0x021586A0` init `sub_20DF428` = plain box init `sub_20DE6A8` + eased path follower (`sub_20D7D4C(.., 0x3000, setting0 low s16)`, `sub_20D859C(.., setting2 low, 1)`); tick `sub_20DF48C`: follower advance (`sub_20D84E4`), arriving at a point whose setting 2 (POIT +0x10) is nonzero restarts at point 0, position = Bezier on the path (`sub_20D8C74`) + 0x10000 + hover `sin(counter) * 4` (`sub_20DF58C`: counter += 728 a tick, global 0x0217B730); object flag 0x20 (minimap icon, copied to the map record by `sub_20CA568` etc., NOT visibility) set while both points' POIT +0x0D byte is nonzero. Collision class `sub_20DF678` size 0xF000 (plain box 0xA000), hit handler `sub_20DEA50` as the plain box. Mansion: 5 boxes on route 0, settings0 = 60 (percent), setting 2 = 0..4 (start points). Port: `vm_model/src/mapobj/path_box.rs`, wired in `game/src/items.rs`.
+- sub_20EECDC: held-item chain update (called each tick for a kart's item hand when 1+ items are held): first item via sub_20EF65C, then each follower (2nd, 3rd) hangs from its own point: kart push (+0x1FC) added, sway from the change of the behind direction (x speed^2, x 6144*i), a stretch counter (+0xCC) pushes it along the kart's movement, kept at least reach+4*size (minus 2 sizes per follower) behind the kart, pulled to the previous point's height (x0.4), bobbing with the bob history 6 (12) ticks old, and clamped to 3*size from the previous point; positions = point + up*(swing + 4.2*size)
+- sub_20EF65C: single-item hold spring (anchor behind the kart, bob spring 0.82/0.41, or 0.2/0.15 when 2+ items are held); the hand struct is the item record at +0x58
+- sub_20EF4A0: per-item update of a held item (spring via sub_20EF65C, size growth, release on the button, finishing when +368 is set)
+- Item hand/record layout (word = hand index; record word = hand + 22): 5.. objects (up to 3), 8 count, 9 linked, 14 up, 17 forward, 20 position, 23 velocity, 26 speed, 27 displacement, 30 reach, 31 bounce, 32 moving, 35 size, 36 back, 39 behind, 42 anchor, 45/48 follower anchors, 52/53 stretch, 54 last behind, 57 bob, 58 lift, 59..74 bob history, 75..90 delayed history, 91 tick counter
+- sub_207B44C: finish presentation: normal race: table 0x021551DC (row per racer count 2..8, per place 0 win / 1 keep driving / 2 lose; 8 racers: 1-3 win, 4-6 drive, 7-8 lose); time trial: win if a record (sub_20C7148 / sub_20C70EC) else lose; team/special win sets +0x7C 0x2000000; a plain win starts the win/drive alternation with wait 150 + rand(200) (race RNG at global + 0x498)
+- sub_207B354: winner's alternation: the wait counts down; at 0 win -> drive (or drive while +0x7C bit 0x40) / drive -> win, new wait 150 + rand(200)
+- sub_2068A64: driver clip request: +0x7C bit 0x10000 forces win, 0x20000 lose; face pattern lose/spin = 1
+- sub_20EE748: orbiting triple-shell handler: angle +0x174 += spin (+0x176, +70 a tick up to 1400, 0 while the kart is damaged) + min(480*speed>>16, 300); bob +0x17C spring; radius +0x178 eases 0.2 toward reach + 3*size; centre +0x180 = position + up*(bob - bounce + 4.2*size); then sub_20EEA6C; throws on (record+492 & 0x244)==0x244
+- sub_20EEA6C: places the orbiting shells: shell 0 at centre + forward*(R*cos a) + side*(R*sin a); shells 1/2 use mode word +0x18C+2*i: forward scale (-Rc>>1) -/+ (Rs*3547>>12), side scale (-Rs>>1) +/- (Rc*3547>>12) (a third of a turn either way)
+- sub_20EFA60: release one held item: pops the LAST of the hand's objects (the oldest), runs the type's throw/drop handler (item table +36), re-arms the slot; triple items are released one per button PRESS, single items on release
+
+## Screen controllers: 2D menus and HUD (T016 review, haiku-t016)
+- sub_2111368: fetches a handle via sub_21114B0, then returns sub_20AE5F0(*off_2111384[0], *off_2111388)
+- sub_211138C: tears the screen down (sub_2111584), zeroes the word at *off_21113A4[0] and *off_21113A8, returns the pointer off_21113A8
+- sub_21113AC: gets a heap handle (sub_20364E8/sub_20364E0), allocates two blocks of dword_21113E4 bytes into the globals at off_21113E8[0] and off_21113EC, then calls sub_21115B0(heap, *a1) (the screen constructor)
+- sub_21113F0: stores the 16-bit argument into field +50 of the object at *off_21113F8
+- sub_2111428: pops one link from the list at *off_211144C: if the count at +44 is > 0, decrements it and returns the head's +44 link; when that link is NULL it returns the result of the head vtable's +40 callback; returns NULL when the count is 0
+- sub_2111494: copies five words from a1 (a1[0..4]) into the object at *off_21114AC +24..+40; returns a1[4]
+- sub_21114B0: gets a handle from *off_21114C8 vtable+36 and returns sub_21258F0 of it
+- sub_2111584: screen teardown: sub_21144B4(), then vtable+28 of *off_21115AC gives a handle fed to sub_2111A98, sub_212ABD0, sub_2125DA0; finally NULLs the global off_21115AC
+- sub_21115B0: screen constructor: heap-allocates a 52-byte state object into *off_2111680 (owner pointer at +0), zeroes +48/+50, sets up the 2D sub-objects (sub_21250B0, sub_212ABDC, sub_2125C2C, sub_2125DE0, sub_21143F4), stores the screen kind a2 at +20 (kind 12 sets state +16=6 and calls sub_2111AB4, other kinds set +16=5), then returns the vtable+24 callback
+- sub_2111ADC: if sub_211146C()==12 writes the masked values (dword_2111B2C/B30/B38) into the registers at off_2111B28 and off_2111B34, else builds a shifted/masked value from dword_2111B3C into off_2111B28
+- sub_2111B40: computes two masked register values from the struct at off_2111B80 (+88, +92, +96, +100) and stores them to off_2111B8C/off_2111B90, then tail-calls sub_2111428 (list pop)
+- sub_2111EF4: short animation step on the object at off_2111F44: bumps the frame counter at +84, computes a 16-bit value with sub_20AE488 and writes it to four map cells (+60 table at dword_2111F48/4C/50 and row (state+5)<<6 +4); at counter >= 10 calls sub_2113298
+
+## Racer state handlers (T016 review, haiku-t016)
+- sub_20F1104: update step: sub_2148504(a1+556, a1+92, a1+92), then tail-calls sub_20F29E8(a1)
+- sub_20F4FD0: per-frame: decrements the counter at +304; when it goes negative calls sub_20F7658(a1, 0); returns sub_20F68B0(a1)
+- sub_20F504C: racer state-change handler: sub_2069DB8 on the racer at (a2+4)->+508, sub_20F4754(a2, 1), sets +516 of *(a1+12) to 1; returns the state byte at off_20F50B0+8, or sub_20FE958(3) when that state is 5
+- sub_20F5D5C: thin wrapper: tail-calls the function pointer at off_20F5D68 with a1+572 (sub-object dispatch)
+- sub_20F6264: racer transition handler: sub_2069C38 on the racer at (a2+4)->+508, sub_20F4754(a2, 1); returns the state at off_20F62AC+8, or sub_20FE958(4) when that state is 5
+- sub_20F758C: per-frame racer countdown: if flag 0x8000 of +116 is set calls sub_20F68B0; decrements the 16-bit timer at +216; at <= 0 calls sub_20F0F70 on the table entry off_20F75FC + 68*(+68); at timer < 10 calls sub_20F9C40; otherwise returns the timer
+- sub_20F7EA8: returns one byte from the 14-column matrix at off_20F7EC4, row = a1+68 (racer id), column = a2+68 (other racer id)
+- sub_2090354: NOT battle AI. Picks the CPU item-handler table by class (*(*0x021759A0+20) == 1/2/3/else) into 7 callback slots (0x217B07C data table, 0x217B084/80/70/78/74/8C/88 = handlers sub_208FAFC/F7D4/F9AC/F6D4/F4E8/F3D0 ...). Already ported as cpu::CpuItems; battle CPUs use the same class tables. Battle CPU driving = same driver as races (route follow with random fork pick, cpu.rs advance(); turn scale 4096), no separate hunting AI found.
+- sub_20FE268: bob-omb launch (item type 2/3 handler): chooses the throw by the button flags (+0xEC & 0x20 = drop, 0x10 = hard throw, else plain) and calls sub_20F3150 with three stack arguments the decompile hides: base speed, upward speed, drop lift = (0x7800/0x5000/8602 drop, 0x9800/0x5000/8602 hard, 0x6000/0x5000/1434 plain); sets the item's +0x134 to min(0.12*kart speed + 0.2, 0.8) and plays SE 218
+- sub_20F3150: place and launch a thrown/dropped item (stack args base speed p5, upward p6, lift p7): forward (a4=1) from the hold point +0x1B8, aim = normalize(flat(7*forward + displacement)) at p5 + 1.7*|displacement| (+1.3*bounce) plus up*(p6 + speed/8 + 2*dy); backward (a4=0) = the banana drop with lift p7; speed < 3 units adds two RNG draws of +-123 to the aim; drops add the kart push
+
+## Kart and racer handlers, items, sound (T016b review, haiku-t016)
+- sub_20F50B4: calls sub_20F8E78 and sub_20F2D98(a1, 0); if +116 bit 0x10000000 is set and +304 is nonzero, plays kart sound 218 via sub_21090C4(a1, 218, 127, 0)
+- sub_20F5614: state 1/2 conditional dispatcher: when the racer id (+120, 8 if negative) matches the id at kart(+552)+508 and flag 0x1000 is set (or 0x2000 with +120&0x1000 and +284 < 120), calls sub_210A598 on (kart+508, +972) and tail-calls through a stack pointer the decompiler could not resolve; otherwise returns its argument
+- sub_20F6F10: per-frame racer post-update: r = sub_20F7184(a1,0,0); if r <= 1 calls sub_20F91FC(a1, table value at off_20F6FC0 + 168*(+68) + 152); when r == 0 and +116 bit 0x8000000 is set and a2 != 0 and the racer id != 5, calls sub_20FE7A0(id, 3, a3, +78)
+- sub_20F73D4: thin wrapper: calls the function pointer at off_20F73F8 with the table entry *off_20F73F4 + 68*(racer id) and a1
+- sub_20F81C0: resets a racer item slot: if the racer's id (kart +504 u16) equals the byte at +98 of *off_20F824C[0], calls sub_20BB5CC; subtracts the slot's +12 amount from the pool counter at +28 of its table entry; sets slot[0],[1],[8] = 0 and [3],[4],[5] = 19 (no item); returns 19
+- sub_20F8418: resets an item slot record: if slot[8] is zero, decrements the pool counter (+28) of the entry by the amount at +12; then clears [0],[1],[8] and sets [3],[4],[5] = 19
+- sub_20F8DDC: when the game-state byte at *off_20F8E34+8 is 4 and the racer id (+68) is 0 or 1, calls sub_208B7BC(dword_20F8E38, a1+80) and sub_208B7BC(1088, a1+80) (two effect spawns)
+- sub_20F992C: deactivates a racer: releases its collision slot (+218 via sub_20D5344 unless -1); if flag 0x400000 is set, calls sub_2109054, zeroes +48 and clears the flag; sets +116 bit 4; tail-calls the type callback at +60 of the table entry (168*id)
+- sub_20F99B8: places a racer at position a4: copies a4[0..2] to +80..+88, sets +120 = a3, calls sub_20F9A14 (reset); when +116 bit 0x8000000 is set, sets +78 = sub_20FF178(a1)
+- sub_20F9B0C: per-frame racer update: if +116 bit 0x8000 is set calls sub_20F7658(a1, 1); otherwise scales velocity +92/+96/+100 by dword_20F9BA4 / 4096 and calls sub_20F6FC4(a1, 1)
+- sub_20FAA78: item pool check for item type a1: returns 1 when the pool has at least the needed count free (+12 minus +28 of its entry); otherwise repeatedly calls sub_20F03BC to reclaim until enough are free or it fails, then returns 0
+- sub_20FC8EC: if kart+552 is null, sets it via sub_20FCB9C(a1, a2) and sets +760 = 2 when (+116 bit 0x40000000) or (the new kart's +508 record +72 bit 0) else 3, +762 = 1; returns a1+512
+- sub_20FCB4C: sub_20F4198(a2, dword_20FCB98); sub_2069DB8 on the kart at (a2+4)->+508; sets (*(a1+12))+516 = 1; returns sub_20F4188(a2, 12)
+- sub_20FE8AC: queues an event record for racer a1 (size = byte at 168*a1+76, plus 1), stamps it with sub_2061FB8, and enqueues type 0 through sub_205A858 when there is buffer room and sub_205AD44 succeeds, else through sub_20FEA84; returns the buffer pointer
+- sub_20FF1D8: racer list init: if the global object at (*off_20FF240)+84 is set, rotates the vector at off_20FF244 via sub_2146F98, assigns each list entry a sub-struct from sub_210543C, sets the list's flag word [16] = 1 and returns the list; otherwise returns the object's +84 value
+- sub_210045C: stops a kart: sub_20F8E78(a1), sub_208ADC8(a1+124, 1), sub_2046BCC(a1+300, 0), then sub_20F81B8 on the kart record off_21004C0 + 528*(kart id, 8 if negative) with state 16
+- sub_210050C: kart state check (528-byte records from *off_2100560 indexed by kart id): if the record state (+20) is 16, sets it to 19 when kart+344 != -64; returns -64 when kart+344 == -64 and 19 when it changed; otherwise returns its argument unchanged
+- sub_210136C: starts a queued action at kart+592 when that is not -1 and (+588 is set or +304 >= 40): sets +616 = +304 - 40, +320 = +592, +316 = 2 (timer), +278 = 1; returns 1
+- sub_21013BC: if +588 is set, runs sub_2101F7C(this, -1) (item target pick), posts event 11 via sub_20FE694 with +78 and +320, moves +320 into +592 and clears +588; returns 0
+- sub_21025D8: kart object init: +340 = 19, +344 = 0, +348 = 0, +352 = 14, +320 = 8, +324 = 0; calls sub_2046BE8 on +300 with off_2102664 and sub_20F9C40; sets +588 = 0, +592 = -1, +596 = 18, +600 = -1, +604 = 18, +608 = -1, +612 = -1, +616..+624 = 0; returns 18
+- sub_2103468: sound/module init: allocates 208 bytes (sub_20364E8/sub_20364E0/sub_2036BEC) into *off_21034F8, sets *off_2103500 from dword_21034FC, zeroes two globals, starts sound handle 6 (sub_2108E6C(6), sub_212C6F0(h, 1)), calls sub_20ED4D0 + sub_210340C, four sub_20D3C2C calls, sub_214AD4C with nine args, sets *off_2103540 = 1
+- sub_21035AC: if the argument equals the racer id (+98 byte) of *off_2103654, clamps the counter at off_2103660 to at least off_210365C and calls sub_210366C for each 52-byte entry of the list at off_2103658 with +40 == 0 and callback +36 == off_2103664
+- sub_2103840: if the argument equals the racer id, raises the global at off_210388C to at least *off_2103888
+- sub_2103890: if the argument equals the racer id, zeroes the globals at *off_21038E8 and *off_21038EC and starts sound handle 6 (sub_2108E6C(6), sub_212C6F0(h, 1))
+- sub_2104E58: init for a kart-attached effect: +328 = dword_2104ED4, sub_21053E4(obj+308), +312 = 1 when this kart is the player (+120 matches the byte at *off_2104ED8+98), which sets obj+308 +176 = 2; stores 600 in off_2104EDC[kart id]; returns the kart id
+- sub_2104F14: dispatcher: sets off_2104F54[kart id] = 1 when off_2104F4C[kart id] > 0, then tail-calls the function pointer off_2104F50 with a1+308
+- sub_2104F84: mode-2 only (*off_2104FEC+8 == 2): when the pending entry off_2104FF0[slot] is negative, clears it and calls sub_20F0044 on kart record off_2104FF4 + 528*slot
+- sub_210515C: sets kart record state (+20) to 19; in mode 5 for a non-player slot calls sub_20EFD84(record, 14); returns the slot argument
+- sub_21051D4: callback: sub_20695C4 on the kart at (a2+4)->+508, sub_20F4754(a2, 1), then sub_20F81B8(*(a1+12), 14) (the record pointer is read from a1+12, not passed as a1+12)
+- sub_210593C: if the argument is 4 and off_210597C[3] is zero, restarts BGM via sub_210D5C0; returns off_210597C when the branch is taken, else the argument
+- sub_21059E0: if the handle state at off_2105A28+3 is zero and the next word is zero, restarts BGM via sub_210D5C0; returns off_2105A28 when the branch is taken, else 0
+- sub_2105A30: stores a1 into *off_2105AAC[0]; for a1 == 1 or 2 selects sequence 71 or 72, runs sub_212DA38, sub_212DA2C, sub_212E9CC(seq, handle), sub_212C6F0(off_2105AB8[0], 2) and starts it via sub_210D7DC(seq, 127, off_2105ABC)
+- sub_2119E14: loads the selected item's resource: index from sub_202968C, table entry from off_2119E48 by the record's +80 offset, passes it to sub_211E418, then returns sub_202949C(0)
+- sub_211BA58: starts the message strip: sets *off_211BA8C +52 = 4 and +56 = 0, calls sub_212B7E8 unless the u16 at off_211BA90 is 2, plays sound 5 via sub_212ECC0, returns sub_211C474 of that handle
+- sub_211F6E8: sends a request (sub_2060510, sub_2060C0C, sub_2060B68, sub_205EDF8), then busy-waits while the flag at (*off_211F774)+40 is set or the reply pending at +12/+16 is nonzero; returns 1
+- sub_211FA70: sub-state update: when sub_21A38A4() is zero returns sub_21A3850(); if sub_21A37DC() == 4 starts sub_219BE74 and sets state word +7980 = 2; if == 7 stores sub_219C398 into +8004, runs sub_21A37A8(sub_219C0C0()) and sets +7980 = 7
+- sub_211FD28: calls sub_219C0C0, sub_21A37A8 and sub_2120714, sets the control at off_211FD64+8 (+16 = 0, +18 = 1) and returns 1
+- sub_21202CC: returns the low nibble of byte +1104 of the slot record (580-byte stride from *off_21202EC) for slot a1 (the racer or character id)
+- sub_2120B80: predicate: returns 0 when the first sub_21A2A54 lookup is 5 or the second is 3; otherwise true when the first lookup is 3 and the nibble of byte +1104 equals the second lookup
+- sub_212D154: starts a sound/stream buffer: sub_212D10C, returns 0 if the flag at off_212D210 is set; otherwise sub_214D018(0, buf, len) and sub_200EE74(buf, len) (cache flush), then sub_212CCD4(1, buf, buf+len/2, len/2, a3, 0, 0, 1, a4, 127, 0, 127, a5, a6, a7)
+- sub_212F730: sub_212F638(a3) sets the mode, then sub_212D154(a1, a2, 0, 32000, 2, off_212F780, off_212F784) starts a 32000 Hz stream
+- sub_2181A80: per-kart battle/mission step: in mode 4 returns early while sub_20A126C holds; otherwise bumps the counter at (*off_2181B0C)+4 up to sub_21817EC(), calls sub_2108EDC, and for kart kinds 0/1/3/5/7 at counter >= limit calls sub_203E74C with the racer id
+- sub_2181B10: returns (u16)(racer +68 + byte at off_2181B2C[dword_2181B30] - 1)
+- sub_2181B6C: appends a1 to the racer list (72-byte header entries, count at +68) of the object at off_2181BAC, calls sub_20A1728 on the new index, returns the new count
+- sub_218261C: draw routine for a kart-linked effect when +176 > 0 and +160 != 0: sub_1FF9048 sends the display data, sub_209B940/sub_209B9A4/sub_209B688 set the model fields, sub_209BBD0 and sub_209BB2C draw it
+- sub_2182EFC: initialises an effect object: +172 = 30, position from a2[32..34] (+8 adds dword_2182F60) into +4..+12, +20 = dword_2182F64, +248 = 1, +176 = dword_2182F68, +160 = 31, flag OR into +2, spawns a particle via sub_208B7BC into +252, sets the word at +dword_2182F74 to 13
+- sub_2183138: per-frame update over the kart-linked list (count at +4): in mode 4 calls sub_2181B6C on each entry, then sub_21870C4, sub_2187090, sub_218873C, sub_2188884, sub_21881E0
+- sub_21831D0: same as sub_2183138 but also sets the state word at v4+dword_2183270 to 2 per object
+- sub_21834A4: init of a kart-linked object: sub_21871F8(a1, 8, off_21834D4), sub_2188D44 with config +52/+56, then sub_2188E04 with config +60
+- sub_2185EE4: kart-relative per-frame update: stores *a4 in a1+dword_2185F84, takes the offset from a2+80 and a2+88; when the squared distance is >= 16 normalises it and applies sub_2147FD8 to the velocity at a1+dword_2185F88; calls and clears the callback at a1+dword_2185F8C; returns the flag
+- sub_20A5958: pool-106 popped balloon / shine object tick (states 0 fall,1 rest,2 carried,3 magnet,4 flung,5 up,6 fade); ported in vm_model/src/shine.rs (replay vs BizHawk not done).
+
+## Racer objects, item pools, events (T016b review, batch 2, haiku-t016)
+- sub_20F1F98: sets velocity a1[23..25] = a1[79..81] scaled by a1[75]/4096, after sub_20F2768 on the input vector a3 (a3 with y forced to 0 when a3[1] <= 0)
+- sub_20F30EC: object init: copies the optional vector a3 into +92..+100, raises +104..+112 to dword_20F3148 when +112 is smaller, sets +300 = a2 and +292 = off_20F314C, clears bits 24..26 of +116
+- sub_20F47E4: acquires an item record for type a2: type at +0, pool amount (table +12) at +8, zeroes +32, calls sub_206C14C on the kart(+4)->+508, sets +12 from table +16, clears +16/+18, and adds the amount to the pool counter at +28
+- sub_20F4DFC: wrapper: ORs the mask off_20F4E70 into +120 of *a1, calls sub_20F9CA8, sub_20F9114, sub_20F30EC(a1, 0, a2); sets +288 = off_20F4E74 when +116 has no 0x180000 bits; sets +304 = a3; zeroes *a1
+- sub_20F4E78: setter: +308 = 1, sub_208AD74 on +124; when a2 is given copies it to +240..+248 and sets +116 bit 0x80; when a3 is given copies it to +80..+88 and returns sub_21484D0(a1+80, a1+228, a1+92)
+- sub_20F5108: enter/leave wrapper: on enter calls sub_20FF1B8(a2[76], a2+24); calls sub_20FECDC; on leave calls sub_20FF1A0(a2[24], a2+76); on enter returns sub_20FE8AC(a2[17])
+- sub_20F6038: enter/leave wrapper like sub_20F5108, but enter passes the sign of sub_2039828(a2+23, a2+76) to sub_20FF1B8 and leave calls sub_20FF1A0(a2[24], a2+90)
+- sub_20F65C4: state setter: clears +116 bit 0x8000, sets bit 0x4000, sets handler +288 from off_20F6628 when the table entry (168*id+68) is empty and no 0x180000 bits are set, sets +292 = off_20F662C, clears bits 24..26 of +116
+- sub_20F80C0: copies a2 rows (of 18 halfwords) from the source table off_20F8138, taken through an index permutation, into the buffer at a1+4 and zero-fills the rest up to 8 rows
+- sub_20F813C: returns a1 + a1[1]*a1[0] + 2, the cursor past a compact record block
+- sub_20F8148: loader for a compact record table: reads count (a2[0]) and row length (a2[1]), stores the count in a1[0], allocates 36*(count+1) bytes into a1[1] and copies the halfword rows
+- sub_20F8498: releases an item slot: always decrements the pool counter (+28) by the amount at +12 of the slot's entry, then clears [0],[1],[8] and sets [3],[4],[5] = 19
+- sub_20F8D9C: sound-emitter init: stores a2 at +72, calls sub_20E0650 on (a1 + dword_20F8DD4), sub_2109110(a1, table value 168*a3+160, a1+80), returns sub_2109054(a1)
+- sub_20F9054: state transition: picks the handler from table off_20F90B4 (a4 == 0, callback at +72 of entry a2) or off_20F90B8 (a4 != 0), calls sub_20F9A14 reset then the handler, clears +116 bit 0x400000 and sets bit 0x10000000
+- sub_20F90BC: sets +64 = +212 & 0x3FFFFFE0 and tail-calls off_20F90D8(a1, a1+80, +212)
+- sub_20F9160: range test on the masked distance (+212 & 0x3FFFFFE0): true when it is above dword_20F91C0 and not in the low band (flag 0x10000 clear and value <= dword_20F91BC)
+- sub_20F91FC: plays sound a2 at the object position (+80) via sub_210B7A8 when a2 != 1 and the masked +212 distance is below the threshold at off_20F9288+0x44; returns that threshold otherwise
+- sub_20F9BA8: if the timer at +284 > 300, flag 0x8000 is set and handler +288 equals off_20F9C04, calls sub_20F7658(a1, 1); returns the object
+- sub_20F9C08: predicate form of sub_20F9BA8's test, comparing handler +288 with off_20F9C3C
+- sub_20F9CA8: if the collision id at +218 is -1, allocates it with sub_20D555C(a1+80, radius +224 + 0xA000, 0x4000, a1) and stores it in +218
+- sub_20F9F08: sets speed fields +104 = (+112*a2)>>12 and +108 = (+112*a3)>>12, recomputes +220/+224 from the table entry 168*id (+100/+104) and updates the collision with sub_20D5148(+218, +224 + 0xA000)
+- sub_20F9FA8: resets +104/+108 to +112, sets +116 bit 0x40, recomputes +220/+224 from the table entry and calls sub_20D5148(+218, +224) (no 0xA000 offset, unlike sub_20F9F08)
+- sub_20FA0E8: switch on a2: 0 returns the table byte (+76 of entry a1) + 1; 1 returns 18; 2 returns 3; 3 returns 4 when a1 == 11 else 3; any other a2 returns 0
+- sub_20FA8AC: per-frame pass over the 14 pool objects: each with count (+16) > 0 and not flagged (+64) gets sub_20F0DF8 with the sub-object from sub_20E6B38()+24
+- sub_20FA9E4: resets the 14 pool objects via sub_20F03BC, then runs sub_20F0044 on each race object (528-byte stride) up to the count at *off_20FAA70; returns the last loop index
+- sub_20FAD9C: getter: *a2 = a1+748, *a3 = (a1+112 * *off_20FADC8) >> 12; returns a1+80
+- sub_20FAE74: if state +758 != 7 calls sub_20FAED0; otherwise sets the sub-object +688 field +180 to 1 when flag 0x10000 is clear
+- sub_20FCAC0: object init: sub_2046BE8(a1+744, off_20FCB28, 8, a1), sub_21471BC(a1+692), +628 = 1, +630 = byte at *off_20FCB2C+1140, +632 = 0, +620 = 0, +624 = 220, +640 = 0, +740 = 0; returns 220
+- sub_20FCE94: adds a5 to the u16 at +604 of a1, then calls sub_20FCF10(a1, a3, new +604 value)
+- sub_20FD308: getter: *a2 = a1+392, *a3 = (a1+112 * *off_20FD334) >> 12; returns a1+80
+- sub_20FD428: spawns an actor via sub_20FA3D0(9, 8, off_20FD490) and initialises it: +288 = 0 when no 0x180000 flags, sub_20F9C40, +416 = 0, sub_2046BCC(+388, 3), +372 = 0; returns the actor or 0
+- sub_20FD494: destructor: sub_2046BCC(+388, 0), releases the attached sub-object at +408 via sub_20D2398 (clearing its bit 1), returns the object to the pool via sub_20F0F70, zeroes *a1
+- sub_20FD754: object reset: clears +116 bit 0x8000, +288 = 0 when no 0x180000 flags, sub_20F9C40, sub_2046BCC(+388, 3), zeroes +416 and +372, returns 0
+- sub_20FD7A4: lookup: returns entry a1 of the list at *(*off_20FD7EC+616) when flag 0x8000 is set, no 0x180000 bits, state +402 != 3 and +408 is null; otherwise 0
+- sub_20FD7F0: returns field +632 of the object at off_20FD800
+- sub_20FD83C: object state init when flag 0x80000 is clear: sub_2046BE8(+388, off_20FD8A4[0], 4), sets +288 to off_20FD8A8 when no 0x180000 bits, +404 = 1, +406 = 1, +384 = dword_20FD8AC, +300 = +304 = 0
+- sub_20FD938: if +416 is set: state +402 == 2 sets the flag +180 of sub-struct +312 (1 when flag 0x10000 is clear); otherwise sets the u16 at a3+24 to (+372 nonzero and < 6) and calls sub_20ED5C0
+- sub_20FD9D8: stops an object: sub_20F8E78, sub_20F2D98(a1, 3 when +304 is set, else 2), sub_2046BE8(+388, off_20FDA4C, 4), and plays sound 218 via sub_21090C4 when flag 0x10000000 is set and +304 is nonzero
+- sub_20FDA50: pack/unpack wrapper: on write calls sub_20FF1B8(a2[76], a2+24); calls sub_20FECDC, then sub_20FEFE8 on a2+77 (0 when a2 is null); on read calls sub_20FF1A0(a2[24], a2+76); returns sub_20FE8AC(a2[17]) on write
+- sub_20FE3D8: object init: sub_21471BC(+316), sub_2046BE8(+388, off_20FE448, 4), sub_2046BCC(+388, 0), +368 = 300, +372 = 0, +376 = 8 (u16), +380 = dword_20FE44C, +384 = 0, +364 = 0, +416 = 1, +408 = 0; returns 1
+- sub_20FE56C: if a5 is 0 uses the time from sub_2061FB8(), then calls sub_20FE9D0(a1, a2, a3, a4, time) to queue a delayed event
+- sub_20FE694: writes bytes a2, a3, a4 into the shared record off_20FE714[0] (+1..+3), stamps it with sub_2061FB8, and enqueues type 3 with length 4 through sub_205A858 (when there is room and sub_205AD44 succeeds) or sub_20FEA84
+- sub_20FE71C: writes a3 at +1 and a2 at +2 of the shared record off_20FE798[0], stamps it with the time, enqueues type 3 with length 3 (same fallback as sub_20FE694)
+- sub_20FE7A0: event record: byte 1 = a4, byte 2 = a2 | (a3 << 4), stamped with sub_2061FB8, enqueued as type 2 with length 3
+- sub_20FE828: event record with byte 1 = -1, stamped with sub_2061FB8, enqueued as type 0 with length 2
+- sub_20FE958: one-byte event record stamped with sub_2061FB8, enqueued as type 0 with length 1 when the u16 at table +1828 is nonzero and sub_205AD44 succeeds, else through sub_20FEA84
+- sub_20FE9D0: queues a delayed event: takes a slot from the free list at off_20FEA70 (no-op when empty), stores a1, a2 and a5 in the 32-byte slot, copies 20 bytes of payload via sub_214D1FC(a4, slot, 20), sets the delay byte to 4 when a5 is nonzero, else -a3, and links the slot into the list
+
+## Kart pose, racer records, sound and screen helpers (T016b review, batch 3, haiku-t016)
+- sub_20FAD00: module init: sets globals from dword_20FAD68 and dword_20FAD78 (sub_2147F34 fixed-point divide), stores sub_2133048 products >> 12 into two globals, squares one of them, calls sub_20ED490 on off_20FAD8C and, when the object type at *off_20FAD98 is 29, calls sub_2013044
+- sub_20FEC30: drains the queued event list: while the head entry fits the buffer (u16 +1828 >= its length) and sub_205AD44 passes, sends it with sub_205A858 and moves it to the free list
+- sub_20FEFE8: single-int pack/unpack: on write stores a2 >> 9 as a byte, on read restores byte << 9 into *a2; returns a1 + 1 (or a1 + 1 when a2 is null)
+- sub_20FF040: single-byte pack/unpack: on write sub_20F36D8(a2) gives the byte; on read sub_20F36A0(byte, a2) restores it; returns a1 + 1
+- sub_20FF178: returns (sign-extended u16 at +76) | (byte at +120 << 4)
+- sub_20FF25C: stops an object: sub_20F8E78, sub_20F2D98(a1, 0); when flag 0x10000000 is set and +316 is nonzero plays sound 218 via sub_21090C4
+- sub_20FF2B0: pack/unpack wrapper using +316 and +96 (sub_20FF1B8 on write, sub_20FF1A0 on read); write path returns sub_20FE8AC(a2+68)
+- sub_20FF3C4: normalises the vector at *off_20FF430 into a1+76 when its squared length >= 16, sets *(a1[80]+176) = 2, sets a1[72] = off_20FF434 when no 0x180000 flags, returns 2
+- sub_20FF67C: copies the initial vectors from off_20FF6D0 into a1[37..45], calls sub_21053E4 on a1[80], sets +176 = 2 and returns sub_21052F0(a1[80], off_20FF6D4, a1)
+- sub_20FF910: writes the 12-word pose from the vectors at a1[37..45] into the output a2, and sets a1[46..48] from the vector at a1[52] >> 4
+- sub_20FFACC: allocates a 64-byte object from the heap pool and copies a 16-word template from *off_20FFB18
+- sub_20FFBD4: looks up a model via sub_20D21EC(off_20FFBFC), sub_20EA588 on off_20FFC00, then sub_2084968(obj, 63, 2, dword_20FFC04)
+- sub_20FFF4C: allocates a 44-byte object, copies an 11-word template from off_20FFFA4 and stores the pointer in off_20FFFA0
+- sub_20FFFA8: allocates a 40-byte object, copies a 10-word template from off_2100000 and stores the pointer in off_20FFFFC
+- sub_2100094: walks the entry count at a1+4 back while the first halfword of the last entry is 111, keeping at least 1; returns the trimmed count
+- sub_21000D0: looks up a1 in the 12-byte record table at off_2100130 (count from sub_20D2C20); returns the byte-9 field of the matching record of off_2100134, or 0
+- sub_2100138: same lookup over the table at off_2100198; returns the byte-12 field from off_210019C, or 0
+- sub_21003E8: switch on a2: 0 stores a3 at +148 (and sets +147 = 1 when it equals the racer id byte); 1 stores a3 at +153; 2 stores a3 >> 2 at +149 and a3 & 3 at +150; 3 does the same at +151/+152
+- sub_21004C4: wrapper: calls sub_20FECDC(a1, a2, a3); when a2 and a3 are nonzero returns sub_20FE8AC(a2+68), otherwise the packing result
+- sub_2100B84: decrements the countdown at +616; at expiry sets +588 = 1 when flag 0x10000000 is clear, and sets sub-struct +256 fields +60 = 5, +62 = 1
+- sub_2100BC8: sets the countdown +616 = (15 when flag 0x10000000 is set, else 0) minus its old value, and clears +588
+- sub_210140C: requests sub-state 1 or 2 via sub_2101618 (1 when flag 0x8000000 is set); when that flag is set and +588 and +324 are clear, sets +324 = 1 and clears the pending value +612 when it is 0 or 7
+- sub_2101C84: object update: runs the state machine sub_2046B40 on +300, blends the position with sub_21484D0, and when the queue is idle (+208 == +196) transforms +196 by the sub-object at +360 via sub_2146D78 and sub_2148504
+- sub_2101D18: enter state: sub_2069AA0 and sub_20F8E3C(kart, 246) on the kart at a1+16, sub_20F81B8(record, 16), sub_208ADC8 on +124, +328 = (record +492 bit 0x20 clear), sub_2046BCC(+300, 0), +588 = 1; returns 1
+- sub_2102674: init: allocates 82 bytes into off_2102714, fills 41 16-bit entries from sub_2133068((40-i) << 12, 41-i), then averages neighbouring entries from index 36 to 40
+- sub_2102764: wrapper: calls sub_20FECDC; when a2 and a3 are nonzero returns sub_20FE8AC(a2+68)
+- sub_210340C: fills an 8-word descriptor at result from a2: [0] = a2, [1] = dword_2103458 & dword_210345C, [2]/[3] from the pointers at a2+28/+32, [4]/[5] from a2+12/+16, [6]/[7] = bit masks 1 << (field + 15) of [2]
+- sub_2103554: builds a 3D descriptor from sub_20D21EC(a1) via sub_20E6488 and sub_20E6AB8, then calls sub_210340C on off_2103594
+- sub_2103598: zeroes the global at off_21035A8 and returns its address
+- sub_21049A4: when the slot at *off_21049F4 + dword_21049F8 is set, allocates entries via sub_210543C and stores back-pointers at +252; sets the list flag word [16] = 1
+- sub_2104F58: if this[78] is set, sets the sub-object +176 = 1; when no 0x180000 flags are set, sets handler +288 = off_2104F80
+- sub_2105338: sets the object transform: base vector from the pointer at +252 into +4..+12, +102 = max(a2, 1), +28..+36 = a3 scaled by dword_21053D4 >> 12
+- sub_21053E4: resets an effect/sprite object: calls sub_20D233C, clears bits 2 and 8 of +2, +102 = 31, zeroes +28..+36, +160/+162, sets +164 = 128
+- sub_210543C: pool allocator: returns the next entry of table off_2105460 using the counter at off_210545C
+- sub_2105464: places object a1 at a2 via sub_20DE6A8, then sub_20D2398(a1)
+- sub_2105480: allocates a 64-byte object and copies a 16-word (4x4 matrix) template from off_21054CC
+- sub_2105504: predicate: true when sub_205E0A0() == 2 and the record at off_210554C+12 is 0 or 2
+- sub_2105584: sets two sound handles (off_21055A8[0] and off_21055AC) with parameter a2 via sub_212C6F0
+- sub_2105980: sound tick: when *off_21059D4 - 1 <= 1 plays handle off_21059D8 with a2; when a1 == 3 also plays handle off_21059DC
+- sub_2105AC0: one-shot: when the flag at *off_2105B04 is zero, sets it to 1 and plays sound a1 via sub_212ECC0(off_2105B08, 0, a1)
+- sub_2105B0C: wrapper: calls the function pointer at off_2105B24 with (a1, u16 at off_2105B20, a2)
+- sub_2105B28: wrapper: calls the function pointer at off_2105B44 with (a1, u16 at off_2105B40, a2 as a byte)
+- sub_2105B48: returns sub_212C6AC(sub_210D960()), which pushes the master sound volume to a handle
+- sub_2112B48: teardown of screen off_2112BA4: when state +144 == 4 resets the display registers from +106 and +104 (sub_21113FC, sub_21113F0), else zeroes them and masks the display control bits; clears the global and returns its address
+- sub_21132B4: sets state +80 = 9 on the object at *off_21132D4, +84 = 0, the flag at (+60)+dword_21132D8 = 1, then returns off_21132E0(off_21132DC, 0, 4)
+
+## Racer pools, item slots, events, kart collision (T016c review, haiku-t016)
+- sub_2085984: per-player turn/slot helper: when the player state (+112 of record 48*a1+112) is 0..3 with the mask 0xD, decrements *a2 and returns it; otherwise scans the 2-entry table for a1 and returns slot 1 or 2 (or -1 when absent)
+- sub_2085BEC: clears the 2-entry per-player table and flags, then loops players via sub_205D3F0 to find the first eligible one
+- sub_20F0044: per-frame racer-item update: when owner flag 0x400 is clear, calls sub_20F45F0 when a1[12] != 19, sub_20F81C0 when a1[0] is set, sets a1[5] = 19, then sub_20EDB00(a1+22) (skipped in game state 5)
+- sub_20F0154: availability check: returns 0 when sub_2061FEC fails, when the owner (kart +508) has +384 set, or owner +76 has flag 0x20000000; otherwise ORs status bits into a1+492 and returns 1
+- sub_20F02C0: constructor for a pooled object group from table off_20F03B8 (stride 168): allocates the pointer array (count at +12) and the members, copies the parameters into the group
+- sub_20F03F8: per-frame slot/item update over the list a1[1] (count a1[5]): when near full runs sub_2061F90 and the sub_20F0684 reorder; in state 5 applies the timed flags
+- sub_20F0684: priority reorder of a pointer list between indices a2 and a3 (step a4), swapping entries by the masks in off_20F0754 and the tests of sub_20F9C08
+- sub_20F0758: event router on type a2: 0 and 1 call sub_20F0B00 (type 0 with state checks), 2 calls sub_20F0950, 3 calls sub_20F0898, others call sub_20FE56C
+- sub_20F0898: loops the list a1[1] (count a1[5]); entries whose +78 equals a2[1] are dispatched by type *a1 (1 -> sub_20F5CC4, 5 -> sub_20FC8EC, 11 -> sub_21003E8, and others)
+- sub_20F0950: loops the list for entries with +78 == a3; scales their velocity +92..+100 by dword_20F0AFC, then switches on the low nibble of a2 and calls sub_20F710
+- sub_20F0B00: activates entry a2 from pool a1: moves it into the active section (a1[5]++), calls sub_20F9054, increments a1[7], sets flags 0x2000 and 0x20000000 in +116, and runs the type callback
+- sub_20F0D04: deactivates entry a1: when +120 & 0xF00 is set runs sub_20FE4C0/sub_20FE4B4 and the effect teardown (sub_20F70F0 for 0x800, sub_20F705C for 0x400, sub_20F7600 for 0x200); otherwise runs the type callbacks in off_20F0DF4; sets flag 0x20000000
+- sub_20F0EA0: moves object a2 into the inactive region (swap at a1[5], a1[5]++), sets flag 0x2000 in +116 and calls the type callback off_20F0F6C
+- sub_20F1048: pool allocate: while count + a2 exceeds capacity a1[2] removes the first entry with sub_20F0F70; pops a2 objects into the array a3, initialising each
+- sub_20F1A38: recomputes priority counters for the 14 slots (stride 168, fields +4/+12/+16) from an 18-entry maximum table built from off_20F1B04
+- sub_20F1EA4: initialises a physics record: normalises a1[23..25] into a1[76..78] when the squared length >= 16 (sign-flipped when a3 is set), builds the basis a1[79..84], sets a1[73] = off_20F1F94
+- sub_20F357C: per-frame: indexes 40-byte entries (off_20F366C+172, count +88) into a 4-slot priority table off_20F3670 and packs their normalised directions
+- sub_20F41B0: sets a1+32 = 10 and tail-calls the large dispatcher off_20F41C0
+- sub_20F45F0: releases record a1: for an owner of type 5 runs sub_20FE828 per member; when a1+32 is set removes members via sub_20F0F70, else decrements the usage counter off_20F4714
+- sub_20F4884: per-frame countdown for record a1: calls sub_20F49BC, decrements the timer +16; when it reaches zero may call sub_20FE958, decrements the count +8 and the usage counter
+- sub_20F49BC: per-frame release step: when a1+32 is 7, 5 or 3 pops the last member into its pool entry (sub_20F0EA0), then calls sub_20EFD1C and sub_20F6630
+- sub_20F4B8C: global initialiser: allocates a table of dword_20F4D88 bytes and copies about 20 constant 3-vector blocks into it
+- sub_20F5324: range check: returns 1 when the squared XZ distance to the target (sub_207A974) is inside 1.5 times the racer radius +224, or when collision id +218 is -1; otherwise resets the racer timers (+588 = 5, +590 = 1), calls sub_20F112C and returns 0
+- sub_20F53D0: state entry for a kart-related object: sub_20F8E78, resets the timer sub_210B850(+600), sets +48 = off_20F5540 and calls sub_2046BE8 with the state table off_20F5544
+- sub_20F5550: enter/leave wrapper like sub_20F5108, with an extra dot-product sign test (sub_2039828) on enter and sub_20FF040 on object +540
+- sub_20F62B0: racer transition: when bit 0 of off_20F637C is set, stops a sound slot (sub_2108EA0, sub_210E128, sub_212C6F0 with 0, sub_212ECC0 with 222)
+- sub_20F6BE8: kart velocity/position update: projects the velocity against the surface normal (sub_214848C), subtracts the normal component, and normalises with sub_2039860 when the squared length >= 16
+- sub_20F6E58: per-frame object move: rotates the direction vector +240 by sub_20397A8 (cross product) and sub_2147FD8 scaled by +268 (sign from +264); sets flag 0x80, subtracts 1024 from +96, applies sub_2148504, decrements the timer +216 and at <= 0 calls sub_20F0F70
+- sub_20F7184: racer movement/state dispatcher: returns 2 when flag 0x80000 is set; otherwise runs the racer type's movement callback (+52 of table entry 168*id) when the state requires it
+- sub_20F7430: racer state update keyed on flags 0x8000000, 0x10000000 and 0x20000000 and the +120 bits 0xF00; sets the handler +288 = off_20F7584 in the active branch
+- sub_20F7658: like sub_20F7430 but uses handler off_20F77F0, flag dword_20F77F4 and event id 4 via sub_20FE7A0
+- sub_20F77F8: large per-frame racer collision and motion update: wall-contact reflection via handler +292 and position clamping to radius +224
+- sub_20F7C90: racer-to-track collision response: when flag 0x2000000 is set, normalises the velocity (+92) and scales it by dword_20F7E98 when its component is above 2048
+- sub_20F830C: cycles a per-player HUD/select index: mode 1 walks a candidate table (off_20F8410, off_20F840C, off_20F8414) avoiding repeats through a shared pointer
+- sub_20F850C: per-racer item/penalty timer state machine: state 1 counts frames (+4) and transitions on timeout or a button combination; state 2 counts frames against 2 * a1[10]
+- sub_20F86C4: racer-item state setter: sets the sentinel 19 fields, decrements the table counter when *a1 was set, otherwise calls sub_20F45F0 on the sub-object
+- sub_20F87A8: racer item-use entry: when the state is 5 (item chance) sets timers and values from the racer position and calls sub_20BE930
+- sub_20F8E78: racer/kart init: resets the timer +112 from dword_20F9048, copies it to +104/+108, computes speed fields +220/+224 from table entry 168*id, updates collision via sub_20D5148 and calls sub_208ADC8 on +124
+- sub_20F944C: racer vs course-object hit: sphere test (sub_20D3E34) of +80 against object a2, optional position snap via sub_2148504 when the object is not flagged 0x40 and sub_20D6968 passes
+- sub_20F95D4: racer-vs-racer collision: checks ids (+218), flags 0x1000, 0x8000 and 0x10000000 and the table compare, then runs sphere overlap sub_20F9780 both ways
+- sub_20F9A14: racer object reset: sets the racer id +68, clears flags +116, the speeds and timers (+220/+224 = 123, +216 = 31), sets the collision id +218 = -1 and calls the type init callback
+- sub_20FA13C: race-start subsystem init: heap allocation, then sub_20F7EC8, sub_20F82E8(1), sub_20F82C4(1), sub_20F82A4(1), sub_20F4B8C, sub_20F1A24, sub_20F73A4, sub_20F357C
+- sub_20FA294: spawner: scans the object list for type 109 entries, runs a course sphere test (sub_1FFDEE4), and spawns objects from the pool via sub_20F1048
+- sub_20FA3D0: spawn helper: takes an object from pool off_20FA4AC via sub_20F1048, links it with sub_20F0EA0 and initialises it with sub_20F98A0; for type 8 ORs the flag off_20FA4B0 into +120
+- sub_20FA78C: item-use trigger: when the racer state (+48 of record 528*id) is 19 and the rank value (48*id+112) is not 3, runs the item-chance check (sub_20A1CD8)
+- sub_20FA920: race object update and teardown: in game state 5 calls sub_20FEB44 on sub_20FEC30's result; then runs sub_20F03F8 on each active pool entry with count +20
+- sub_20FAB34: item grant check: when a1 holds an item (not 19) and the game state is 5, compares the pool's free slots with the item count times the cost (sub_20FA0E8)
+- sub_20FAED0: per-frame racer visual/position update, skipped in the flag 0x2000 close-range case (sub_20F91C4); when +216 != 31 walks the model's sub-objects via sub_2013468
+- sub_20FB038: kart enter-state init: calls sub_20F8E78; when +540 is set plays sound 204 via sub_20EC8BC and sets sub_2046BCC(+744, 1); otherwise, with flag 0x8000000 and no +552, calls sub_20FCB9C
+
+## Kart/racer wrappers, event queue, screens and friend records (T016c review, batch 4b, haiku-t016)
+- sub_20FB208: enter/leave wrapper like sub_20F5550: on enter a dot-product sign goes to sub_20FF1B8(a2+24); calls sub_20FECDC; packs a2+135 with sub_20FF040; on leave calls sub_20FF1A0(a2[24], a2+191)
+- sub_20FD338: spawns an actor via sub_20FA3D0(9, 8, off_20FD414) and initialises it: +288 = 0 when no 0x180000 flags, sub_20F9C40, +416 = 0, sub_2046BCC(+388, 3), +372 = 0; returns 1 or 0
+- sub_20FD684: setter: when +408 is zero sets +416 = 1 and calls sub_208AD74 on +124; copies a2 into +240..+248 and sets flag 0x80 when a2 is given; copies a3 into +80..+88 when given
+- sub_20FE4C0: pack wrapper: calls sub_20FECDC; on write stamps the time (sub_2061FB8) into off_20FE568 and enqueues type 1 with length 18 (sub_205A858 when there is room and sub_205AD44 passes, else sub_20FEA84); returns the record
+- sub_20FE5B8: elapsed = sub_2061FB8() minus *a3 as a signed byte; negative queues the event through sub_20FE9D0 with delay, otherwise dispatches it via sub_20F0758; for racer 11 with no a2 and a set event byte calls sub_20F81B8 on record 528*a4 with state 16
+- sub_20FEA84: pushes an event: pops a free entry from the list at off_20FEB30, stores the two words a1/a2, copies the a3 payload with sub_214D1FC (length a4) and links the entry at the tail
+- sub_20FEB44: per-frame tick of the delayed event list: takes the time from sub_2061FB8, decrements the entry counters and dispatches entries that are due
+- sub_20FECDC: pack/unpack of the racer state to or from a byte buffer (a3 = 1 packs): fields +78, +116, +80 and more, each via the shared helpers
+- sub_20FF0B0: three-component fixed-point vector pack/unpack (>>10, >>9, >>10 into bytes on write; the reverse on read); returns the end pointer
+- sub_20FF438: per-frame movement dispatch: when flags 0x180000 are set calls sub_20F6E58 (0x80000) or sub_20F758C (0x100000); otherwise sub_20F68B0 for 0x8000 and sub_20F63CC for 0x4000
+- sub_20FF538: sub-object init: ORs the flag from off_20FF62C into +120, rotates the vector at a2+148 via sub_2146DFC, zeroes +304..+312; when record +492 bit 0x10 is set calls sub_20F3150 and plays sound 218, sets +316 = 1
+- sub_20FF97C: resets physics state: copies four words pairs from a1+40 into a1+160 and derives the scaled values
+- sub_210449C: decrements the timer +44 (counter field); on expiry, when the entry is not a racer, plays sound 238 (or the stored id) via sub_2108EA0 and sub_210E128
+- sub_21045A4: animates a quad: rebuilds four vertex x/y words from the base (+32/+34) plus offsets scaled by a table value >> 12; decrements the counter at +44 and at -13 sets the handler +36
+- sub_2104D78: per-frame transform update for an effect: when +312 is set, scales a matrix via sub_2147FD8 into a2+316, then sub_2105338 for the result
+- sub_2105214: allocates a 4*N-byte table (N from the mode record +8) via sub_2036BEC and copies two vectors into it; sets *off_21052D0 from a switch on the mode (2 -> 11, 4 -> 32, 5 -> 6, default unchanged)
+- sub_21114CC: per-frame state machine for the screen controller at off_2111580: when +12 is not -1 runs the vtable+28 hook, sub_2111A98, sub_2036AB0 and sub_20369FC to rebuild the state object, then dispatches on state kind (+12) through a jump table
+- sub_2111B94: per-frame sub-state dispatcher on off_2111C74: copies the next state (+80) to the state (+76), then calls one of the sub-screen update functions (sub_2112B30, sub_2112A0C, ...) through a 12-entry switch
+- sub_2111DB8: animation step on screen object off_2111EBC: bumps the frame counter (+84), computes a 16-bit value via sub_20AE4C0 and writes it into the map cells selected by the table entries (+60) and the row (+6 of the object) + 5 * 64
+- sub_211209C: same animation step as sub_2111DB8 on object off_211219C with its own slot constants
+- sub_2113174: setup of screen object off_2113264: state (+80) = 11, counter (+84) = 0, writes map cells with dword_211326C and -256 values from the table, then the last cell at row (+6)+5
+- sub_21132E4: sets state (+80) = 8 on object off_21133D4, resets the counter, writes dword_21133D8 into the map cells
+- sub_2113420: sets state (+80) = 6 on object off_2113454, resets the counter, picks a value from +108 via sub_211398C or sub_21139A0 and calls sub_21139B4
+- sub_21136F8: per-frame step on object off_211378C: when sub_2113790 is set and the pending counter (+112) is 7 copies +104 to +116 and calls sub_2113A3C (detail panel); otherwise animates via sub_2116D10 (7 - counter) and stores the result at +92
+- sub_21137A8: toggles the friend record at index sub_2113F1C() + a1: plays sound 37 via sub_212ECC0 after sub_2114260 when the record is set, otherwise sound 36 after sub_211427C
+- sub_21137F4: per-frame animation for object off_21138D8: decrements two per-slot counters (+128, +132) via sub_20ADC64 and writes the results into map cells
+- sub_21138E4: cursor move up on object off_2113938 (field +104): decrements the index with wrap to 4, skipping invalid rows (sub_2113EF0), plays sound from off_211393C when the index changes
+- sub_2113940: cursor move down on object off_2113984 (field +104): increments the index, wraps to 0 when the row is invalid or the index reaches 5; plays sound from off_2113988 on change
+- sub_21139B4: redraws the 5-row list: for each visible row (from sub_2113F1C) with a valid friend entry (count from sub_21143B4) copies its 32-byte name via sub_2114298 and draws it with sub_212426C
+- sub_2114158: validity/flag check of a record via the function pointer off_2114170 applied to the record index byte from the table at off_211416C
+- sub_2114174: clears record a1 via sub_20607B0, polls the busy flag at off_21141C0 until clear, then rebuilds the friend index list with sub_21143F4(1)
+- sub_21141C8: loads the save block for record a1 via sub_205EC14, waits for the busy flag, then verifies the block with sub_205ECA4
+- sub_2114260: thin wrapper: calls off_2114278 with the record's index byte and mode 0 (set flag)
+- sub_211427C: thin wrapper: calls off_2114294 with the record's index byte and mode 1 (clear flag)
+- sub_2114298: copies the 20-byte name of friend record a1 (index table off_21142D0 through sub_20608FC) into a2 via sub_214D168 and sub_214CFFC
+- sub_21142D4: thin wrapper: calls off_21142EC with the record index byte to unpack the record's packed data
+- sub_21143B4: returns the number of valid friend records: uses the cached count at *off_21143F0 when set, otherwise counts entries 0..59 with sub_2060B34
+- sub_21143F4: rebuilds the friend index list at off_21144B0: counts valid records (sub_2060B34) and flagged ones (sub_2060AFC), stores the indices and returns the count
+- sub_21144C0: allocates a 16-byte object and a 120-byte sub-object via sub_2036BEC into off_21144FC; stores sub_205EDA0 and sub_204799C results into them
+- sub_2114504: selection-style sort over the index list in off_2114580 for the range [a1, a1+a2): repeatedly picks the largest key (sub_2114584) and swaps it to the front
+
+## Menu screens, kart motion and track progress (T016d review, haiku-t016)
+- sub_210174C: path/curve progress: while the step counter at a1[146] is below 11 and sub_20D849C passes, advances the counter and steps the segment over the table off_2101898
+- sub_210300C: advances the track segment index (+312, the counter at a1[78]); returns 1 at 17 or more, otherwise loads the 6-word entry of table off_2103184 into +340..+404
+- sub_2111C78: animation step on screen object off_2111D80: calls sub_21137F4, bumps the frame counter (+84), computes a 16-bit value with sub_20AE4C0 and writes it into map cells (the object's +60 table at fixed offsets and row (+6)+5 at +4)
+- sub_2113D84: refreshes the 5-row list highlight on object off_2113ED8: clears the row cells, then for each valid row sets the highlight from the friend index list
+- sub_2114584: sort key of a friend record: reads its packed date via sub_21142D4 and returns v[2] + v[0]*dword_21145B0 + 32*v[1]
+- sub_21145DC: display-control helper: masked OR of ((reg & mask) >> 8 | 9) << 8 into the register at off_21145F8; returns the value
+- sub_2114668: per-frame sub-state dispatcher on object off_2114750: copies the next state (+88) to the state (+84), then calls one of 13 sub-screen update functions (sub_21156BC for state 0, ...)
+- sub_2114AD8: state step on object off_2114C3C: bumps the counter at +92, computes a value with sub_20AE4C0, redraws the slots when the friend count (sub_21143B4) and flag +132 allow
+- sub_21156D4: teardown of screen object off_2115718: resets the two display registers from +118 and +116 (sub_21113FC, sub_21113F0), clears the global, masks the display control register, returns it
+- sub_2115E74: setup of screen object off_2115FA4: state +88 = 0, counter +92 = 0, pending counter +112 = -192, fills the map cells from dword_2115FA8
+- sub_2116174: cursor move left on object off_21161C8 (field +116): decrements with wrap to 4, skips invalid rows (sub_2116844), uses sub_21143B4 and sub_2133068 for the modulo, plays a sound on change
+- sub_21161D0: cursor move right on object off_2116214 (field +116): increments with the validity check and wraps to 0 at 5 or invalid rows; plays the sound from off_2116218 on change
+- sub_2116EC0: loops 8 slots: sub_20296D4 gives an index, sub_20294E8 sets the slot to table off_2116EF4[index], sub_20294AC(slot, 1) sets its flag
+- sub_2116888: builds the record-detail screen struct at off_2116A08 from about 18 sub_204799C lookups, converted with sub_20B49BC and sub_20B48B4 into the struct fields
+- sub_2117418: per-frame state machine on off_2117560: copies +52 to +48 and dispatches states 0..11 to their sub-screen handlers (sub_2117D98 for state 0, ...)
+- sub_211756C: per-frame cell/tile map update on off_21176D8: bumps the counter at +56, writes sub_20AE4C0 offsets into the tile map (+24) and sprite positions, skipped when the screen state is 2
+- sub_2117700: yes/no choice handler: gated by sub_21277AC, then sub_2127794: -1 or 0 calls sub_21181B8; 1 sets the choice field +136 = 3 and runs sub_2118024
+- sub_211784C: menu step: calls sub_21184D4 and sub_2118414, bumps the counter at +56; at 10 or more runs sub_21185D4, then the sub-step functions
+- sub_2117BF8: per-frame menu grid layout update on off_2117D70, like sub_211756C: bumps the counter at +56, writes the tile map and sprite positions, skipped when state is 2
+- sub_2117DB0: screen teardown: sets register bits at off_2117E14 from the state, calls sub_211F498 when the state is 2, else sub_211DE34 and sub_211DF38
+- sub_2118E64: per-frame state machine on off_2118F8C: copies +56 to +52 and dispatches states 0..8 through a jump table to their handlers
+- sub_2119544: per-frame tile/cell position update on off_21196B4: bumps the counter at +60, writes sub_20AE4C0 offsets, layout chosen by sub_20CCCB4 (mode 26)
+- sub_21196F4: destructor for the screen object at off_211975C: ORs register bits at off_2119760 (sub_211E130 check), calls sub_211F498 when the state at +0x6C is 2, else the other teardown
+- sub_2119E50: loads the selected entry's asset: index from sub_202968C into the table off_2119E80 by +80, then sub_2029580
+- sub_211A7BC: per-frame state machine for the course/menu screen on off_211A8FC: copies +52 to +48 and shifts the saved fields, then dispatches states 0..8 through a jump table
+- sub_211A908: cell blink dispatcher for index a1: indices 3 and 4 issue paired sub_211A964 calls on the table off_211A960 entries, other indices use the table value
+- sub_211A964: highlights one map cell: bumps the cell counter, calls sub_2124100 (frame 1), then sub_2124BC8 to draw it
+- sub_211B23C: destructor for the course-select screen at off_211B2B0: register bits at off_211B2B4 and the flags at off_211B2C0, then sub_2116DC8
+- sub_211BD10: returns a pointer to the per-state word of object off_211BD78 (+172 or +86 depending on state 0..5); for states 2..5 stores the popcount
+- sub_211C0CC: in mode 2 sets a visibility cell (row +14) and draws a BMG text label (message 20 or 21 by the state at +120) via sub_20B3F7C
+- sub_211C474: refreshes the 8 entry icon/palette slots: for each entry with sub_211D40C set calls sub_20294D4 and sub_202950C with the table value; sets the display state from +104..+116
+- sub_211CA8C: when state +96 is 3 and the sub-state is set, decrements the selection index (+138), redraws via sub_211D844, sets +80 = 6
+- sub_211CAFC: mirror of sub_211CA8C: increments the selection index on off_211CB64, redraws, sets +82 = 6
+- sub_211CB6C: steps the menu state at off_211CC98 backward (the counter at +104+4*state wraps to the table value minus 1), redraws the value or BMG text, then recurses while sub_211CEA8 fails
+- sub_211CCAC: forward counterpart of sub_211CB6C on off_211CDD8: increments the step counter, wraps to 0 at the table off_211CDDC limit, redraws the same way
+
+## Kart physics, racer attach, screen animation and constructors (T016e review, haiku-t016)
+- sub_20FC79C: state handler: calls sub_20F9114(a2); when a1[3]+496 is set runs sub_20ED268 and sub_2046BCC(a2+744, 1); otherwise sub_20FCB9C with the byte from *off_20FC8E8+1140 and sets the state (2 or 3) from flags 0x40000000 and the kart record
+- sub_20FD540: object setup: ORs the flag from off_20FD66C into +120; when no sub-object is attached (+408 null) calls sub_20F9CA8 and sets +416 = 1; calls sub_20F9114
+- sub_20FDC08: per-frame update of an attached sub-object: ORs the flag from off_20FDD6C into a2[53], ticks sub_2046B40 on a1+388; when the input word at a3+2 has bit 0x100 clears a1[102] and releases the object with sub_20F0F70
+- sub_21001AC: when the timer at +216 is above 0 sends parameter blocks via sub_1FF9048 (ids 20, 25, 27 and more) built from the object's model data
+- sub_2100564: per-frame kart tick: when +348 is zero, scales the velocity +376/+384 by dword_21006F8 >> 12 and adds it to the position at +364/+372
+- sub_21009FC: kart state entry setup: sets +360 from the state record's +508 (record 528*id) and copies the vector pairs from the record into +388..+408
+- sub_2100BF0: per-frame update: raises the 16-bit counter at +128 by 5 up to 31, scales the velocities a1[94]/a1[96] by dword_2100DCC >> 12, and for state 18 accumulates velocity before calling sub_2101964
+- sub_2101D90: picks a random valid kart slot as an item target: advances a 32-bit LCG stored at off_2101F60+1148 and scans the kart slots for a valid one
+- sub_21014A0: kart motion step: when +348 is set calls sub_210174C; otherwise scales the velocity by the speed table off_2101610 indexed by +304 (the +620 branch uses the record's +364)
+- sub_21027AC: kart render/attach: when the object at +300 and +408 are set, transforms +80 via sub_20E6CF8 and then the model
+- sub_210298C: large per-frame kart physics: calls sub_21031F4 for state 63 and sub_206924C per slot for state 143, then the common update
+- sub_2102EB8: kart re-init from the state record at off_2103008: copies +152..+160 into +80..+88, calls sub_20748A8 and sub_20F82A4(0), sets +300 = sub_207A974(slot)
+- sub_2103DB0: fills a 52-byte billboard/marker entry at off_2103FE4 + 52*a1: advances a 64-bit state at off_2103FE0+1176 and writes the derived values
+- sub_2104000: updates the per-cell bitmask bytes at off_2104114 around index a2 using the bit pattern (1 << a1 .. 1 << (a1+4)) from a1
+- sub_2104118: dispatcher: calls the function pointer off_2104138 with off_210413C when the flag at *off_2104134 is set, else with off_2104140
+- sub_2104368: per-frame update: when the counter at *off_210447C is nonzero calls the function pointer at +36 of each 52-byte entry from off_2104480 and ticks the counter
+- sub_210465C: per-frame sound/effect tick: when the sequence counters match and the flag is set plays handle 6 (sub_2108E6C(6), sub_212C6F0) and sfx 239; updates four vertex words
+- sub_2104C68: object setup: calls sub_20F9114, ORs the bit from off_2104D70 into +120; when +312 is set sets sub-object +176 = 1; when record flag 0x10 is set calls sub_20F3150 and plays sound 218
+- sub_2104FF8: mode-2 per-frame loop over 8 slots: counts down the per-slot timers for karts in state 19 and calls sub_20F0044 or the timeout handler
+- sub_21055B0: sound selector: argument 0 or 50 picks a duration from table off_21057C8 (off_21057D0 for 50) and plays the SFX via sub_212ECC0
+- sub_2111684: accumulates a hash over about 50 table entries: sub_204799C lookups combined with sub_20B496C and sub_20B4A7C; returns the result through sub_211E074
+- sub_2111F54: animation step on object off_2112090: when sub_211145C() == -1 in state 6 calls sub_2111450(12); bumps the counter (+84), writes the sub_20AE4C0 value into the map cells (+92 and the row cells)
+- sub_21121D4: animation step on object off_211237C: sub_21137F4, then a base value (0, -256 or dword_2112380) chosen from the state at +108, written into the map cells
+- sub_21123A0: mirror of sub_21121D4 on object off_2112548 with the base value from state +108 inverted
+- sub_21128CC: animation step on object off_21129D4 (same pattern as sub_2111C78); counter >= 10 calls the next handler
+- sub_2112A0C: animation step on object off_2112B24 (values at +92 and +100); counter >= 10 calls the next handler
+- sub_2112BB4: large 2D screen constructor (1438 bytes): sets the display control registers for both engines and allocates the screen objects
+- sub_21134D4: resets screen object off_21136B8: state +80 = 0, counter +84 = 0, +88 = 0, +92 = -192, +96 = 0, and blanks the map slots
+- sub_2114604: computes masked offset values from struct off_2114650 (+96..+112) and stores them into three registers
+- sub_2114754: animation step on object off_2114870 (counter +92): writes sub_20AE4C0 values into the map slots and +112
+- sub_211489C: animation step on object off_2114AA4 (counter +92): redraws a set of map slots when flag +132 is set, stores computed values
+- sub_2114C48: if sub_2125F54() is set toggles the flag at +132, calling sub_2114174 to clear the selected record unless sub_2125F60 is set
+- sub_2114CB0: animation step on object off_2114DD0 (counter +92): writes computed values into the map slots and +112
+- sub_2114DFC: animation step on object off_2114FD4: base value (0, -256 or the table value) chosen by +120 after sub_2116084; writes the map slots
+- sub_2115000: same as sub_2114DFC on object off_21151D8 with its own table value
+- sub_211553C: animation step on object off_2115660 (counter +92): writes computed values to the map slots
+- sub_2115728: constructor for a 164-byte 2D screen object (global off_2115B20): sets the display registers and allocates the object with sub_2036BEC
+- sub_2113F34: populates the record-list screen struct at off_2114108 from about 18 sub_204799C lookups converted with sub_20B49BC and the related helpers
+- sub_2115CA0: sets state +88 = 11 on object off_2115CC0, resets the counter (+92), calls sub_2128374 and then sub_2116244
+- sub_2115CC4: sets state +88 = 10 on object off_2115CE8, resets the counter, calls sub_2125FC0 and then sub_2125ED0(0, 5)
+- sub_2115D08: sets state +88 = 8 on object off_2115D88, resets the counter, fetches the selected record name via sub_2116870 and sub_2114298
+
+## Menu/choice screens, screen constructors and text helpers (T016e review, batch 2, haiku-t016)
+- sub_20FF6D8: per-frame physics step: when flag 0x80000 is set and sub_20B2EC0 is false, integrates a1[37..45] with the input a1[76] and a1[78] (scaled by 164 >> 12)
+- sub_2100704: kart action state machine tick: takes the record for the kart id (528 stride, id 8 when negative) and switches the state (+340/+344) to the queued action
+- sub_2100DE4: kart item/state machine tick: when state +320 is 8 and +304 > 110 sets +352 = 15 and picks the next state (4 with flag 0x8000000, else 5)
+- sub_2101014: item-use selection from the per-kart record table off_2101164 (528 stride, index +80): returns 15 when the record state is 19 or busy, 16 check, otherwise the selected item
+- sub_2101178: per-frame kart position update: takes the matrix from sub_2061808 for +364/+368 offsets and pops queued actions via the table off_2101360
+- sub_2104A0C: per-frame item/kart effect dispatcher by flags at +116: 0x180000 selects sub_20F6E58 (0x80000) or sub_20F758C (0x100000), else the 0x8000 and 0x4000 handlers
+- sub_21057F0: sound-id selector: when the result is 3 maps the argument (1..7) to a sound id and runs sub_212DA38 and sub_212DA2C (sound handle setup)
+- sub_211256C: menu/selection input handler: reads the button/touch flag words at +736 of several UI objects, calls sub_21137F4 and sub_21136F8
+- sub_2115204: menu/selection input handler for screen off_2115514: calls sub_2116084, sub_2115FD4 and sub_2116870 for hit-testing and the selection
+- sub_2115D90: sets state +88 = 7 on object off_2115DB8, resets the counter (+92), calls sub_21282C8 and plays sound 5 via sub_212ECC0
+- sub_2115DC0: sets state +88 = 6 on object off_2115DF4, resets the counter, and picks a value from +120 (1 or the default)
+- sub_2115E20: sets state +88 = 3 on object off_2115E40, resets the counter, calls sub_2128374 and then sub_2116244
+- sub_2115FD4: per-frame step on object off_2116068: while sub_211606C passes and the pending counter (+124) is nonzero, sets +128 from +116 for state 7 and calls sub_21162CC
+- sub_21162CC: detail/info panel renderer for object off_2116610: same layout as sub_2113A3C (draws the selected record name and fields)
+- sub_2116624: refreshes the 5-row list highlight state on object off_2116824: clears row cells and sets the highlight from sub_2116870
+- sub_2116A4C: formats a packed 3-byte date into a text buffer with '/' or '.' separators (mode from *off_2116B4C)
+- sub_2116B50: writes the number a1 as glyphs into a text buffer: values of 10 or more go to sub_2124FAC; below 10 a leading zero glyph is written first
+- sub_2116B80: thin wrapper: returns off_2116B88(a1, a2, 1)
+- sub_2116CB0: u16 setter: writes 48 (mode 0) or dword_2116CC8 (mode 1) to *result
+- sub_2116CCC: same as sub_2116CB0 with the default 58 and dword_2116CE4 for mode 1
+- sub_2116D24: per-frame animation tick: the counter at +40 advances the frame index (+36) every 4 ticks, wrapping at 3
+- sub_2116DD4: allocates a 44-byte object into *off_2116E5C and fills its three sub-objects from sub_204799C lookups via sub_20B48B4 and sub_20B49BC
+- sub_2116E70: loads three values via sub_204799C lookups and sub_20B48EC / sub_20B49BC into local words
+- sub_2116EF8: race-setup helper: popcount (sub_202056C) of a per-player byte, with the count compared to 8 and the slot result stored
+- sub_2116FB0: variant of sub_2116EF8 using sub_203BEA4 and sub_203BA84 and sub_20294FC
+- sub_2117060: sub_203BEC0 init, then a popcount count as in sub_2116EF8 and the fill of 8 slots
+- sub_21170F8: sub_203BEC0 init, popcount count as above, then clears the slots from the count onward
+- sub_211717C: allocates a 4-byte object into *off_211719C and stores the result of sub_203BEDC in it
+- sub_2117224: allocates a 24-byte object into *off_2117294 and fills its two sub-objects from sub_204799C lookups via sub_20B49BC and sub_20B48B4
+- sub_21172A8: same as sub_2117224 for the object at off_2117318
+- sub_211732C: loads three values via sub_20B496C, sub_20B48EC and a 3-entry loop from sub_204799C lookups
+- sub_2117388: identical to sub_211732C with the off_21173D8 tables
+- sub_21173E4: masks two words: off_211740C = (-65536 * (object +64)) & dword_2117408, then clears bits of off_2117410 with dword_2117414
+- sub_211775C: choice handler: when sub_2127788 (yes/no) fires calls sub_2118038; otherwise reads off_211779C
+- sub_21177C0: choice handler: -1 calls sub_21181B8; 0 calls sub_21185EC and sets +136 = 1; the other results follow the same pattern through sub_2127794
+- sub_21178B0: main menu input handler (756 bytes): touch hit test via sub_201EA84, D-pad moves and the sub-state calls sub_21184D4 and sub_2118414
+- sub_2117E24: screen constructor (448 bytes): sets display bits, allocates a 140-byte object, and sets the display register when sub_20CCCB4 is not 24 or 12
+- sub_2118088: sets state +52 = 8 on object off_21180F0, resets the counter (+56), and takes two BMG message ids (93/95 or 2x) via sub_20B3F7C
+- sub_2118148: sets state +52 = 5 on object off_2118180, resets the counter, and fetches BMG messages 4 and 2 via sub_20B3F7C
+- sub_21181FC: sets state +52 = 0 on object off_21183D8 and resets the counter; when the input flag is not 2 rebuilds the tile map from +4
+- sub_2118458: per-frame highlight for 4 cells: sets map flags at +24 and calls the cell-highlight helper when the input flag is not 2
+- sub_2118624: refreshes the result/card display (390 bytes): BMG text draws, clears cells, and the ranking record lookup through sub_211DE00
+- sub_2118814: rebuilds the row highlight map (188 bytes): for 8 rows clears 5 cells and sets the highlight entries
+- sub_21188DC: when the state at off_21189B0 is not 2, rebuilds fixed map cells (+24/+28 = 1) and draws 8 items via sub_2124A68 and sub_211DED0
+- sub_21189F4: per-slot availability/count check by the mode at +60 (switch 0..4) via sub_202967C
+- sub_2118E30: sets two scroll/offset words from obj+68 and obj+72 masked with dword_2118E58 and stores them
+- sub_2118F98: select-grid per-frame map update (380 bytes): bumps the counter (+60) and writes the grid cells when the input flag is not 2
+- sub_211913C: choice-state handler: switches on +64 (0..3): result -1 or 1 calls the next state setter
+- sub_2119208: yes/no choice handler: when sub_2127788 fires calls sub_2119A38; otherwise checks the input flag at off_2119258
+- sub_2119260: choice wait: modes 0, 1 and 3 poll sub_21277C8; mode 2 waits 15 frames then polls sub_2127788
+- sub_21192C4: state step (118 bytes): calls sub_2119D78, bumps the counter (+60); at 5 sets +84 = 1 and advances the state
+- sub_2119340: menu cursor input handler (450 bytes): touch hit test (sub_201EA84), up/down/left/right moves through the cursor at off_2119504+736
+- sub_2119770: results/ranking screen constructor (590 bytes): sets display bits for both engines and allocates a 112-byte screen object
+- sub_21199F8: state setter (60 bytes): sets +56 = 8 and the counter +60 = 0 on the object, then reads the value at +64
+- sub_2119A38: state setter (80 bytes): sets +56 = 7, resets the counter (+60), then branches on the value at +64 (3 or less)
+- sub_2119AC4: state setter with varargs (208 bytes): sets +56 = 5, resets the counter, and fetches BMG messages through the va list
+
+## Course-select, results and roster screens (T016e review, batch 3, haiku-t016)
+- sub_2119C20: state 0 reset (306 bytes): zeroes the counters (+56, +60) and rebuilds the tile map from the state at off_2119D58
+- sub_2119E88: draws the two result rows for the selected entry (470 bytes); skipped when the screen state at off_211A060 is 2
+- sub_211A07C: per-frame loop over 4 entries: sets the map flag at +32 and calls the entry handler; skipped when the state at off_211A0F0 is 2
+- sub_211A100: results/ranking screen draw (650 bytes): clears and sets the map cells and the name rows; skipped when the state at off_211A38C is 2
+- sub_211A794: scroll/offset update (22 bytes): off_211A7B4 = (-65536 * (obj+92)) & mask, then tail-calls off_211A7B8
+- sub_211ABD0: choice handler (78 bytes): gated by sub_21277AC, then sub_2127794 with a switch on -1, 0 and 1
+- sub_211AC24: choice handler (72 bytes): when sub_2127788 fires calls sub_211B9EC and then sub_2127794
+- sub_211AC88: state step (94 bytes): calls sub_211C818 and sub_211C14C, bumps the counter at +56 of off_211ACE8
+- sub_211ACEC: course-select input handler (688 bytes): touch hit tests, then sub_211C818 and sub_211C14C to refresh the grid
+- sub_211AFD0: state step (152 bytes): sub_211C818 and sub_211C14C, then bumps the counter at +56 of off_211B068
+- sub_211B07C: per-frame map update for the course-select grid (372 bytes): sub_211C818 and sub_211C14C, bumps the counter at +56 of off_211B1F0
+- sub_211BA1C: state setter: sets +52 = 5, resets the counter (+56), shows BMG messages 4 and others via sub_20B3F7C
+- sub_211BAAC: state setter: sets +52 = 2, resets the counter; when the mode at +44 is 1 or less calls the next setup function
+- sub_211BD84: per-frame race/result state machine (504 bytes): when sub_20CCCB4 returns 8, 9 or 15 calls sub_2029520 and sub_20295A0
+- sub_211BF94: per-frame scan of 8 entries (92-byte stride): cell hit test, skipped when the state at off_211C0B8 +120 is 2
+- sub_211C14C: refreshes cell visibility for the 2-entry panel (off_211C450) when the state at off_211C44C +32 is 2
+- sub_211C5AC: selection-cursor navigation over 8 entries using sub_211C810 to set the per-entry flags
+- sub_211C818: clears or sets the per-cell flags for the 5x2 entry areas (608 bytes); branch on the state at off_211CA78 +32 == 2
+- sub_211CDEC: returns true when sub_211D478(0) and sub_211D478(1) are both nonzero and sub_211D3A8() != 2
+- sub_211CE24: checks the state at +44 of off_211CE9C: states 0 and 1 need sub_211D650() == 1; states 2..5 check the value at +4 of off_211CEA0 against 8 and 9; other states return 0
+- sub_211CFD0: assigns each of 8 slots a random value (sub_20AE3B4 or the 64-bit generator) after sub_211D650
+- sub_211D09C: same random slot assignment as sub_211CFD0 over the count of entries
+- sub_211D2F0: random pick helper: when sub_211D62C is nonzero, writes a value chosen by the state at +44 (switch 0..5)
+- sub_211D3A8: returns 2 when the pool flag at +108 is clear, else the leading group: compares sub_211D478(0) with sub_211D478(1)
+- sub_211D4A8: recursive cursor step (-1) on off_211D55C: moves the index at +96 with wrap, redraws through sub_211D844
+- sub_211D56C: recursive cursor step (+1, bound 5) on off_211D61C, same pattern as sub_211D4A8
+- sub_211D66C: redraws the 2-slot results panel for mode 2: cell flags and sub-objects, skipped unless the state at off_211D830 +32 is 2
+- sub_211D910: same as sub_211D844 but clamps its argument to 1..10 (values below 1 become 1) and stores it in +136
+- sub_211DB30: copies five colour/tile values for row a2 from the table off_211DB88 when the mode at off_211DB84 +44 is 3
+- sub_211DE40: allocates a 12-byte object into *off_211DE88 and fills its three fields from sub_204799C lookups via sub_20B49BC
+- sub_211DF44: allocates a 16-byte object into *off_211DFA0 and fills its four fields from sub_204799C lookups
+- sub_211DFB4: same as sub_211DF44 for the second 16-byte cup-mark object at off_211E010
+- sub_211E024: loads three resource values from sub_204799C lookups through sub_20B496C
+- sub_211E0C4: jump dispatcher on a1 (0..4): 0 tail-jumps sub_20442D0, 1 calls its function pointer, other values follow the same switch
+- sub_211E160: switch on a1 (0..4): slot 0 checks the roster record through sub_204684C and sub_206174C; slot 1 checks the word at +16 != -1; slot 2 checks sub_2060228 and sub_20908D0
+- sub_211E1F0: switch on a1 (0..2): returns the sub_2061678 result for the record of roster slot a1, or -1
+- sub_211E274: same as sub_211E1F0 but reads the record through sub_206169C
+- sub_211E2F8: switch on a1 (0..2): copies a 48-byte roster record via the helper for slot a1
+- sub_211E38C: switch on a1 (0..2): picks a 48-byte roster record and calls its handler through a function pointer
+- sub_211E480: allocates a 20-byte record into *off_211E4E4 and fills its fields from sub_2061644(a1)
+- sub_211E51C: per-frame menu/results update of off_211E650: copies +48 to +44 and dispatches on that state
+- sub_211E65C: animates a background panel off_211E7A4: bumps the timer at +52 and computes two offsets, skipped when the state at off_211E7A8 is 2
+- sub_211E7C0: same as sub_211E65C for off_211E908 with the offsets (0, 192) and (-192, -32)
+- sub_211E924: destructor-like: calls sub_211F498 when the state at off_211E950 is 2, otherwise sub_211DE34
+- sub_211EB28: sets state +48 = 1 and +52 = 0 on object off_211EC38 and, when the touch flag is set, runs the touch handler
+
+## Info strips, lock brackets and small setup (T016e review, batch 4, haiku-t016)
+- sub_211DE98: loads two resources: sub_204799C lookups fed to sub_20B49F4 and sub_20B48EC
+- sub_211F328: loads three resource values: sub_204799C lookups fed to sub_20B496C, sub_20B48EC and a third helper
+- sub_211F380: calls sub_211F598 for a value, then tail-calls sub_211F5D0 with it
+- sub_211F39C: refreshes the info/result strip object off_211F3E4: copies +32 to +28 and dispatches to sub_211F3E8 (state 2) or sub_211F440
+- sub_211F3E8: animation tick on object off_211F438: bumps +36, writes sub_20AE4C0 (192 base) into the cell rows
+- sub_211F440: mirror of sub_211F3E8 on off_211F490 with the 192 base on the other axis
+- sub_211F598: sets state +32 = 2 and +36 = 0 on object off_211F5C8, clears the strip cells, returns 0
+- sub_211F5E4: sets state +32 = 0 and +36 = 0 on object off_211F614, sets the cell flags to 192 and returns the cell pointer
+- sub_211FF74: when the word at *off_211FFA8[0] +7992 is set, clears bit 2 of the halfword at off_211FFAC +1884 and returns the +1792 pointer
+- sub_211FFB0: when a2 is nonzero brackets sub_2036B30(object, a2) with sub_200FCA0 and sub_200FCB4 (lock and unlock)
+- sub_211FFFC: same lock/unlock bracket around sub_2036B74(object, a2, a3); returns its result
+- sub_2120054: calls sub_21A321C(off_212008C[0]) and sub_21A3208(off_2120090), then sets the two flag words at +16 and +18 of *off_2120094 to 1
+
+## Sprite/tile drawing, text streams, soft-float, kart-linked model objects (T016f review, haiku-t016)
+- sub_21171A0: per-index draw helper: picks the block value (14 for a6 = 0, 30 for a6 = 1, else 18) and calls sub_2124748 with the table parameters
+- sub_211DD44: loads a group of 2D resources via sub_204799C lookups and the sub_20B496C / sub_20B48EC helpers
+- sub_211F244: wrapper: loads one 2D resource through sub_2124748 from table off_211F2A4[a1], block 14 or 30 by the a7 flag
+- sub_211F2B8: allocates a 16-byte object into *off_211F314 and fills its four fields from sub_204799C lookups via sub_20B49BC
+- sub_211F61C: loads four values via sub_204799C lookups through sub_20B48B4, sub_20B49BC and sub_20B4A44
+- sub_21241C0: loads one 2D sprite/cell: sub_201EA58 lookup, a vtable call at +24, then reads the cell size at +48
+- sub_212463C: draws a tiled block: two sub_2021F1C lookups, then a loop over the block entries
+- sub_2124748: like sub_212463C but uses the table off_2124818 and a different loop
+- sub_2124B1C: computes a 2x2 rotation/scale matrix from the table off_2124BC4 (indexed by a2 >> 4) scaled through sub_2147F34 with dword_2124BC0
+- sub_2124F4C: reads up to 10 characters from a string stream (sub_2133274) into the buffer using sub_2125004
+- sub_2125004: reads up to 10 characters from the stream sub_2133274 until a zero byte; returns the count
+- sub_212586C: text pipeline: measures and wraps the string with sub_21253F8 into a 510-halfword buffer
+- sub_2125BA4: writes the BG control registers for engines A and B via masked bit merges
+- sub_212D5F8: initialises a 48-byte header at a1 from the loaded data at a2 (copied with sub_214D02C) and fixes up its pointers
+- sub_212D968: saves the sound state from sub_2021114, sets sub_20211E4(1), then restores it through sub_2021154
+- sub_212DE34: loads and registers the sample region for record a2 of stream a1; returns 1 when sub_2021968 already has it
+- sub_2130304: soft-float helper: normalises a signed 32-bit mantissa by its count of leading zeros
+- sub_2130340: soft-float helper: absolute value of a signed 32-bit mantissa, normalised with clz
+- sub_21323C4: soft-float int32 to f32 normalisation and rounding (clz, exponent base 158)
+- sub_2132440: soft-float signed int32 to f32 conversion with sign handling
+- sub_2133DDC: read-modify-write of the word at sub_2142578(): new = (old & ~a1) ^ a2; returns the old value
+- sub_213446C: stream commit: delta = field at a1+36 minus a1+28, stored at a1+40 and passed to the callback
+- sub_213BFA4: strtol-style 32-bit integer parse with a range check (up to 0x7FFFFFFF) through sub_213C560 and the table off_213C06C
+- sub_213C94C: stream status query: returns 0 for a null stream, else -1 or 1 from the status bits at a1+4
+- sub_218050C: overlay-9 entry refresh: calls sub_21805CC and sub_20AE718, and clears the flag at a1+4 when sub_218059C reports completion
+- sub_2180AF4: read-modify-write of the 16-bit control register at off_2180B28: keeps the 0x43 mask and ORs (a1 << 14) | (a2 << 7) | the third field
+- sub_2180B74: writes the word at off_2180B9C = (a1 & dword_2180B94) | (dword_2180B98 & (a2 << 16))
+- sub_21811A8: marks the grid object at off_21811DC dirty: when its +12 flag is clear sets +16 = 1 and +12 = 1
+- sub_21811E0: grid cell address lookup: returns a pointer to the cell byte for (x, y) in the grid table at off_2181244, or 0 for a negative index
+- sub_2181694: init helper: finds the table entry sub_2100138(108) and writes a4 and ~a4 into its entries, storing a4 at +4 of a1
+- sub_2182530: resets a list of kart-linked objects from their source records
+- sub_21826DC: init of a model object: creates it with sub_219B458(a1, off_218271C), then sub_219B2C8, sub_209B940(obj, 63) and sub_209BA08(obj, 2)
+- sub_21827D0: walks the kart-object list from sub_2100138(104) and handles the state-9 objects that lack the flag
+- sub_21828D0: walks the same kart-object list and handles the state-0 objects that lack the flag
+- sub_2182F78: draw routine for object a2 when its timer (+176) and +160 are nonzero; a variant of sub_218261C with different display data
+- sub_2183830: state-8 entry: sub_21871F8(a1, 8, 0), positions the object from +160 offsets 120 via sub_2188D44, then sub_2188C70 and sub_2188CCC
+- sub_2183B7C: state-2 setup from the +160 offsets 128..144 with the animation off_2183BE4 (sub_21871F8, sub_2188D44, sub_2188C70, sub_2188CB8)
+- sub_2183BE8: state-2 setup from the offsets 232..240, then the tail call sub_2184E4C
+- sub_2183C34: state-2 setup from the offsets 244..252 and dword_2183C98/9C, with an animation
+- sub_2183CA8: state-2 setup with an angle from sub_207A974 + 128 and a range check
+- sub_2183DCC: state-5 setup via sub_2188D10 with the offsets dword_2183E10/E14, then the tail call sub_2188CCC
+- sub_2183E20: state-5 setup: builds a local vector from the offset dword_2183E84 and sets the state
+- sub_2183EB4: state-5 setup via sub_2188D10 with the offsets dword_2183EE4..., then sub_2188CCC
+- sub_2184140: state-8 setup: sub_21871F8(a1, 8, 0), sub_2188D44 with the +160 offsets dword_21841A8 / dword_21841AC, then sub_2188C28 with the offset dword_21841B0
+- sub_2184294: if the slot at a1 + dword_21842BC is negative, sets the animation off_21842C0, the slot dword_21842C4 = 7 and dword_21842C8 = 0
+- sub_21842CC: state-7 setup: sub_21871F8(a1, 7, 0), then sub_2188D10 with the offsets 350 and 354 from +160
+- sub_2184370: sets the animation off_2184388 and writes state 11 into the slot at dword_218438C
+- sub_2184CD4: when sub_21881EC() is false sets state 0 (sub_21871F8); otherwise a state-5 setup with its offsets
+- sub_2184D7C: same as sub_2184CD4 with the offset slots dword_2184DE8..DF4
+- sub_2184F98: returns (a1 + 8 >> 12) + the value at *(a1+128)+20
+- sub_2184FB8: setter: result[1] = (a2 - base[16]) << 12 and result[2] = (a3 - base[20]) << 12, where base = result[32]
+- sub_2185484: if sub_20CCCC0() is set: sets the display/BG mode via sub_21854D4(25), sub_2148950(1, 0, 0) and sub_21854B8(22)
+
+## Overlay-9 setup, kart-linked objects, animation phases and resource loaders (T016f review, batch 2, haiku-t016)
+- sub_2185518: overlay-9 loader init: when sub_20CCCC0() is set calls sub_21854D4(9) and sub_2148950(1, 0, 1), then loads five files via sub_204799C
+- sub_2185720: builds a BG control register value from five bit fields (mask 0x43) and stores it at off_2185754
+- sub_21857A0: masked write of a1 (with mask dword_21857C0) OR'd with dword_21857C4 & (a2 << 16) into off_21857C8; returns the word
+- sub_2185B78: returns sub_209BFA8(off_2185B94, 0, 0, 0, 1): object/model lookup
+- sub_2185C80: setup/copy: sends parameter blocks via sub_1FF9048 (id 20 with value 30 among them) and sets +76 = (+4) >> 4 on the object
+- sub_2187DE0: allocates a type-201 object via sub_20AC524 and on success sets its fields from the table
+- sub_2188064: same as sub_2187FE0 with table off_21880DC and offsets: finds the kart object for slot (+98) via sub_207A974 and checks flag 0x40 at +72
+- sub_2188A10: sets a mode field to 7 or 8 when it already holds 7 or 8, otherwise keeps the value
+- sub_2188E74: one-shot callback invoke: reads the function pointer at *a2, clears it, then calls it
+- sub_2188EE4: XZ-plane circle hit test: offsets from a1+4 and a1+12 to the point a2 (via sub_21484D0), compared with the radius; returns 0 when a2 is null
+- sub_2189EB8: object update: when sub_2187C2C is true resets the object with sub_2187BDC, then sets the state word at dword_2189FB0 = 2
+- sub_2194FB8: clears and redraws one of four list rows (a1): resets the cell words at the row's table entry, then writes the row values
+- sub_21956E4: read-modify-write of two register-like words at off_219571C from dword_2195720/24
+- sub_219572C: writes three fixed-point register words (off_2195778 and the next two) from the object at off_2195770 +92 and the constant dword_2195774
+- sub_21968E4: calls sub_2117218, clears the flag at off_219692C, then refreshes from dword_2196934
+- sub_2196EAC: state 9 setup: sets state +84 = 9 on object off_2196F38 and loads the BMG message string into a 263-halfword buffer
+- sub_21974EC: cursor/highlight refresh for selection a1: toggles the highlight cells at the table off_21975B8 when a1 is nonzero
+- sub_2197B14: register setter: writes (-65536 * (state +36)) masked with a constant into off_2197B30 and returns the pointer
+- sub_2197BBC: animation step (phase 5) on off_2197C60: bumps the counter at +32 and eases the values 224 and -192 with sub_20AE4C0
+- sub_2197FF4: animation step (phase 0) on off_21980A4: bumps the counter at +32 and eases the values 224 -> 0 and -192 toward 0
+- sub_2198244: hides cell a1: clears the flag in the +12 table at off_2198270 and calls sub_2124A20 with the cell index from off_2198278
+- sub_219827C: shows cell a1: sets the flag in the +12 table at off_21982A8 and calls sub_2124A20 with the index from off_21982B0
+- sub_2198364: results/ranking screen loader: reads resource pointers and NSCR/NCLR-style data for the results screen (254 bytes)
+- sub_219848C: loads the results-screen NSCR/NCLR-style data through helper calls (120 bytes)
+- sub_2198858: UI refresh: sets or clears bit 1 of the control word at off_21988DC depending on the flag at *off_21988D8 +60
+- sub_2198A4C: refreshes five display rows (214 bytes): sets the cell flags and reloads the row data from off_2198B24 / off_2198B28
+- sub_2199354: getter/setter: reads a 2-bit mode from the flag byte of the object at off_2199390 and returns it
+- sub_2199400: sound helper: switches on state +12 of the object at off_2199440 and calls the sound helpers (sub_2108E9x family) for each case
+- sub_2199A00: refreshes two rows: sets the cell flag at +28 when the index matches, using off_2199A60 and off_2199A64
+- sub_2199F24: screen init: heap-allocates a 52-byte state (sub_2036BEC) into off_219A020 and sets up the screen fields
+- sub_219A058: updates two control-register-like words at off_219A090 with the masks dword_219A094 / dword_219A098
+- sub_219B23C: allocates a 56-byte sub-object (sub_2036BEC) into a1[8]
+- sub_219B360: allocates a 56-byte sub-object into a1[9] after sub_219B4B8(a2)
+- sub_219B3F8: builds a 44-byte actor object: allocates a 116-byte sub-object and the 44-byte record into the actor's fields
+- sub_219C3CC: file/list screen input: by state +4 (3 or 4) handles the file-list selection and sets the fields +76 = 4 and +80 = 0
+- sub_219C6D0: sets up a text/name buffer (zeroed locals) and calls sub_21A36E4 to allocate the entry
+- sub_219CEA4: writes the cell position and palette words for a 3-row cursor at off_219CF24
+- sub_219CF40: draws a tile block: loops a tile-index rectangle from the table off_219D000 using the index at +8 of off_219CFFC
+- sub_219D838: updates the header and two row text/cell positions from the object at off_219D904
+- sub_219DD74: per-frame animation step on off_219DDF0: bumps the counter at +20 and writes sub_20AE4C0 values (with a random seed) into the cells
+- sub_219DE38: loads five 2D resource descriptors via sub_204799C lookups and sub_20B4934
+- sub_219E8B8: init: gets the current heap via sub_20364E8 / sub_20364E0 and allocates the object of size dword_219E8E4 into off_219E8E8
+- sub_219E9C0: menu init: gets the heap and allocates the object of size dword_219E9EC into off_219E9F0
+- sub_219EA6C: creator: allocates a 4-byte object via sub_2036BEC into off_219EA90
+- sub_219EAB4: per-frame state machine for object off_219EB3C: copies +32 to +28 and dispatches on the state
+- sub_219EB40: state 5 tick: increments the counter at +36 and applies random offsets to the cell values
+- sub_219EF04: state 1 tick: calls sub_21059E0 and increments the counter at +36 of off_219EFA4
+- sub_219F284: resets a 7-row x 11-cell grid on object off_219F2EC: clears the cell words for each row
+- sub_219F83C: loads six 2D resource descriptors via sub_204799C lookups and the sub_20B helpers
+- sub_219FB3C: choice-screen state: sub_21055B0 then sub_21A0600 with the sound value, then sub_21277AC gate
+- sub_21A0714: confirm/select helper: sub_202947C(row + 1), then reads the selection through sub_2029608 and sub_20295F8
+- sub_21A1184: getter: writes (-65536 * (object +48)) masked into off_21A11A0 and returns the pointer
+
+## Race-mode state block, slot events and results panels (T016f review, batch 3, haiku-t016)
+- sub_211EC54: counterpart of sub_211EB28 on off_211ED64: resets the state fields (+48 = 0 and the related words)
+- sub_211ED80: per-frame layout of the results panel (566 bytes): clears or sets the panel cells, skipped when the state at off_211EFB8 is 2
+- sub_211EFEC: builds the results-screen widgets (540 bytes): loads values with sub_204799C and the sub_20B helpers into the widget structs
+- sub_211F4B0: creates a 40-byte strip/message object into off_211F58C
+- sub_211F77C: mode setter for the stage object off_211F858: when a1 is set calls sub_219C0C0 and sub_21A37A8
+- sub_211F864: when a1 is set sets +7980 = 6 on the state at *off_211F910 + 4096; otherwise checks sub_21525E0 first
+- sub_211F91C: state-machine dispatcher on off_211FA50 +7980: case 1 calls sub_211FA70 and the other states call their handlers
+- sub_211FB44: initialises the transition/screen object off_211FCFC by zeroing its blocks (16, 848 and dword_211FD0C bytes) with sub_214D168
+- sub_211FDA8: returns 1 when the word at off_211FE14 +22 is zero; otherwise returns the sub_21A3748 check
+- sub_211FE44: when +7420 of *off_211FEE4 is set calls sub_2060C0C on the block at +dword_211FEE8
+- sub_211FEF4: when *off_211FF70 +22 == 5 and +7992 is set, calls a handler for the block
+- sub_21200A8: when sub_2120D14() is nonzero sets the control word and returns 1
+- sub_21200FC: when sub_211F91C() is nonzero sets the control and returns 1
+- sub_2120150: per-frame tick: when the object at *off_21201E0 has +7984 set, bumps its timer and runs the next step
+- sub_212034C: per-frame tick of a state object: when the pending field at off_21203F8 is set, runs its handler through off_21203FC
+- sub_2120404: appends a sample (the sub_219DA74 result) to the 60-entry ring at +8023 of the state block, wrapping to 0 at 60
+- sub_2120514: teardown: when the object at *off_2120554 exists calls sub_201797C on it
+- sub_212055C: creates a 32-byte object via sub_2036B74 and stores it at +4 of the object at off_212059C
+- sub_21205AC: creates a 32-byte object via sub_2036B74 into off_21205E0 and sub_2046BE8(obj+8, off_21205E4, 8, 0)
+- sub_21205F4: returns the negated int at +8008 of the state block at *off_212060C
+- sub_2120644: state query: when the word at +22 is set, reads the mode at +8004 and compares it with 3, 4 and 6
+- sub_2120934: phase transition: when a1 is set sets +6376 = 4 on the state at *off_2120A60 + 4096; otherwise the a2 branch
+- sub_2120A64: candidate score for racer a1: three sub_21A2A54 lookups with the table off_2120B70 and the offsets dword_2120B74/78/7C
+- sub_2120C30: score helper like sub_2120A64 with the table off_2120D04 and offsets dword_2120D08/0C/10
+- sub_2120D50: big reset/loader for the state block (864 bytes): calls sub_2120610, zeroes 2320 bytes at +540 and calls sub_2056464 at +552
+- sub_2121418: returns sub_219BB34() as an unsigned byte (the slot count)
+- sub_212145C: per-slot consistency check over the 68-byte slot records (count byte at +8019)
+- sub_2121580: scans the slot mask at +8021 against the flags at +6571 to decide the slot to use
+- sub_21216A8: cycling iterator over the slots, using the cursor byte at +6572 of the state block
+- sub_21219CC: fills the 24-byte-entry display/result table from the state block
+- sub_2121AF4: picks a racer index among the racers whose slot value passes the test (uses a 4-entry temporary array and an 80-byte buffer)
+- sub_21225AC: frame-countdown gate: increments the counter at +6528 of the state block and returns the gate result
+- sub_2122684: rebuilds the 4-entry slot index map at +8014 for the active slots
+- sub_2122818: per-frame timer pass for modes 3..8: sets the pending bits for the mode's slots when the mode at +6480 is 3 to 8
+- sub_2122960: per-frame check for modes other than 11 and 12: resolves pending entries of the state at *off_2122AAC
+- sub_2122B14: for modes 5..8 ANDs the per-slot 68-byte field at +7706 with the mask 255
+- sub_2122BF0: mode 9 handler: appends a type-7 event record (68-byte slot) after sub_21216A8 and the count at +8019
+- sub_2122D74: mode 8 handler: appends a type-6 event record, after sub_21225AC on dword_2122F2C and the slot count at +8019
+- sub_2122F38: mode 5 handler: appends a type-3 event record, after sub_21225AC on dword_212308C and the slot count at +8019
+- sub_2123098: mode 4 handler: appends a type-9 event record, after sub_21225AC on dword_2123200
+- sub_212320C: mode 3 handler: sub_21225AC timer on dword_2123378; sets mode 11 when the slot's +7760 is 2 (via sub_219BB1C and sub_21A2C98)
+- sub_2123384: mode 1 handler: sub_21225AC timer on dword_2123564, emits a 580-byte record through the slot iterator
+- sub_212357C: mode 0 handler: like sub_2123384 but emits type 0/1 records, timer dword_21236F0
+- sub_21236F8: per-frame state-machine dispatcher (828 bytes): runs sub_2122818 and sub_2122960, then switches on the mode at +6480 of *off_2123A34
+- sub_2123A48: state-block initialiser selected by a1 (1592 bytes): 0 = full reset, other values reset subsets after sub_211FE44
+- sub_2124140: for N 6-byte entries clears the mask dword and the entry words
+
+## 2D cells, sound streams, soft-float, string and number parsing, kart-linked objects (T016g review, haiku-t016)
+- sub_212428C: builds and uploads one 2D cell: entry lookup via sub_201EA58, the cell table at a6, reads the cell word at +60
+- sub_21243AC: builds a draw object from the cell data, using a 1048-byte stack buffer for the vertex list
+- sub_2124C70: recursively emits one draw/OAM-like entry, recursing through the child index at +56 until it is -1
+- sub_212513C: string builder: copies the text a1 into a3 and appends the string at a2
+- sub_21251C4: text draw loop over a character stream, using the callback at a1+4 to fetch each character
+- sub_2125960: builds the 2D screen layout: three lookup tables indexed by the state byte at +12 of the object at off_2125B60
+- sub_212D6C4: loads the 48-byte header and then up to three data blocks from the stream (sub_2004840 check, sub_20048AC read)
+- sub_212DD64: iterates the SDAT sequence records via sub_20219F0 looking for a matching entry
+- sub_212E0B8: get-or-create: finds the 60-byte-header stream object for an index through sub_212D254, creating it when missing
+- sub_212EAF8: like sub_212EA28 but loads with sub_212E708 and finishes the setup
+- sub_212F094: per-frame update of 4 sound player slots (352-byte stride)
+- sub_212F1AC: averages two int16 arrays, writing (a + b + 1) >> 1 into a1 for a3 / 2 entries
+- sub_212F1F8: audio mixing loop over int16 sample blocks, 24 at a time
+- sub_212F3F8: audio filter update over int16 buffers (first taps of each block)
+- sub_2131694: soft-float single-precision compare helper (NaN and zero handling; returns 1 when a1 < a2)
+- sub_2132200: soft-float f32 scaling and conversion of raw bits (mantissa and exponent handling)
+- sub_21332D0: unrolled 32-step shift/subtract table, entered at the 12-bit step: soft-float division core
+- sub_213428C: soft-float exception dispatcher: reads the FP state through sub_2142584 and calls the matching handler
+- sub_2134540: 848-byte buffered transfer routine: checks the stream status with sub_213C94C (flag -1 when not ready) and computes the transfer size a2 * a3
+- sub_21349C4: per-handler state machine step for a 0x124-byte stream object; calls sub_21343B0 when the handler is null
+- sub_2134B18: copies a NUL-terminated 16-bit string through a 32-byte buffer
+- sub_2134BD4: strncpy-like converter from an 8-bit string into a 16-bit buffer, the length from sub_213A434
+- sub_2136F14: converts a 64-bit value to a decimal digit string (repeated division by 10)
+- sub_213770C: text-to-number parser (strtod/strtol-like, 2964 bytes) with 64-bit results
+- sub_2139F70: strstr: finds the substring a2 within a1 and returns a pointer to it (or 0)
+- sub_213A2D0: strcpy with a word-aligned fast path; returns the destination
+- sub_213A450: thin wrapper: calls the function pointer off_213A45C with (a1, 0)
+- sub_213BF90: thin wrapper: calls the function pointer off_213BFA0 with (a1, 0, 10), a base-10 parse
+- sub_213C074: strtol-style signed parse with ERANGE handling (errno 34 on overflow)
+- sub_213C110: 64-bit integer parse core (strtoull-style) for bases 2..36, setting the end pointer and the overflow flag
+- sub_213E468: wide-character text-to-number parser, the 16-bit twin of sub_213770C
+- sub_21805E0: thunk: clears *off_21805EC and returns sub_21805E8()
+- sub_218109C: remaps each grid cell through a halfword lookup table
+- sub_2181254: constructor for a grid/map working object: a 48-byte struct allocated with sub_2036B74 (32-byte alignment)
+- sub_21816FC: thunk: when the state byte at +47 of the object at *off_2181718 is 4 calls sub_2181A80, otherwise the other kart step
+- sub_2181C1C: per-frame state machine (978 bytes) dispatched by a jump table on the state word at +24
+- sub_2182516: thunk: indirect call through a function pointer with no arguments
+- sub_2182A1C: walks the object list (sub_2100138(104)); handles the state-7 objects before the remaining entries
+- sub_2182D10: like sub_2182BBC but spawns a state-3 object with its position taken from sub_207A974
+- sub_21832AC: per-object behaviour dispatcher: tests the racer state (+8 == 4) and the flags through sub_21871D8 and sub_20A1084
+- sub_2183874: per-frame state update: sub_2187FA0 gives a value, then the hit test sub_2188188 uses the +172 and +176 vector fields
+- sub_2184854: 956-byte variant of sub_2184390 using the vector at a2+164/172
+- sub_21852D8: constructor: allocates a 24-byte header and the entry array with sub_2036BEC
+- sub_2185DB0: object constructor/init: sub_20D2450(a1), derives the angle and stores it at +126
+- sub_2185F90: same shape as sub_2185EE4 but against the points at a2+128 / a2+136
+- sub_21872C0: spawns up to 5 effect/sprite slots (24-byte entries) with a 4-word parameter list
+- sub_2188298: loops over the sub_2181B10 entries and initialises each record for the mode at +8 == 4
+
+## Result rows, dialog and screen state ticks, soft-float 64-bit routines (T016g review, batch 2, haiku-t016)
+- sub_2194A30: initialises the menu cell-highlight state on off_2194C44 (scroll and highlight words, +100 = 0)
+- sub_2194D58: refreshes the selection display: toggles the cell flags and calls sub_2016468 when sub_2194CE4 passes
+- sub_21950DC: fills one of the four result/list rows (a1) from the per-course data (648 bytes)
+- sub_21956BC: (ov9_000, poorly decompiled) compares two type/string pairs from off_21956E0 and returns the result
+- sub_2196940: message/dialog box constructor (670 bytes): sets four control words and allocates the box objects
+- sub_2196C2C: input-sequence checker: compares the input mask at off_2196CA4 +368 with the expected sequence
+- sub_21975D4: fills record row a1 from a course/ghost entry lookup (664 bytes)
+- sub_2197894: loads the results/ranking screen resources into the screen struct
+- sub_21986C8: message handler: when sub_2125F60 is set sets state +14 = 14; otherwise runs sub_2125F88
+- sub_2198748: when sub_2036C5C() is true sets display type 1 and shows the object at off_2198798
+- sub_2198B9C: writes the attribute and palette words for the info panel cells of object off_2198CE4
+- sub_2199444: loads the ranking/results-screen resources into the struct via sub_204799C and sub_20B4934
+- sub_2199620: constructor for a 144-byte results-screen object (sub_2036BEC)
+- sub_21997BC: results-screen per-frame update (356 bytes): subtracts counter values and redraws the rows
+- sub_219A238: state 9 (dialog) input: hit-tests the cell bank via sub_201EA84 at the two offsets +736
+- sub_219A59C: state 4 input (option/choice menu): hit-tests the buttons and sets the cursor
+- sub_219B854: state 2 input (yes/no/button): hit-tests via sub_201EA84 and calls sub_219C284 on a hit
+- sub_219C764: screen/VRAM bank init: sets bits in two control registers (off_219C7C0 and off_219C7CC)
+- sub_219CA74: when sub_2128294 (the return button) reports a press sets the state at +40 = -2
+- sub_219DABC: per-frame input handler for a cursor/choice screen (626 bytes): reads the touch and button words and moves the cursor
+- sub_219DF50: constructor for a screen object: 88-byte heap allocation into off_219E074
+- sub_219E36C: loads about 20 2D asset descriptors via sub_204799C and the sub_20B496C helper
+- sub_219E6CC: constructor for another screen object: heap allocation (dword_219E7E8 bytes) and field setup
+- sub_219F6C0: builds a 2D screen's resources: loads the descriptors through sub_204799C
+- sub_219F9D8: state 8 tick: increments the counter +104 and applies random offsets to the cells
+- sub_219FF94: state 1 tick: calls sub_21055B0 with the sound entry and then advances the counter of off_21A00D0
+- sub_21A0408: sets state +100 = 5 and counter +104 = 0 on off_21A0460; looks up two BMG strings
+- sub_21A04D0: screen init/reset for grid object off_21A05D8: zeroes the cell words and the counters
+- sub_21A0754: refreshes the info panel for the selected record (330 bytes) using sub_2029608
+- sub_21A0984: palette fade: interpolates two 16-entry BGR555 palettes at off_21A0B10 by the fade counter
+- sub_21A0E5C: loads 2D screen resources via sub_204799C and the sub_20B49 helpers (486 bytes)
+- sub_21A1098: init for a screen object at *a1: stores two words and sets the state
+- sub_21A124C: state 6 tick: increments the counter +44 of off_21A1364 and writes random offsets through sub_20AE4C0
+- sub_21A13B8: state 4 input handler (cursor index +52): cell hit test, then sub_21A1AE8 on a hit
+- sub_21A16C4: state 1 tick: like sub_21A124C for object off_21A17EC with the 224 base
+- sub_2121F4C: event dispatcher for slot a1 (1624 bytes): validates the event record (mode at +6480 and slot count at +8021) before dispatching it
+- sub_212481C: draws a row of tiles using a 16-slot occupancy bitmap
+- sub_2124C30: walk like sub_2124BF0 that calls sub_2124C70 for each child entry (62 bytes)
+- sub_2125028: creates a 2D text/window layer: copies a 20-halfword template into the layer object at off_21250A0
+- sub_2125928: second UI/dialog per-frame tick, same pattern as the first, calling sub_2126834 when the pending flag is set
+- sub_212DB24: advances a queue: sub_2017FB4 check (returns -1 on failure), then sub_212D98C
+- sub_212DBEC: drains a list: calls each node's callback for every sub-list entry from sub_2017328
+- sub_212EDAC: iterates the 32 channel/slot entries (via sub_212D38C) and sets their twiddle words after sub_212D5D0
+- sub_212EE8C: IRQ-protected removal of the list nodes in a1 whose field matches (sub_201733C)
+- sub_212F884: 64-bit signed soft-float style arithmetic routine (1416 bytes): sign and exponent handling
+- sub_212FE20: unsigned 64-bit soft-float style arithmetic routine (868 bytes)
+- sub_2130198: soft-float int64-to-float conversion with sign handling (352 bytes)
+- sub_2130380: 64-bit soft-float style arithmetic routine (1756 bytes): sign, exponent and mantissa combination
+- sub_2130A70: 64-bit soft-float style routine (564 bytes) with a signed compare against dword_2130CA4
+
+## Speed constants init (T016g review, haiku-t016)
+- sub_20FD264: one-time init of speed/timing constants: stores dword_20FD2DC into *off_20FD2E0, sub_2147F34(dword_20FD2E4, dword_20FD2DC) (fixed-point divide) into *off_20FD2E8, dword_20FD2EC into *off_20FD2F0[0]; computes sub_2133048 of the products with the table at off_20FD2F4 + dword_20FD2F8, >> 12, into *off_20FD2FC; then stores (value >> 12) squared into *v2; finally sets off_20FD304 to 180 for class 0, 150 for class 1 and 120 for other classes, where the class is the word at +16 of the table entry off_20FD300[0]
+- sub_2042064 (race config +8 = mode): 4 = Mission Run (loads `/MissionRun/%s_tool.nkm` from the mission name at cfg+72, or `/course_map.nkm` when cfg+12 == 6), 5 = Net (`/Net/net_course_map.nkm`, falls back to `/course_map.nkm`), others `/course_map.nkm`; mode 2 = battle (balloon / shine). Docs that call mode 4 "battle" are wrong: sub_203E74C/sub_203E788/sub_203C1A8 are the mission clear/fail hooks (finish code 0, or 6 when sub_204176C finds the kart in a type-2 AREA)
+- Mission-only map objects are in the object table at 0x216B268 (12-byte entries: id, definition pointer, 0), definitions {0, instance size, factory, ...} (arm9 or overlay 1 at 0x021804C0): 0x159 = StopSign (def 0x21A7E90, update sub_2192DF0 spin), 0x6E = MissionGate (def 0x21A79C4, loader sub_2185CFC, size 0xCC), 0x68 (def 0x21A785C, factory sub_2182785), 0x1F5/0x1F6/0x1F7/0x1F8/0x1FB/0x1FC/0x1FD/0x1FE = boss defs (size 0x30C, factories sub_2183275, sub_218A015, sub_218B70D, sub_218CD99/CD61, sub_218E455, sub_2192871), 0x1FF (size 0xA0), 0x10 (def 0x21A9664), 0x0B (arm9 def 0x215A034, factory sub_20FF97D). tools/obj_class_records.txt shows "no def" for these because they are not in the arm9 class records
+- Mode-2/4 racer manager: sub_20A0E00 allocates 960 bytes = 8 racer records of 112 bytes (+8 state, +24/+28 = -2, +68/+72 racer index, +76 counter, +80 score word); sub_20A126C: manager +948 >= 0; sub_20A1084(i) = record state != 0; sub_20A1154(i) = max(+76, 0); sub_20A16D0/sub_20A1748 end a racer. Overlay 1 mission HUD/state: sub_2181A80 per-kart step ends the mission racer via sub_203E74C when the counter at the mission object +4 reaches sub_21817EC() (cfg byte +55, 1 if zero); sub_2181840 per-frame (every 16 ticks in mode 4 with sub_20A1154 true -> sub_20A1748)
+- KTPM (mission point, NKM version >= 0x24, 0x1C-byte entries: position, rotation, s16 +0x18, s16 +0x1A): parsed by sub_20426AC into course object +60 (pointer) / +64 (count); no reader of that pointer was found in the decompiled export, and the s16 pair (seen: (-1,-1), (-1,1), (0,1), (24,2), (30,1), (62,4)) is still unexplained
+
+## Soft-float cores, OS callbacks, printf/strtod family, small grid/HUD helpers (T016g review, batch 3, haiku-t016)
+- sub_2130CCC: 64-bit soft-float arithmetic routine (1372 bytes): sign, exponent and mantissa combination
+- sub_2131234: soft-float 32-bit arithmetic routine (1120 bytes), sign and exponent handling
+- sub_213250C: soft-float f64 arithmetic core (1248 bytes), exponent from the high word and the result packing
+- sub_21329F8: soft-float f32 arithmetic core (1096 bytes), sign-dependent add/subtract
+- sub_213327C: soft-float divide helper: normalises the divisor by shifts of 28, 12, 8 and 4 before the quotient steps; returns 0 when a1 < a2
+- sub_2133488: soft-float f64 arithmetic core (2312 bytes), operand swap and the packed-result path
+- sub_2133E04: packs two 5-bit FP exception masks (bits 0-4 and 16-20) and stores them through sub_2142578
+- sub_2133E50: OS deferred-callback runner: takes the mutex at off_2133F68 with sub_200EC08 and runs the queued callbacks
+- sub_2134508: resets a cursor struct: field 9 = field 7, field 10 = field 8 minus (field 6 & field 11)
+- sub_2134890: per-channel OS lock-count helper (sub_200EC08 / sub_200ECxx) with a 3-way choice by the channel pointer
+- sub_2134AE8: thin wrapper: calls sub_21400EC(a1, a2, &tmp), adds a3 to tmp and returns sub_21401AC of the result
+- sub_2134DE0: tiny wrapper: calls sub_2134F18 and returns a1
+- sub_2134DF8: memmove: copies with overlap handling (backward copy when the destination is above the source)
+- sub_2135144: printf-style output on a mutex-guarded channel: returns -1 when the stream sub_213C94C reports not ready
+- sub_21352A8: wrapper: calls sub_2134890(a2, 1, a3, a1) and returns 0 when the result differs from a3
+- sub_2135C80: printf numeric conversion helper for floating-point arguments (2440 bytes)
+- sub_2136638: decimal-digit rounding helper on a digit buffer (536 bytes)
+- sub_2136850: float formatting helper (%e, %f, %g style, 1684 bytes) with the inf/nan text handling
+- sub_2137358: integer-to-text formatter (radix digits, sign and padding; 944 bytes)
+- sub_21382A8: generic array sort helper (qsort-like) on 32-bit elements with a comparison callback
+- sub_21384DC: LCG pseudo-random step: state = state * multiplier + increment, returns the new state
+- sub_2139400: 64-bit fixed-point arithmetic over the int64 table at off_2139E18 (2584 bytes)
+- sub_2139E20: OS callback slot helper: returns -1 for a slot outside 1..7, otherwise takes the callback and calls it
+- sub_213A550: large text-to-double (strtod-like, 6700 bytes) with the 2^52 range handling
+- sub_213CAE0: wide-char (UTF-16) printf format core (2216 bytes), the 16-bit twin of the format loop
+- sub_213D398: wide-char float formatting helper (2328 bytes), the 16-bit output twin of sub_2136850
+- sub_213DCD4: wide-char digit rounding helper (536 bytes), the 16-bit twin of sub_2136638
+- sub_213DEEC: wide-char 64-bit value to decimal digit conversion (768 bytes)
+- sub_213E1F0: wide-char integer-to-text formatter (628 bytes), the 16-bit twin of sub_2137358
+- sub_21805D4: overlay-9 init wrapper: calls sub_20364E8, then sub_20CA6B8, and returns sub_21805E0 of the result
+- sub_21805F0: init of a 3-entry HUD/minimap-style setup (264 bytes) copying the entries from off_21806F8
+- sub_21807E0: teardown counterpart of sub_21805F0 (630 bytes), calling the matching free helpers
+- sub_2180BA0: same packing as sub_2180AF4 applied to the register at off_2180BD4
+- sub_2180C20: same as sub_2180B74 but on off_2180C48 with the masks dword_2180C40 and dword_2180C44
+- sub_2180C4C: bitfield setter: clears bits 8..12 of the word at off_2180C64 and ORs in (a1 << 8)
+- sub_2180C68: initialises a 4-word fixed-point record to {4096, 0, 0, 4096} (identity matrix, 1.0 in 4.12 format)
+- sub_2180CC8: flood fill over the 2D cell grid (508 bytes) using the cell accessor
+- sub_2180ECC: walks a line between two 4096-unit fixed-point points (272 bytes), stepping along the longer axis
+- sub_2181028: resets the fields +12, +16 and +20 of the owner object at off_2181048
+- sub_2181078: flips a double buffer: swaps the fields +32 and +36 of the object at off_2181098
+- sub_2181160: returns N * N + 64, where N is the size word of the object at off_2181170
+- sub_2181178: returns s * s, where s = sub_2133068(field +4 of the object at off_2181194, 8)
+- sub_21814F0: wrapper: returns off_2181500(off_2181504, 104)
+- sub_2181508: classifies the id a1 into a category 0..8 by constant ranges (kart-object path when the object at off_2181534 +8 is 4)
+- sub_218153C: advances the timer/animation object at off_21815AC, clamping the value to the length word at +6
+- sub_21815B0: same tick loop as sub_218153C on the object at the next global, returning the new count
+
+## Kart-linked effect wrappers (T016g review, batch 4, haiku-t016)
+- sub_21816DC: returns byte +47 of the object at off_21816F8; when that byte is 0 returns sub_2181A80() instead
+- sub_2181B48: returns the word at +72 of the array entry for a1 (indexed through the table at *off_2181B60 minus the base byte)
+- sub_2182784: scene mode setup/teardown keyed on the mode word at +8 of *off_21827C0: mode 4 runs sub_2181688 and sub_218167C on the two objects
+- sub_2182B9C: in mode 4 (+8 of *off_2182BB8) returns sub_2181640(a1) of the 16-bit value; otherwise returns the value unchanged
+- sub_2183118: calls sub_2186348, then returns sub_21861D4(a1, a2, 0)
+- sub_21834DC: init variant: sub_21871F8(a1, 8, off_2183500), then sub_2188D44 with the +160 offset 64 and the next offset
+- sub_2183504: init variant: sub_21871F8(a1, 8, off_2183534), sub_2188D44 with the +160 offset 76, then sub_2188E04 with offset 84
+- sub_2183598: init variant: sub_21871F8(a1, 8, off_21835BC), then sub_2188D44 with the +160 offset 100
+- sub_2184254: when a1 +8 >= -sub_20D3D48(0): sub_2187424(a1, 4), sub_20D2774(a1, dword_2184288) and stores off_218428C at dword_2184290; returns 0
+- sub_2184CA8: wrapper: sub_21881F8, sub_2188C70(a1), then tail-calls sub_2184CD4(a1)
+- sub_2184D50: wrapper: sub_21881F8, sub_2188C70(a1), then tail-calls sub_2184D7C(a1)
+- sub_2184DF8: switches on the word a1[0] against dword_2184E34 and dword_2184E40 and calls sub_2188E28 with the matching table
+- sub_2184E6C: plays effect dword_2184E98 via sub_20D2774, runs sub_2187AD4, then sub_21874F8 with the sound parameters
+- sub_2184EA8: same pattern as sub_2184E6C with effect dword_2184ED4 and the sub_21874F8 arguments dword_2184EDC/E0/E4
+- sub_20FC2E8: blue shell orientation update (a2 = followed vector, a4 = gravity-frame normal or 0): 3D form smooths +664 by 3277/4096, side = norm((normal + 3*smooth) x dir); flat form (a4 = 0) only when flat |dir|^2 >= 1123600, smooths +664 by 328/4096 of (vel - +652 - +664) on x/z, side = norm((3sx, 1.0, 3sz) x dir) (fallback (z, 0, -x)); up = dir x side; +652 = vel. Replayed exactly through the recorded homing flight (replays_orientation_while_homing)
+- sub_20FBD98: blue shell state 1 target search ported (BlueShell::search): places walked from the cursor skipping finished racers, owner/spent ends phase 1 (then first unspent place), local-player fallback if it was tried and has finished, give-up lock of place 1 after 2700 ticks; state 2 when shell flag 0x40000000 or locked kart +72&1 else 3; item flag 0x10000000 refuses all locks
+
+## Thunks, menu-result dispatchers, screen-mode guards, small state setters (T016h review, haiku-t016)
+- sub_2184F94: setter: stores a2 at +24 of a1 and returns a1
+- sub_2184F5C: thunk: tail-calls the function pointer off_2184F68 with (a1, dword_2184F64)
+- sub_2184F6C: thunk: tail-calls the function pointer off_2184F78 with (a1, dword_2184F74)
+- sub_2185B44: thunk: calls the function pointer off_2185B58 with (off_2185B50, off_2185B54, 0)
+- sub_219E0A4: sets +112 = 1 on the object at off_219E0B0 and returns the pointer
+- sub_2184FA8: returns (a1 + 4 >> 12) + the word at *(a1+128)+16: the Y position in whole units
+- sub_21893F0: (ov9_000, garbled fragment) returns off_2189400(off_2189404, 508)
+- sub_21896C0: (ov9_000, garbled fragment) returns off_21896D0(off_21896D4, dword_21896D8)
+- sub_219EA54: teardown: calls sub_219E6C0 (the 154 records of 12 bytes) and clears the global at off_219EA68
+- sub_21A0468: state set on the object at off_21A0480: +100 = 4, counter +104 = 0, then tail-calls its handler
+- sub_21980C0: (ov9_000) calls sub_2036AB0 on the field +20 of *off_21980DC, clears the global and returns it
+- sub_21A1818: calls sub_2036AB0 on the field +32 of *off_21A1834, clears the global and returns it
+- sub_21871B0: returns true when the word at a1 + dword_21871CC has the bits of dword_21871D0 and the second test passes
+- sub_219E190: state 7 handler: increments the counter +8 of the object at off_219E1AC and runs its next step when the count is reached
+- sub_2184FD8: when a1+12 is nonzero returns sub_20220F0(a1+44); otherwise the alternative value
+- sub_219F35C: calls sub_202948C(current row + 1), then returns sub_202947C(1)
+- sub_2187054: moves the value a3 toward a1 by at most a step, clamped at a1
+- sub_2187DB4: creates an object through sub_20AC524(dword_2187DDC) and returns it, or 0 on failure
+- sub_21854EC: menu-result dispatch: result = sub_2028130(); when 1 calls sub_20CCC74(7, 31)
+- sub_218554C: menu-result dispatch: result = sub_2026120(); when 1 calls sub_20CCC74(6, 31)
+- sub_21855AC: menu-result dispatch: result = sub_21A11A4(); when 1 calls sub_20CCC74(5, 31)
+- sub_218560C: menu-result dispatch: result = sub_211E51C(); when 1 calls sub_20CCC74(25, 31)
+- sub_21856A0: menu-result dispatch: result = sub_219B554(); when 1 calls sub_20CCC74(29, 31)
+- sub_21858DC: menu-result dispatch: result = sub_2028130(); when 1 calls sub_20CCC74(23, 31)
+- sub_2185934: menu-result dispatch: result = sub_2026120(); when 1 calls sub_20CCC74(22, 31)
+- sub_2185A3C: menu-result dispatch: result = sub_219F914(); when 1 calls sub_20CCC74(29, 31)
+- sub_2185AD0: menu-result dispatch: result = sub_219EAB4(); when 1 calls sub_20CCC74(19, 31)
+- sub_21857CC: menu-result dispatch: result = sub_2118E64(); when 1 and sub_211E130() passes, handles the selection
+- sub_2185418: menu-result dispatch on sub_2117418(): a switch whose case 1 selects the next screen
+- sub_218583C: menu-result dispatch on sub_2117418(): a switch whose case 1 selects the next screen (same as sub_2185418 for another menu)
+- sub_21A0DE8: formats a small 2D label into buffer a2: the value from sub_2029608 through sub_2124FAC, and the separator character 45 at +2
+- sub_2184EE4: effect play like sub_2184E6C with the effect dword_2184F10 and the sub_21874F8 arguments dword_2184F18/1C
+- sub_2184F20: effect play like sub_2184E6C with the effect dword_2184F4C and the sub_21874F8 arguments dword_2184F54/58
+- sub_2185908: when sub_20CCCC0() is set calls sub_2185688(11) and sub_2148950(1, 0, 1)
+- sub_2185578: when sub_20CCCC0() is set calls sub_21854D4(11) and sub_2148950(1, 0, 1)
+- sub_21855D8: when sub_20CCCC0() is set calls sub_21854D4(27), sub_2148950(1, 0, 0), sub_21854B8(22), then sub_2148934(0); returns sub_21A1184 of that value
+- sub_2185638: when sub_20CCCC0() is set calls sub_2185688(25) and sub_2148950(1, 0, 0)
+- sub_2185808: when sub_2036D08() succeeds sets the flag +4 = 1 on *off_21858B4, calls sub_2037288(30) and sets the control words at off_21858B8, off_21858C0 and off_21858CC
+- sub_21858A8: same screen-mode guard as sub_2185638 (sub_2185688(25), sub_2148950(1, 0, 0))
+- sub_2185A08: when sub_20CCCC0() is set calls sub_2185688(25), sub_2148950(1, 0, 0), sub_218566C(22), then sub_2148934(0); returns sub_2197B14 of that value
+- sub_2185A68: when sub_20CCCC0() is set calls sub_2185AB8(27) and the BG setup
+- sub_2185AFC: when sub_20CCCC0() is set calls sub_2185AB8(25) and the BG setup
+- sub_2185960: when sub_20CCCC0() is set calls sub_2185688(11) and sub_2148950(1, 0, 1)
+- sub_2196E34: state 12 setup on off_2196E60: state +84 = 12 and the frame counter +88 = 0
+- sub_2196FB8: state 4 setup on off_2196FEC: state +84 = 4 and the frame counter +88 = 0
+- sub_2187CB4: stores a2 at a1+dword_2187CE4, sets the type word to 3, sets the back-pointer and calls the list insert
+- sub_2188210: decrements the counter at a1+172; when it is still above -(*(a1+160)) runs the next step
+- sub_219F1D4: state transition to 4 on object off_219F204: +32 = 4 and +36 = 0
+- sub_219E0B4: when the object at *off_219E0E4 +24 is set, updates the bitfield in the control register at off_219E0E8
+- sub_219F8CC: computes two masked words from the object at off_219F900 (+144 and +148) into the registers at off_219F90C
+- sub_2199280: animation step (phase 0 variant) on off_21992B8: counter +32, eases the value with -sub_212825C(counter)
+- sub_219BE3C: init for a 2D/UI object at off_219BF90: sets the flag word at *(+48) = 1 and the cell row from the +4 record
+- sub_219D24C: tail-jump trampoline: sets the register bits at off_219D284 and off_219D28C and calls sub_2036AB0
+- sub_219DA80: state step on the ov9 screen object off_219DAB8: bumps the counter at +20 and dispatches on the state
+- sub_219EBDC: state 3 tick: increments +36 of the object at off_219EC14 and calls sub_21059E0
+- sub_2187C68: stores a2 at a1+dword_2187CA4 and copies the vector a3 into a1+dword_2187CA8
+- sub_219D7F0: sets a row-selection flag in each row's +52 cell of the table at off_219D82C
+- sub_21A1378: state 5 tick: calls sub_21A1AE8; when the state at off_21A13B4 +44 is 5 sets +56 = 1
+- sub_218A014: creates a type-201 object via sub_20AC588(201, 10, a1) and resolves its heap
+- sub_219A930: clears the flag at off_219A96C and masks two control words from dword_219A974 / dword_219A978
+- sub_219E838: bracketed update: sub_20AE6AC before and sub_20AE630 after sub_2198534 on the range at off_219E874
+- sub_219E940: bracketed update like sub_219E838 with sub_2192EC4 on the range at off_219E97C
+- sub_219F680: returns the minimum value from sub_205FD78 over the entries of the table for a1 (starting at 8)
+- sub_2199B4C: timer step (phase 4) on off_2199B8C: counter +12, and at 5 or more sets the phase flag
+- sub_2187EC8: returns 0 when the index at +dword_2187F10 is out of range of the table at *off_2187F0C; otherwise the lookup result
+- sub_219BAD4: returns a UI-manager value: when the manager at *off_219BB18 +108 is 1 stores the masked value, then calls sub_212B91C
+- sub_21A0E14: sets flag +160 of object off_21A0E58 to 1 and clears the 8 entries that follow
+- sub_2183D74: sets the angle through sub_2188978 from sub_207A974 + 128 and tests a threshold on the stored distance
+- sub_2187004: heading turn-rate limiter: the angle difference from sub_2148714 clamped to the magnitude of a3
+
+## Collision callbacks, state handlers, menu selection and animation phases (T016h review, batch 2, haiku-t016)
+- sub_2185C2C: batch flag update over an object pointer list: when the result is nonzero clears the flag word of each entry
+- sub_219B7A8: state 6 handler: queries the choice result through sub_21277AC and advances the state on a result
+- sub_218272C: collision/hit callback: returns the byte a4 unless the flag word at a2+72 has the bit dword_218277C set
+- sub_218353C: init/transition using the config fields +88, +92, +96 with sub_21871F8(a1, 8, off_218358C); a2 is compared with dword_2183590
+- sub_2185D54: interaction/collision check between two actors: returns 0 when the actor flags a3 and a4 exclude the test
+- sub_21880E4: looks up an object via sub_207A974 (the id from off_2188134) and runs the sub_2188188 hit test on it
+- sub_219E640: display/IO register reset: masks and sets the words at dword_219E694 / dword_219E698
+- sub_219BDB8: text/name input: sub_211DF44 setup, then copies up to 31 bytes through a sub_214D helper
+- sub_21856CC: when sub_20CCCC0() is set calls sub_2185688(25) and sub_2148950 with the flag
+- sub_2188240: increments the counter at a1+172 and calls sub_21817C0 when the racer state at *off_2188294 +8 is 4
+- sub_21A0380: screen-end handler: sets state +100 = 8 and the counter +104 on off_21A03D4
+- sub_2198534: per-frame message/dialog dispatcher: calls sub_2125928 first, then the dialog step
+- sub_219BFD4: menu cursor up on off_219C02C: decrements the index (+96) and wraps to 3 at the top
+- sub_219F178: finish-transition on object off_219F1D0: sets state +32 = 5
+- sub_2198B38: radio-style selection: for two groups sets each cell's selected flag so only one is on
+- sub_219D914: text/name input callback: returns when sub_2125F54 is clear or the object at off_219D96C +40 says otherwise
+- sub_2185998: menu-result dispatch on sub_2197B34() (values 1..4): result 1 calls the first handler, the others the matching screens
+- sub_2195E18: selection-confirm handler: when sub_2125F54 passes and no pending entry remains, confirms the selection
+- sub_219F2FC: returns true when slots 1..8 of the current row pass the test (uses a 6-word temporary array)
+- sub_2182E98: advances the animation timer at a1+168 by a2 and updates the animation frame words
+- sub_2199398: inverse of sub_2199354: maps the state field +12 of the object at off_21993F8 back to its mode value
+- sub_2186F94: heading turn helper: the wrapped angle difference from sub_2148714 limited by a3 (sign-aware)
+- sub_2187B0C: if the result is nonzero and a2 is non-null, builds a vector from the table off_2187B0C and stores it at a2
+- sub_2187B74: same pattern as sub_2187B0C using the table off_2187BD
+- sub_2194C7C: availability check for menu slot a1 (0..7): slots 0..7 map to rows whose flags are tested; returns 0 for a1 > 7
+- sub_21A1654: state 2 tick on off_21A16B8: counter +44 incremented, and sub_20AE488 values written to the cells
+- sub_21959B8: message-box update: when the Return-button condition in off_2195A1C +368 passes, runs the close path (LABEL_10)
+- sub_219CA0C: choice-result handler: on sub_2127788 true sets the state for the chosen item
+- sub_21819D4: fills three rows of a 2D halfword table from the source table after allocating a 2D working buffer (sub_20364E8 / sub_20364E0)
+- sub_2198590: message handler (state 3): when sub_2125F54 passes calls sub_2125FC0, otherwise the default path
+- sub_2183430: loops over the object list (count at +4) and clears each entry's flag
+- sub_2196D9C: state 14 setup: fetches a course/ghost record through the table and stores its fields in the screen struct (2D buffer of 268 halfwords)
+- sub_2188624: clears the word at result+dword_2188694; negates a2 when bit dword_2188698 of the flag halfword is set, then stores it
+- sub_21841C0: state-8 setup: calls sub_2188930 and sub_2188D98 with the object's config offsets, then the tail handler
+- sub_218A100: loops over the object list; per entry copies two fields from the entry's record into the list entry
+- sub_218173C: dispatcher on the halfword at a1+8 over nine cases, using the mode byte at +47 of *off_21817B4
+- sub_21987B4: constructor for a 24-byte UI object (sub_2036BEC) with its fields filled from the arguments
+- sub_219BBC8: checks the manager state (+36 is 5 or 6) and draws two sub-objects with sub_21243AC (positions 180 and the second row)
+- sub_219E1D8: state 5 handler: counter-indexed table lookup (halfword table off_219E258) returning 8 by default
+- sub_21835C0: when the object id matches dword_2183648 and sub_209B620 passes, calls sub_2187AD4 on the object
+- sub_219E5B4: per-slot layer setup: calls sub_2016468 six times for the slot's layer entries from off_219E63C
+- sub_218298C: walks the object list (sub_2100138(104)); for state-7 objects clears their flag word and resets the counter
+- sub_2199D68: animation step (phase 1) on off_2199DF0: increments the counter at +12 and eases a value into the cell
+- sub_219F384: scans 7 rows x 9 records with sub_205FD78 and collects the values that match
+- sub_2185B98: per-frame state machine on a2+172: state 2 counts up and the others handle their transitions
+- sub_2189E0C: if a1 is non-null loops over the pointer array at *a1 and calls the entry callback for each
+- sub_2184FF8: command dispatcher on a2 (-1..-5 set the matching flag bits in a1[11..]) using the table at a1+11
+- sub_2197F4C: animation step (phase 1) on off_2197FD8: increments the counter at +32 and eases a value through the sub_20AE helpers
+- sub_21992BC: animation step (phase 0) on off_219934C: increments the counter at +32 and eases -140 into +36
+- sub_21884D0: sets the flag word at result+dword_2188568 to 1 and stores a2 (sign-flipped when the flag bit at +2 is set)
+
+## Collision collectors, countdown and animation steps, message-manager setup (T016h review, batch 3, haiku-t016)
+- sub_2196CB0: per-frame update of two countdown fields (+120 and +60 of the object at off_2196D4C) through sub_20ADC64
+- sub_2197C7C: animation step (phase 4) on off_2197D1C: increments the counter at +32 and eases the value with sub_20AE488
+- sub_2183760: when the id matches dword_2183800 and the animation count passes sub_209B620, runs the matching effect trigger
+- sub_2187CF4: when the byte a1[0]+1 matches the field of dword_2187D94, builds the two vectors v7/v8 and calls the effect setup
+- sub_219C7EC: selection result handler: stores four arguments in the record pointed to by off_219C890 and advances the record
+- sub_219D4EC: dispatches a state callback (the +52 function pointer) and builds its arguments from the string table off_219D590 via sub_20B496C
+- sub_2185094: hit-test lookup: scans the 136-byte entry table after converting a3 with sub_2132440 and sub_21329F8
+- sub_218A054: per-frame state dispatch: when the racer state at *off_218A0FC +8 is 4 and sub_20A126C holds, runs the sub_21871D8 and sub_20A1084 tests
+- sub_219899C: updates two cell flags per entry that match the row index, over the table at off_2198A44
+- sub_2183AB8: state-3 setup for the object keyed by sub_207A974 (off_2183B64 id): sub_21871F8(a1, 3, 0) and sub_2188D44 with the +160 offsets
+- sub_2194F00: decrements two per-slot counters at state +128 of the object at off_2194FAC (through sub_20ADC64) and writes the cells
+- sub_211A6BC: parameter loader (176 bytes): reads three parameter groups and stores them in the local struct
+- sub_219BEDC: per-frame update for the message manager object at off_219BF90: runs sub_211DED0 for the current entry and sub_20B3F7C for the message 115 string
+- sub_218A2EC: object setup: state 8 via sub_21871F8, resets with sub_2187AD4, then sub_21875A0 with the dword_218A3A8 / dword_218A3A4 parameters
+- sub_219C1B0: constructor for the message manager: stores the parameters and draws the first message through sub_2124748 with the state at off_219C268 +40
+- sub_2198604: message handler: when sub_2125F54 passes calls sub_2125FC0, otherwise sub_2125F88 with the state write
+- sub_2183670: id-dependent effect trigger: when the id matches dword_2183730 and sub_209B620 passes, starts the effect at dword_2183734
+- sub_2195D44: animation step: increments the counter at +88 of off_2195E04 and, when +116 is set, eases a value into the cell
+- sub_219F410: per-frame flag update for 7 rows of cells from the table off_219F4D0
+- sub_2118D44: asset/screen setup (194 bytes): reads nine parameters and chains the asset loaders
+- sub_21A08B8: per-frame cell-flag update for 9 rows from the table off_21A097C (same pattern as sub_219F410)
+- sub_2183EEC: state-8 setup: spawns two effects through sub_21874A4 with the object's offsets
+- sub_2199A6C: phase 5 handler: when sub_2192E64() == -1 and the state at *off_2199B40 +16 is 5, advances the phase
+- sub_2199E1C: (ov9_000) returns 1 unless the object's type word matches the table entry; uses sub_20B4934 for the lookup
+- sub_21813F0: scans the object list at off_21814D8 (count from sub_20C0DB0); the unflagged entries are collected for the next step
+- sub_21A1838: calls sub_21A1A04(a1, dword_21A1898) and then sets the screen object flags at off_21A1920 / off_21A1924
+- sub_2195874: animation step: increments the frame counter +88 of off_2195970 and writes sub_20AE4C0 values into the cells
+- sub_2198D6C: animation step (phase 4) on off_2198E6C: eases -140 into +36 with sub_20AE4C0
+- sub_218398C: state-3 setup using pointer-indexed fields: when sub_2188188 passes, sub_21871F8(a1, 3, 0) and sub_2188D44 with the offsets
+- sub_21860AC: mode dispatcher on the field at a1 + dword_21861BC: mode 1 runs one handler, the others the matching handlers
+- sub_2189598: collision collector over the list off_21896A8 (count from sub_20C0DB0): gathers the entries that pass the hit test
+- sub_2188FD8: iterates the entry list off_21890F0, collecting the entries that pass the collision test
+- sub_2189140: same collector as sub_2188FD8 over the list off_2189258
+- sub_21896F8: same collector as sub_2188FD8 over the list off_2189810
+- sub_2189860: collision collector over the list off_2189978 with the same test
+- sub_219BC44: result/ranking helper: in state 3 draws the result rows with sub_21243AC at the positions for rows 4 and 5 of the info table
+- sub_219F038: stack-buffer routine: loops up to a1 items, allocating a 92-byte record (sub_2036BEC) for each
+- sub_2189424: collision collector over the list off_218954C through the same hit test
+- sub_21892A8: same collector as sub_2188FD8, for object id 197 (off_21893D8)
+- sub_21980E0: (ov9_000) stores a1 into the control word at off_219821C and allocates a 56-byte object (sub_2036BEC)
+- sub_219A380: state 6: lays out a 3x3 cell grid and the palette, calling sub_2111450(0) when the input state allows
+- sub_2183FD4: 322-byte update: fixed-point (>> 12) position and velocity updates for the object at a1
+- sub_2189BF0: collision collector over the list off_2189D50 (352 bytes), the same hit test as the other collectors
+
+## Final [REVIEW] pass: thunks, cell bit helpers, UI ticks, object constructors, race-motion step (T016i review, haiku-t016)
+- sub_21805E8: thunk: indirect call through the function pointer at v1 with no arguments
+- sub_2133274: guard wrapper: when a2 is nonzero returns sub_213327C(a1, a2), the soft-float divide step
+- sub_219C398: returns the global value at off_219C3AC and sets the state word +76 = 6 on the object at *off_219C3B0
+- sub_2188D44: ov9_000 message mapper: calls sub_219B1E8 with the stored pointer from a1 + dword_2188D64 and returns dword_2188D68
+- sub_2124A68: getter: returns bits 12..15 of the halfword at +4 of the cell found through sub_2021F1C
+- sub_2187090: when the pointer result is non-null and a3 is set, calls the allocator path for the object
+- sub_211E130: returns TRUE when sub_211E160(0) or sub_211E160(1) is set
+- sub_218059C: entry predicate: calls the function pointer off_21805B4 with the entry at off_21805B0 + 92 * a1
+- sub_21258F0: UI/dialog per-frame tick: when the pointer at *off_2125924 is set calls sub_2126730 for the dialog
+- sub_219B2C8: allocates a 56-byte sub-object into a1[8] after sub_219B4B8(a2)
+- sub_2124100: writes a2 into bits 12..15 of the halfword cell and returns the cell's sub-record
+- sub_2118414: frame timer: increments the counter +116 of the object at off_2118454 and resets it at 75
+- sub_211E074: same loader pattern as sub_211E024 with a different table of resource values
+- sub_2124A20: sets bits 12..15 of the halfword at +4 of N 6-byte cells selected through sub_2021F1C
+- sub_212D10C: when the sound global at off_212D150 is set and its field matches, sets up the stream state
+- sub_2185CFC: creates a shared object via sub_219B458(a1, off_2185D40) and then sub_219B2C8
+- sub_2187BDC: if the object at a1 + dword_2187C24 exists calls its update with a 6-word temporary array
+- sub_211E418: sets the target id +12 of off_211E46C to a1 and scans up to 10 entries for it
+- sub_2124FAC: like sub_2124F4C but writes each digit as an ASCII character
+- sub_219B458: builds a 44-byte object: allocates it plus a 108-byte sub-object
+- sub_211DED0: loads a cup/choice graphic through sub_2124748 with block 14 or 30 chosen by a6
+- sub_2187FE0: finds an object through sub_207A974 (id from off_2188058) and checks its state flags before use
+- sub_2119D78: transition step (122 bytes): when the timer from sub_2119DFC is up, advances the state at *off_2119DF4
+- sub_21250B0: same as sub_2125028 but uses the template at off_212512C
+- sub_21871F8: object state setter: writes the state a2 and the animation and parameter fields of the object
+- sub_2187424: finds a free slot in the 5-entry table (stride 24, object pointer at +2)
+- sub_2116244: redraws the 5-row list view for object off_21162C8 from the record names
+- sub_219BB34: returns 1 plus the result of sub_21A15C4 or sub_21A15D8 depending on the mode; stores a4 & 0xFFFC at *a2
+- sub_218873C: sets the type field to 2 when a4 is set, else 0, and stores the three values a2..a4
+- sub_211D844: clamps a1 to 1..32, stores it at +138 of off_211D904 and redraws the option list
+- sub_21870C4: object init/reset: when a1 and a3 are set loads the resource and resets the object fields
+- sub_2125DE0: creates a UI/dialog object via sub_2036BEC (dword_2125EAC bytes) and stores the fields
+- sub_212F638: switches the global mode (0..3, default 0), clearing the mode-specific state when it changes
+- sub_21184D4: slide/transition step: while the sub_21185D4 timer runs it advances the slide position
+- sub_2116084: per-frame step for object off_2116168: updates two per-slot counters (+144, +148) and writes the cells
+- sub_21A0600: syncs the pending selection animation: when sub_21A06FC passes, takes the value at off_21A06E4
+- sub_212DA38: dispatches a queue: walks the list nodes for index a2 and calls each node's handler
+- sub_219C0C0: cleanup/free for the message/menu manager: calls sub_212426C on the saved cells and frees the object
+- sub_2125C2C: picks one of two paths on the word at off_2125D50 (== 2 selects the first path)
+- sub_211CEA8: gate on the state object at off_211CFCC (+44 state, +96 and +24 fields): returns whether the sub-state may advance
+- sub_2101618: race-motion step: updates the speed (+380, +368) and calls sub_2101964
+- sub_2186348: 302-byte graphics draw: takes the item count from sub_20E69B and draws each item
+- sub_2182BBC: spawns a state-5 kart-linked object from a free slot of the list at off_2182CF4
+- sub_211D9DC: refreshes the 5-entry option panel: calls sub_2124100 for each entry and updates the flags
+
+## Remaining work rows: emitters, cell-grid input handlers, layout loaders, kart physics (T016i review, batch 2, haiku-t016)
+- sub_21861D4: effect/particle emitter draw (314 bytes): picks the position source and draws the emitter's particles
+- sub_211D174: moves entry a1 to group a2 when valid (360 bytes): updates the group counters and the 14-halfword group list
+- sub_211DB90: builds the HUD/menu resources (370 bytes): values loaded via sub_204799C and the sub_20B helpers
+- sub_218514C: per-frame sprite/billboard pass over the 136-byte entries (384 bytes), calling each entry's draw callback
+- sub_219F4D8: refreshes the 7 row highlight flags from the record state of the list at off_219F658
+- sub_2195B84: animation step gated by the flag at +116: increments the counter (+88) and eases a value into the cell
+- sub_2199B90: input handler (phase 3, 402 bytes): cell hit tests via sub_201EA84 and the selection update
+- sub_211E958: constructor for the menu/dialog screen object off_211EB08 (414 bytes): sets the display flags and allocates the sub-objects
+- sub_20F1B10: initialiser (430 bytes): allocates a 14-entry table (stride 168) and copies 21-word blocks from the constant tables
+- sub_2118B48: select-screen layout loader (430 bytes): reads about nine layout parameters and builds the screen objects
+- sub_211A9D8: per-frame map update for the five-row menu (438 bytes): bumps the counter (+56) and writes the row cells
+- sub_210366C: recomputes a 4-slot 16-bit accumulator (+16..+31) from four 16-bit pairs (460 bytes)
+- sub_21899C4: collision collector over the list off_2189B9C (472 bytes): gathers the entries that pass the hit test
+- sub_21A0170: callback selector (472 bytes): calls one of the stored function pointers with two arguments
+- sub_2197D38: input handler (phase 3, 476 bytes): cell hit tests and the selection update
+- sub_211BAEC: writes the per-cell flag halfwords (+6) in the cell grid around the selected cell (484 bytes)
+- sub_21964F4: state machine for the message/menu box (486 bytes): cell hit tests and the state transitions
+- sub_219CB80: choice-screen input (488 bytes): hit-tests via sub_201EA84 and sub_201EA58, then selects the choice
+- sub_219D2A0: calls the callback a4(), sets *off_219D2B0 = 2, then tail-calls an indirect function (the target is not resolved by the decompiler)
+- sub_211A3BC: select-course screen layout loader (656 bytes): allocates the course-select objects and their cell tables
+- sub_219EC18: state-machine input handler for a grid/list cursor (662 bytes): calls sub_21059E0 and moves the cursor
+- sub_21A0B1C: full redraw of the 9-row record grid (686 bytes): clears the cells and writes each record row
+- sub_219FC50: state 3 input handler (738 bytes): cursor index at +158, hit tests, and the sound through sub_21055B0
+- sub_2101964: kart physics step (784 bytes): damping from the flags at +384, +124 and +76, then blends +388..+408 from the record
+- sub_2113A3C: detail/info panel renderer (818 bytes): reads the record flags via sub_2114158 and draws the selected name and fields
+- sub_2198EA0: input handler (phase 2, 988 bytes): cell hit tests via sub_201EA84 and the row updates
+- sub_21253F8: text measure and wrap (992 bytes): walks the character stream and measures each line for the wrap width
+- sub_213C560: 32-bit integer parse core (996 bytes), strtoul-style digit loop with the range and overflow checks
+- sub_2187664: switch on the slot kind (+188, values 1..5) computing a 3D position for the kart-linked object (1130 bytes)
+- sub_2184390: 1202-byte per-frame update: when the template flag 0x20 is set runs the sub-state transitions with the position offsets
+- sub_211B2CC: constructor for the main course-select screen (1778 bytes): sets the display flags and allocates the cell tables and objects
+- sub_218648C: 2700-byte per-frame kart physics update (not the collision pass): integrates the kart state and its sub-objects
+
+## Final REVIEW rows in 0x020D-0x020F and 0x0213 (T016j review, haiku-t016)
+- sub_20ED548: Thumb resource lookup: index 0 returns 0; otherwise fills a 264-byte buffer with sub_2135048 (table dword_20ED570 / off_20ED574) and returns sub_2047B08 of it
+- sub_20EFD1C: sets up object a2 from the owner a1 (kart at +508): uses the path table at owner+348 when the owner flag 1 is set, else off_20EFD80; calls sub_20F98A0 with sub_206C0A8(owner), sets flag 0x40000000 on a2 when the owner flag 1 is set
+- sub_20ED4D0: heap-allocates a 44-byte object, initialises it from two resources (sub_20ED548 of a1 and a2) via sub_20E64B8, then sets the flag words at +16 and +20 from the constants
+- sub_20EDA5C: searches the member list a1+20 (count at +32) for object a2; when found calls the callback off_20EDAD4[+8]; when the count reaches zero returns sub_20EE6A8(a1)
+- sub_20EFBD4: constructor for a per-kart object: stores the id a2, sub_207A974(a2) at dword_20EFC50, initialises three sub-objects (sub_20F89B0, sub_20F4B20, sub_20EE684) and clears the state words
+- sub_20EDB00: cleanup: removes every member via sub_20F0F70, calls sub_20EE6A8(a1), and when a1[92] is set sets the owner state to 19 and clears a1[92]
+- sub_20EEC48: pops members down to a2 + 1 through sub_20EFA60(a1, 0), giving each removed member after the first a sub_2147FD8 impulse; returns sub_20EFA48(a1, a3)
+- sub_20EE9B0: init of a kart-like object: zeroes the words at +376 and +380, sets the sub-struct +116 = 0 and +118 = 600, sets the three ids at +396.. to 0..2, applies sub_2147FD8 to the vectors a1+56 / a1+80 / a1+384, calls sub_20EEA6C, and sets state 23 via sub_20719BC when the id at +40 matches
+- sub_20ED98C: update core of sub_20ED5C0 without drawing: returns sub_20E6B94 early when +244 >= dword_20EDA58; otherwise copies the vector a2 into +172..+180, computes +240 with sub_20397A8, normalises +148 when its squared length is at least 16, and writes the scaled values (>> 4) at +184..+192
+- sub_20EF8C4: updates the object transform: copies a1[17..19] into a1[36..38] (negated into a1[39..41]), applies sub_2147FD8 twice, writes a1[14..16] and the negated vectors into the matrix at v2[40..45], and returns sub_20397A8 of the result
+- sub_20E4EA8: render dispatch on a2+142: when nonzero it calls sub_20E66E4 with the state at a2+172 and the sprite data (sign flipped by bit 0 of +100); otherwise the second branch with sub_20E6CF8 of a2+4
+- sub_20EFF40: per-frame state update for an entry under owner a1: reads the owner's record at a1[127] (flag 0x400 at +124, state at +668); when the owner's mode is not 5 calls sub_20F81C0, then updates the item fields +22 and +31
+- sub_20EB7E0: kart-triggered variant of sub_20EB760: when the type word at *a3 is 3 and the mode is not 1 calls sub_20EBEF8, sets the timers at +144/+146, calls sub_20D26EC and sub_20D26F8, and when +120 & 3 is zero plays the effect pair 49/50 (sub_208B7BC or sub_208B498 by the flag at *a4)
+- sub_20E6514: fills a render-instance record from the resource header at a1+4 (two section pointers, the header words at a3+0..+24, and the attribute mask 0xFFFFFFF0); when a2 is set adds the value from sub_2087D0C
+- sub_20EFD84: state transition helper for entry a1 to status a2: returns 1 when a2 == 19; otherwise sets a1[5] = 19 and, depending on the old status, either returns after decrementing the count at the slot table or calls sub_20F8418 and sub_20F47E4; finishes with sub_20F4754 and returns whether the status is 19
+- sub_20EE160: pairwise collision resolve of objects a1 and a2: when the flag 0x1000 test passes and sub_20EE284 hits either sphere of a2, computes the two contact indices with sub_20F7EA8 and calls sub_20F77F8 on each object; for a2 state 1 also calls sub_20F5614
+- sub_20E2FE4: event handler for the code *a3 == 1: when a2 is set computes the direction from sub_21484D0 and stores the sign into +180, sets +20 = 0x4000, +144 = 6, +146 = 1, ORs the flag at off_20E3114 and calls sub_20F8DDC; otherwise the same with the object's own position
+- sub_20E705C: iterates the object list (count at +4 of the list struct) and calls the callback at +16 for each entry without flag 4; in state 2 passes the entry's three vectors through a temporary array
+- sub_20E6DF0: builds the camera/billboard matrix from a1: fills the 3x3 block at *off_20E6F3C (4096 diagonal, a1[4] and a1[5] terms), calls sub_2146D0C and sub_2146DFC, and copies the result rows into the output table at off_20E6F48
+- sub_20EF350: per-frame wrapper: calls sub_20EF4A0; when the owner flag 0x1000 is set computes the scaled vector from a1[39..41] with sub_2148504 and the normalise step, stores its negation at v2[43..45] and the position at v2[40..42], then sub_20397A8
+- sub_20EDDB4: per-frame state machine for a member-list object: when sub_20EE528 passes applies sub_20F9F08 to each member; calls the state callback off_20EDF08[state] and sub_20EDF10; when the count is zero calls sub_20EE6A8; then counts down a1[9] and drops members when it reaches 8, 4 or 0
+- sub_20EF1CC: (re)initialises the ~228-byte object record from the source objects a1+20 / a1+24: copies the vectors at a1+68/72/76 into +144..+152, their negations into +156..+164, and applies sub_2147FD8 / the rotate step to +168 and the next fields
+- sub_20EA1D4: moves an object along a precomputed curve: while sub_20D849C reports more curve nodes, advances each of the four progress values by 12 (wrapping at the curve length) and steps the curve with sub_20D7C84; then sub_20D8488 gives the position, written to the output at off_20EA368 / off_20EA36C
+- sub_20E7B7C: init/reset of a racer-state record: sets *off_20E7D28 = 1 and *off_20E7D2C = 0, clears the sub-records for the current state (sub_2147288 on the three vectors off_20E7D38..40), and resets the timers of the state tables off_20E7D30 / off_20E7D34
+- sub_20EB8F8: floating-object physics: calls sub_20EBC2C (wall response), damps the velocities at +204 and +212 by 164 >> 12, damps the angular term at +240 toward 0x10000, subtracts dword_20EBAA8 from +20, then integrates the positions with sub_2148504 (+204/+16, +176/+204 -> +4, +188/+216 -> +160), and normalises when the squared speed is at least 16
+- sub_20E7760: racer state init: finds the entry for the racer slot (sub_207A974 of the id at off_20E793C) and sets the pointer off_20E7938 and the table off_20E7944; clears the vector words at off_20E7948; when the state is 3 or the id test fails clears off_20E7938 instead
+- sub_20ED79C: batch version of sub_20ED5C0 over an object list (count at a1[4], array at a1[1]): sets the object flags at off_20ED984[*a1]+20 (bits 0xC0FFFFFF and 0x4000000) and runs the per-object update for entries without flag 0x10000
+- sub_20D5344: removes slot a1 (< 0x100) from the 256-entry interval index (28-byte entries at *off_20D5544): returns -1 when the slot is empty; otherwise shifts the bucket pointer entries after it and returns the freed index
+- sub_20EBC2C: wall/ground collision response: projects the vectors at a1+10/13/16 onto the normal a1+47 with sub_2039828 and sub_2147FD8, scaled by the speed at a1[22] and the sign of the dot product
+- sub_20EDF10: per-frame proximity/collision pass over the members: for each member increments its counter at +284, transforms its position (sub_21484D0 with a2 at +80), and updates its flags and the speed fields from sub_206C0A8 / sub_206C094 of the owner
+- sub_20EB498: object init and tick: runs the KCL floor probe sub_1FFDEE4 on the position at a1+4 and, on success, copies the floor normal into +188..+196; advances the height by +88, copies the position into +176..+184 and clears the velocity words +16..+24
+- sub_20E7FA8: large racer-like init: clears the flag and vector words, sets the constants 4, 1 and 31 into the state words, resets the sub-object at off_20E8218, and initialises the child records
+- sub_20E8790: curve-follower init like sub_20E82DC: sets the state word 2 at off_20E89E4, the flags at off_20E89E8..F8 to 1 and 0, and resets the sub-record at +12 of the child at off_20E89FC
+- sub_20E7460: scene init (644 bytes): model instances via sub_204799C and sub_20E64B8, sub_20E6AB8, the flag +0xC0 on each instance, and two 120-byte tables from sub_2036BEC
+- sub_20E84B0: racer path-follow tick: the progress at *off_20E873C selects a pair of 16-bit entries from table off_20E8748 (index progress >> 4), interpolates the position, and calls sub_20EA1D4 at the end of the path (progress >= 0x10000)
+- sub_20EBEF8: effect emitter: sets flag bits from off_20EC188 into a1+2, runs the state hook sub_218173C when the state of object off_20EC184 is 4, takes a random draw from sub_20D22C0, and emits the particles with sub_20F8A04 while the count at +272 allows
+- sub_20E9D10: racer state tick: when the object at off_20EA180 is not state 6 and the flag at off_20EA184 is set, advances the frame counter at off_20EA18C and wraps it at 60, then steps the racer's camera state (sub_20E9658)
+- sub_20E9810: racer draw: picks the object list by the mode at off_20E9CB8, sets the render priority bits, and draws each racer part through the sub-object records v27..v34
+- sub_20D34E4: 1.5 KB per-object record registration: walks the object list at off_20D37E8 (count), tests per-object flags through several predicates (sub_20DFF70, sub_20E4320, sub_20E3AF0, sub_20FFABC) and rebuilds the global object lists
+- sub_20D2E6C: race/course object-list initialiser (1584 bytes): allocates the heap blocks (sub_2036BEC on the pool from sub_20364E8 / sub_20364E0), sets the list counters from sub_2061788 and the table at off_20D319C, and calls sub_20D22E0
+- sub_20E8AC8: 2.8 KB per-frame kart physics and course collision: runs KCL sphere probes on the kart and applies the wall, floor and item-box responses; skipped when the state at off_20E95BC +14 is 4
+- sub_213EE6C: 64-bit soft-float helper (4660 bytes): returns 0 for a zero input; when either magnitude exceeds dword_213F430 it delegates to sub_212F884, otherwise runs the normalising path (only the entry checks were read; the remainder was not fully decoded)
+- sub_20FB7F8 / sub_20FB61C: blue shell states 4/5 feed sub_20FC2E8 a vector: state 4 (flat) (2*chase_off.z, (spiral-0x10000)*3277>>12, -2*chase_off.x), 3D cross(up, 2*chase_off) + that lift * up; state 5 eases +676 toward (fwd.x, speed, fwd.z) (3D: fwd + speed*up) by the spiral radius and orients on it with smoothing 0.75 (a3 = 0). State 4 enter sets +652 = chase - +664, state 5 enter copies +652 to +676. Replayed exactly (replays_orientation_while_homing, states 3-5)
+- sub_20F5D6C: red shell launch: +492&0x20 or race type 2 or no route cursor -> state 2 straight; else route run toward the kart one place ahead (last place when first) via sub_20ED268(45, 91, ...)
+- sub_20F2B94 forward throws call sub_20EDC9C(kart, base, 4096, 14336): speed = base + moved (moving) else base - moved; blue base 24576, red/green 20480 (ItemHand::launch)
+- Score manager (*0x0217B1DC, 112-byte records, race table +976 = racer count): record +8 state (0 alive, 1/2 out), +70 team, +72 rank, +76 score; global +936 end-delay countdown (90 on a decided match), +940 highest score, +944 lowest non-negative score, +948 winning team (<0 while undecided). sub_20A10F0 adds to a score and bubbles the rank (sub_20A19F8 down / sub_20A1B6C up; ties keep the one who got there first). sub_20A1790 decides the match when every alive racer is on rank 0's team. Shine Runners (mode 2, type 1): the match timer is 60 * u16 at (config+24)+2; on expiry sub_20A1520 starts a 30 s round (table 0x021565F0 = 65535,30,30,30) after putting out the racers on the lowest score (none if all level) until one remains. sub_20A12B8 (also at race end) puts out racers from the lowest rank up so rank 0 wins.
