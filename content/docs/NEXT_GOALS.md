@@ -1,6 +1,6 @@
 # Next goals (resume here)
 
-- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery timer port matches7000 calls including218 labeled state0 probes; later callback stages/native integration remain open.
+- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery now wired: timer7000 calls, steering863 probes, AREA selection218 callbacks; forced-stall native stages259/379/559/739 and immediate placement pass. Fixed-tick seed1 Rainbow Road run:10 falls at6000 ticks; falls and full original respawn pose/spread/hold parity remain open.
 
 - Lane B CPU heading now uses original quantized SDK atan2 and rounded integer degrees, replacing floats. Original Figure-8/Rainbow Road calls replay exactly; seed1 native Rainbow Road sweep changed five falls to six, so spiral falls remain open. See `analysis/CODEX_PARTICLE_MAP.md` and `analysis/cpu_heading_fall_comparison.csv`.
 
@@ -8,7 +8,7 @@
 
 How to run: `game\play.bat` or `game\target\release\mkds_game.exe [course]`. Cargo lives in
 `~/.cargo/bin` (not on Git Bash's PATH: `export PATH="$HOME/.cargo/bin:$PATH"`).
-Falls/smoke harness: `scratchpad/falls.sh <course> <seeds...>` (MKDS_DEBUG + MKDS_AUTOPILOT).
+Falls harness: `tools/native/recovery_probe.ps1 -NoProbe -Course <course> -Ticks 6000` (seed1, MKDS_DEBUG + MKDS_AUTOPILOT). Use logged capture tick for comparison.
 
 ## Done recently
 - Lane B primary particle pool added: 1,396 natural list operations match; whole
@@ -237,7 +237,8 @@ OK: Figure-8, Yoshi Falls, Cheep Cheep, Luigi's Mansion, Desert(1), Delfino(0 af
 Pinball(0 after cannon), Shroom Ridge, DK Pass, Mario Circuit, Airship, Wario Stadium, Peach
 Gardens, SNES MC1, N64 Moo Moo, GBA Peach. Rainbow Road ~3-11 (cluster at 500,550,400).
 Tick-Tock Clock and Bowser's Castle fixed with turning disc platforms (`objects::platforms`,
-gears 0xCB, rotating floor 0xD0; pauses in the gears' turning not ported). All 32 race courses
+gears 0xCB, rotating floor 0xD0; their speed-up / run / slow / reverse / rest states:
+`vm_model::mapobj::turner`). All 32 race courses
 run with 0-1 falls per autopilot race (Rainbow Road a few).
 
 ## Next big goal (in order)
@@ -249,12 +250,13 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
    Done since: Monty Moles, drawbridge (agent; deck = hinged ramp/wall floor), fire rings
    (hit test of outer fireballs, spin), pinball bumpers (bounce 12 units), moving-object
    shove (handler flag 1), Airship objects (bullet launchers fire Bullet Bills that blow karts,
-   path sliders, hatches; in game, autopilot 0-1 falls from bullet blows). In progress (agents):
-   pinball (flippers, iron balls, drums), fallback decoration models.
+   path sliders, hatches; in game, autopilot 0-1 falls from bullet blows). Pinball iron balls + flippers
+   (agent port, in game: kicks, box contact, shove 12/14). Left: drums 0xD2, balls 0x1B3,
+   fallback decoration models (agent stopped).
    Left: bats 0x19F (spawned by the course, not NKM), visual-only movers (Boos 0x13C/0x13D,
    chandeliers 0x140, paintings 0x151/0x152, jumping fish 0x1A0), Mansion 0xC9 path item
-   boxes (Lane C), objects' star/mega reactions (crab knock, Pokey break, snowman break, Chomp
-   state 2), Piranha plant 0x1A6 bite, snowman 0x19D, gear pauses 0xCB/0xCE. Method:
+   boxes (Lane C), objects' star reactions: all done (own table, chained Chomp, Monty, Cheep,
+   Piranha, path Chomp, rocks, crab, Pokey, snowman, Bullet Bill, iron ball), Piranha bite anim, snowman 0x19D. Method:
    obj_trace.lua -> writer pc -> state
    table (def +0x10 manager record +8 / state machine at +0x80) -> port -> replay test.
 4. Item fidelity: star invincibility/knock, blue shell, bob-omb, blooper, Boo, bullet bill,

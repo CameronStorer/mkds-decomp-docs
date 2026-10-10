@@ -380,3 +380,68 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - sub_208C050: recovery target controller lazily calls sub_2041588(kart position+128) if target+28 is absent or active+32 is clear; stores returned record pointer at+28 and marks+32=1 only when non-null
 - sub_208C1D0: route position/direction thunk through runtime slot0x0217B044, pointing to sub_208C000 in Figure-8 race-start dump; caller arguments are forwarded despite no-argument C cast
 - sub_208C000: copies current CPU cursor node position via driver+8/node+24 into first output and segment direction driver+16/+20/+24 into second; these drive steering-recovery state1 calculations
+- sub_20D6BE0: kart-object dispatch; own-reaction table 0x0216B9AC (now ported as obj_collision::own_reaction), kart handler table 0x0216B94C; flag 0x800 keeps only own codes 2/4
+- sub_20E311C: Monty Mole kart callback: code 1 (star) -> state 6 knocked up 0x4000 rolling, code 2 -> state 7 (unless ghost racer, race config +112 == 2)
+- sub_20E32A4: Monty state 6 update: roll +-1024, vy -= 1024, below bottom -> state 5
+- sub_20E3238: Monty state 7 update: vy -= 614, below bottom -> state 5, roll +-1024
+- sub_20E3300: Monty state 6 enter: no-contact flag
+- sub_20E3538: Monty state 1 enter: back to the hole, roll reset
+- sub_20E66E4: object draw with a roll about the model's z (MTX_RotZ from the u16 angle)
+- sub_20EC854: knock-away init (+0xA0 bottom, +0xA4 gravity, +0xA8 side, +0xAC roll, +0xAE roll speed, +0xB0 rise, +0xB4 speed)
+- sub_20EC6E4: knock-away launch: sideways off the kart's facing (+0x50) on the side it passed, plus half the kart velocity, rise up
+- sub_20EC7E8: knock-away step: roll, gravity, move; true once below bottom
+- sub_20EC884: shared knock state machine init (3 states: stand, knocked sub_20EC504/sub_20EC490, removed sub_20EC484)
+- sub_20EC504: knocked state enter: no-contact flag, drop shadow
+- sub_20EC490: knocked state update: step, below bottom -> state 2 (removed)
+- sub_20EC450: shared knock kart callback: code 1 -> launch + state 1 (Piranha Plant)
+- sub_20E5AEC: Piranha Plant init: raise 10*scale, knock (bottom -24, gravity 0x400, roll 0x800, rise 0x4000, speed 0x1800)
+- sub_20E4934: Cheep Cheep kart callback: code 1 -> launch + state 1
+- sub_20E4AB4: Cheep state 1 enter: no-contact flag
+- sub_20E4A68: Cheep state 1 update: knocked flight; below bottom: removed if NKM setting0 lo set, else state 2
+- sub_20E4A34: Cheep state 2 enter: hidden, no contact
+- sub_20E4A18: Cheep state 2 update: after 300 ticks -> state 3
+- sub_20E49C0: Cheep state 3 enter: back to home x/z, rise 0x3199, flags cleared
+- sub_20E4990: Cheep state 3 update: rise until above home -> state 0
+- sub_20E4DEC: Cheep state 0 enter: roll reset
+- sub_20DD230: Chain Chomp kart callback: code 1 -> state 2 unless already in 2 with vy >= 0x4000
+- sub_20DC788: Chomp state 2 enter: pitch 0xD000, slerp rate 0x1C2, vy 0x8000
+- sub_20DC608: Chomp state 2 update: path Chomp walks, vy -= 614 for 40 ticks then pitch += 512, past 0x10555 -> state 5; chained: pitch += 256 after 120 ticks -> state 3
+- sub_20DC428: Chomp state 5 enter: pitch 0x555, slerp rate 0x1C2
+- sub_20D5F8C: rock kart callback: code 1 (star) bursts and restarts it (sub_20D634C)
+- sub_20D5DD0: rock (re)start: back to path start, hidden for the restart delay, vy 0x8000, size reset
+- sub_2093B7C: Bullet Bill kart callback: code 1 (star) -> knocked down: 120 ticks falling, velocity / 4, up 4, no contact
+- sub_20A9DE4: iron ball kart callback: code 1 (star) -> vertical speed 40960 (+0xC0), kart reaction 0
+- sub_209B344: crab kart callback: code 1 -> sub_209B388 with kart position, travel (+0x68), velocity
+- sub_209B388: crab knocked flying: 1.5 units sideways off the kart's travel (side by cross sign), + half kart velocity, up 4, roll 0x71C/-0x71C, 300 ticks, state 2
+- sub_209A7DC: crab tick: 0 wait (idle clock), 1 walk, 2 flying (gravity 1024, roll; timeout -> path start, 5 units under spawn y, wobble start), 3 rising 512 a tick to spawn y -> wait (rng) state 0
+- sub_20A7FC4: Pokey kart callback: code 1 -> sub_20A8098 + no-contact flags; else the bump sound and 60-tick cooldown
+- sub_20A8098: Pokey knocked apart: each segment flies 2 units in a random direction (rng angle), up 4, spin +-0xAAB (rng), 300-tick timer, state 2
+- sub_20A73B0: Pokey tick: walk; state 2 segments fly while y > 0 (gravity 1024), spin; unless setting0 hi, after 300 ticks state 3 regrows segments one by one (scale +205) up to 4
+- sub_2091828: snowman kart callback: code 1 -> head thrown up (0xF333, 0x8000), body scales 0, no contact, state 1
+- sub_20917D0: snowman item callback: same knock as sub_2091828
+- sub_20912A0: snowman tick: 0 sway; 1 head flies (gravity 1024, min -24576) to the ground (2*scale), or removed below 0 if setting0 lo > 0; 2 lies 299 ticks; 3 head rises back while body regrows (64 a tick after 10), contact back -> 0
+- sub_209151C: snowman init: scales 4096, head rest 0xF333*scale, floor 2*scale
+- sub_20915C0: snowman body draw (sman_bottom, billboard, scale +0xB4)
+- sub_20916A0: snowman head draw (sman_top, billboard, raised +0xB8, z sway +0xA4)
+- sub_20FFB1C: pinball drum (0xD2) init: speeds s0lo*128/100, s2lo*128/100 and their mean, timings s0hi/s1lo/s1hi; 6 states (visual spinner)
+
+- sub_1FFD224: CPU recovery-state1 correction projects segment direction onto kart-up plane (rounded dot/truncated scale), requires body-forward dot above-819, then crosses world-Y-zeroed kart-minus-node with projected direction and turns200 angle units by kart-up dot sign. All863 labeled state1 steering probes match; current recording exercises correction branch only, fallback is source-derived. Native driver now applies this ahead of normal heading steering
+- sub_2041588: CPU recovery node selector scans AREA records in order for kind4, tests box or cylinder bounds, and returns runtime CPU route node at40*AREA.s16(+64); requires nonzero recovery-area count+258. Controlled state2 callbacks match218 selections (130 targets/88 misses) using12 original box volumes retyped as kind4 with node indices0..11; not a natural recovery race. Native reads72-byte AREA entries and consumes first matching valid node
+- sub_2041A70: inclusive AREA box test: rounded dot against Y-axis must be0..100*scaleY; X/Z rounded projections within +/-50*scaleX/Z. Matches box selection inside218 controlled callback probes. Cylinder branch in sub_2041588 uses50*scaleY upper bound without a lower check and separately rounded squares after >>4; cylinder path source-derived, not captured
+- sub_208C050: native recovery callback now selects AREA kind4 CPU node, replacing an inactive predecessor override or preserving an already-active area target; node selection and active latch match218 controlled original callbacks
+- sub_2063A68: final CPU recovery callback invokes kart+548; local Figure-8 race-start RAM resolves this pointer to sub_2072EB8 for player and CPU karts. Native requests immediate placement through its existing respawn bridge, without the fall-animation delay; original per-racer spread and exact placement/hold timing remain unported
+- sub_2080AC0: previous-node override now wired into native CPU cursor. sub_207F6F0 applies old-node drift hints then switches to override node and refreshes target without angle/reached checks on that call; passing a node consumes the override. Cursor integration regression covers predecessor override and empty AREA replacement
+- sub_2092B5C: bat spawner (NKM 0x1A0, Banshee Boardwalk old_hyudoro_64) tick, state +0xAC: 0 waits for a counted kart within sqrt(5625)*256=1200 units and atan2 minus yaw (+0x7E) in +-8000 (flag 0x800: timed, +0xA4 counts down), or sub_2061818()==2; 1 runs a 50 tick cycle (+0xA0), at tick 20 throws 2 bats (6 RNG draws each: x+-5, y+35+-5, z+-40 units, speed 2..3 units, angle yaw-3000+rnd(6000), vy -0.625..-0.375), +0xA8 burst counter 0..2, after 5 cycles (+0xA4 from 4) back to 0. Ported in vm_model/src/mapobj/bats.rs, replay-tested
+- sub_209219C: takes a bat from the 6 bat pool (sub_2100138/sub_209BBFC, none free: nothing, no draws), sets lifetimes +0xB0=rnd(30), +0xB4=15, +0xB8=0x8C+rnd(8), position (+4), velocity (+0xA0), first (+0xBC), kind (+0xC0), state +0xD4=0, hit mask +0xD0=0; the wobble +0xC4.. is not reset
+- sub_20924D8: bat tick: wobble +0xC4 += +0xC8 (+60 a tick, turns at 8160); state 0 sleeps +0xB0 ticks, then accelerates 0.1 along facing (+0x40/+0x48) and -0.1 down for +0xB4 ticks; 1 +0.1 up until vy>0 (vy=0); 2 glide +0xB8 ticks; 3 fly away (vy +1 a tick, facing -0.05) and delete (sub_20D2398) at y>=1802240; flap frame +0xAC and sound 357 not ported
+- sub_209297C: bat kart callback (handler 12 for mode 0 karts): once per kart (mask +0xD0), sets the object push +0x10 to 1.2 units along the kart-bat vector minus its part along the bat facing (y kept), or along the facing if that is shorter than 4 units
+- sub_2092B20: bat delete (sub_20D2398, sub_20D28E0); sub_2092B3C: spawner init (registers tick sub_2092B5C); sub_20924A8: bat factory; sub_2092484/sub_2092928/sub_2092940: bat pool/manager glue (0x19E)
+- sub_2148714: FX_Atan2Idx(x, z): 16 bit angle 0 along +z, 0x4000 along +x (table off_21488E4 indexed by ratio>>5)
+- sub_20D22D0: returns the objects' RNG state pointer (arg ignored); sub_2091F6C(rng, n) = (hi word after step * n) >> 32; sub_2046524 same truncated to u16
+- sub_20E3EF4: turning platform init (gears 0xCB/0xCE, rotary room/bridge): speed s0lo*128/100 (neg if s2lo), ramp s1lo (step 0x1000/ramp), run s0hi, rest s1hi; 4 states
+- sub_20E44D8: turning platform state 0 enter: speed factor 0
+- sub_20E4474: turning platform state 0: factor += step, yaw += factor*speed; after ramp -> 1
+- sub_20E4434: turning platform state 1: yaw += speed; after run ticks (if set) -> 2
+- sub_20E4428: turning platform state 2 enter: factor 4096
+- sub_20E43A8: turning platform state 2: factor -= step, yaw += factor*speed; after ramp: speed reversed -> 3
+- sub_20E4380: turning platform state 3: rest; after rest ticks -> 0

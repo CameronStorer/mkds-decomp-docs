@@ -18,21 +18,25 @@ wired up in `game/src/objects.rs`):
 | objects' own reaction table (`0x0216B9AC`) | done: real table replaces the old guess (2026-10-09) |
 | Monty Mole hit states 6/7 (star knock / run into, roll) | done (2026-10-09) |
 | Cheep Cheep star knock (shared knock-away routine `knock.rs`), hide, respawn | done (2026-10-09) |
-| Chomp hit state 2, rock break, Piranha Plant knock | next |
-| pinball flippers, iron balls, drums | agent stopped (rate limit); to redo |
+| loose Chomp hit state 2 (pops up, tumbles), rock star burst, Piranha Plant knock-away | done (2026-10-09) |
+| pinball iron balls (replay-exact, released by lap) and flippers (swing, kicks from balls, box contact + shove) | done, in game (2026-10-09); drums 0xD2 and decorative balls 0x1B3 left |
 | decoration model confirmation (16 fallback models) | agent stopped (rate limit); to redo |
-| Pokey/crab/snowman star reactions, bats, Boos/chandeliers/paintings/fish, gear pauses | left |
+| star reactions: crab knocked flying, Pokey knocked apart + regrow, snowman head knocked off + rebuilt (now drawn as body + head), Bullet Bill knocked down, iron ball bounce | done (2026-10-09) |
+| chained Chomp hit state 2 | done (2026-10-09) |
+| drums 0xD2 (visual), bats, Boos/chandeliers/paintings/fish, decoration model confirmation (unconfirmed fallbacks) | left; bats: agent porting |
+| turning platforms (gears, rotary room): speed-up / run / slow / reverse / rest | done (2026-10-09) |
 
 ## Lane B: characters, effects, Rainbow Road (Codex)
 - Driver joint animations and face-pattern decoders are integrated; detailed drivers render with original clips. Details: `docs/CODEX_*` handoffs.
 - Original ROM particle textures/simulation now replace cube drift sparks: smoke, blue flares, red sparks and A+B pivot smoke. Draw math matches721 captured calls; rear contacts645; smoke attachment100; pivot gate3993. Native charge rendering and active-effects race restart checked.
 - CPU heading now matches3500 original calls (Figure-8 and Rainbow Road, including inverted track), replacing floating atan2 with the SDK integer pipeline. Native seed1 Rainbow Road sweep: five falls before/six after; spiral falls remain unresolved.
-- CPU wall-stall recovery timer model matches7000 calls (6782 natural state0 calls plus218 labeled probes, including78 starts). Later stages/mode2 are source-tested only; full callback/native wiring pending. Other kart effects/child particles and full GPU parity also remain.
-- Latest complete core check:158 passed,0 failed,1 existing CPU replay ignored; Windows release built and ran. Detailed evidence/limitations: `analysis/CODEX_PARTICLE_MAP.md`, `docs/NEXT_GOALS.md`.
+- CPU wall-stall recovery is now wired: timer7000 calls, correction863 state1 probes, area selection218 controlled callbacks. Previous-node/AREA targets feed the route cursor; final callback uses existing native respawn. Forced-stall run passed all four stages at259/379/559/739 with immediate placement. Fixed-tick Rainbow Road sweep exited0 at6000 ticks/2995 render frames with10 falls; falls remain open. Respawn placement/timing, other kart effects/child particles and GPU parity remain.
+- Latest complete core check:163 passed,0 failed,1 existing CPU replay ignored; Windows release compiled and ran (fresh copy: `game/target/release/mkds_game_codex_recovery.exe`; normal exe currently in use). Detailed evidence/limitations: `analysis/CODEX_PARTICLE_MAP.md`, `docs/NEXT_GOALS.md`.
 
 ## Lane C: items and sound
 See `docs/NEXT_GOALS.md` item 4 onward.
 
 ## Checks
 - `cargo test` in `vm_model` (object tests: `cargo test --lib mapobj`), `cargo build` in `game`.
-- Falls sweep (autopilot): Airship 0-1 falls per race (from Bullet Bill blows), Delfino 0.
+- Falls sweep (autopilot): Airship 0-1 falls per race (from Bullet Bill blows), Delfino 0, Pinball 0,
+  Cheep Cheep Beach 0, Peach Gardens 0, Mario Circuit 1, DK Pass 1.

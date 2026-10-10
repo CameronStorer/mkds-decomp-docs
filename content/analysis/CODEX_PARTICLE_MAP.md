@@ -568,3 +568,66 @@ section alongside the detailed maps and goal notes.
 Validation after the recovery module:158 core tests passed,0 failed,1
 existing CPU replay ignored. Windows release builds with the new module;
 its callbacks remain intentionally unwired pending original-game evidence.
+
+## Native CPU recovery integration (2026-10-09)
+
+The recovery timer and route callbacks are now integrated into `CpuDriver`
+and `game/src/racers.rs`. Wall/solid-object contact flags0x80/0x40 and
+velocity magnitude feed the original gate. State1 turns200 angle units
+across the route before normal steering; state2 latches the predecessor as
+a temporary target; state3 selects the first matching AREA kind4 node.
+An override switch applies old-node drift hints and skips that call's angle
+and reached checks; passing a node consumes its override.
+
+Original-function validation adds863 labeled state1 steering probes, all
+exercising the correction branch, and218 controlled state2 area callbacks
+(130 selected targets,88 misses). Area probes use12 original Figure-8 box
+volumes with controlled kind4/node fields and restored scalar inputs.
+They validate box geometry, first-match selection and target-active fields,
+not a natural recovery race. Opposed-forward fallback and cylinder geometry
+remain source-derived. Cylinder height has no lower bound in the C; the
+port preserves that behavior rather than adding a presumed correction.
+
+CourseMap now decodes the original72-byte AREA records. Local race-start RAM
+resolves kart+548 to `sub_2072EB8`, so the final recovery callback requests
+immediate native placement, without waiting for the fall animation. This
+uses the existing native checkpoint-respawn implementation: per-racer spread,
+precise pose/reset flags and hold timing still differ from the original.
+The native callback runs in the existing post-physics placement phase, not
+the original in-function placement timing. This is useful recovery behavior,
+not full respawn parity.
+
+The optional `MKDS_CPU_STALL` integration probe blocks racer0 during fixed
+ticks240..779. All four stages occurred at259/379/559/739 and the kart was
+placed immediately; the run exited0 without falls/panics. Repeat with
+`tools/native/recovery_probe.ps1`. The flag has no effect in normal play.
+A source-backed cursor regression checks predecessor switching and removal
+of the override after an empty area selection.
+
+Screenshot-frame budgets can span different fixed-tick durations under
+rendering load. `MKDS_SHOT_TICKS` now provides a simulation-tick capture
+threshold and logs actual capture tick/frame; the existing frame option
+continues to work. Subsequent sweep reports must use the logged simulation
+duration before drawing conclusions about fall counts.
+
+Validation after integration:163 core tests passed,0 failed,1 existing
+CPU replay ignored. Release compilation and `cargo check --release` pass.
+The normal executable was held open by another run during Cargo's final
+copy; the active copy was preserved and fresh linked output is also
+available as `game/target/release/mkds_game_codex_recovery.exe`. Native
+checks use this separate executable; no other run was stopped.
+
+The repeated forced-stall check with fixed-tick capture passed again:
+all four stages259/379/559/739, immediate placement, no falls before
+capture, native exit0. Screenshot threshold900 was observed at race
+tick901/render frame446; its small overshoot is explicitly logged.
+
+The normal seed1 Rainbow Road sweep captured at exactly race tick6000
+(render frame2995), exited0 and recorded10 falls before capture. All were
+accepted type11 contacts. This does not demonstrate a fall reduction; other
+agents also changed the shared project during this work. The corrected
+recovery sequence is a source-backed behavior improvement, while full
+trajectory/contact comparison remains open. Numeric record:
+`analysis/cpu_recovery_sweep.csv`. A scan of local extracted course maps
+finds20 recovery AREA kind4 records, all box-shaped; the source-derived
+cylinder branch is not used by those local recovery records.
