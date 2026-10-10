@@ -947,3 +947,9 @@ Mario driving normally on lap2. Comparison record:
 scratchpad/codex_bowser_order_comparison.json. This is two-run repeatability
 for selected logs, not every kart field every tick or original-RNG/trajectory
 parity. Other system ordering and starting-state differences remain to audit.
+
+
+Rainbow Road follow-up (Codex, 2026-10-10): same private input/order release exits0 at6000 ticks/frame5770 with19 falls (CPU7:7; player0,CPU1/2/5/6:2 each; CPU3/4:1 each), all flags0x84000800. One racer reached lap2; others remain lap1. Screenshot reviewed on spiral; spiral falls remain unresolved. Numeric positions: scratchpad/codex_rainbow_order_falls.json. Prior10-fall run used a different shared build; no isolated causal comparison or broad regression verdict.
+Next T006 evidence should pair real native swept/CPU inputs at these regions
+with original callbacks; do not infer a geometry or steering cause from falls
+alone. CPU order/input fixes do not constitute a spiral solution.
