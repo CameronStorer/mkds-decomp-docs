@@ -492,3 +492,11 @@ Kart +76 (0x4C) bit 0x40 = star, 0x10000000 = Bullet Bill active; mask 0x1000004
 - Boo RNG: *0x021755FC+0x498 (sub_209520C), a MATH_Rand32 distinct from the objects' one at *0x0217B49C; also drawn by the ambient sound code now and then (resync in tests)
 - sub_2095544: bakubaku (0x13C) tick, +0xB0 state: 0 waits for the view kart within 800 units of the trigger point (sub_20957EC: nkm pos + 800*facing), 1 rises from 50 units below at 12 units/tick up and 0.25 gravity, 2 above ground (only drawn then, sound 390 on entry), 3 sinks (sound 391), 4 waits 1800 ticks
 - sub_2095848: bakubaku draw: matrix + scale, body model (bakubaku) then baku_shadow tilted by atan2(-vy, 12.0) about x
+- sub_2071980: thunk `sub_210B2A8(kart, a2, kart+992, kart+996, kart+1280)`: the kart's rolling/wading sound step (a5 = water depth, see sub_206FE08)
+- sub_206FE08: kart water step: v = sub_20D3D48(kart y) (y minus the water surface); when v < 0 (below the surface) and not flag +76 bit 0x4000000: +220 (speed/gravity scale) = max(((+1012 * +196 >> 12) * v >> 12) + 4096, *(+716)+120) and kart+0x500 = -v (depth below the water), then `sub_207A6C0`; a splash effect `sub_208D978` when the previous frame was above -40960 and the vertical speed < -8192; otherwise +0x500 = 0
+- sub_20D3D48: height of a point above the water surface: y - (*0x217B4C4 water object)+4 when that object (+368 active), else y - **0x217B4B8, else 9999.0 (no water)
+- sub_20D3D10: true when y is more than 50 units (-204800) below the water surface (**0x217B4B8)
+- sub_20D3D94: water object (*0x217B4C4) active flag (+368); sub_20D3E18: a course water pointer (0x217B4B8 side) exists
+- sub_210B2A8: kart wading/rolling sound: only the local-bit kart (+52 & 1) without Bullet Bill; volume min(127, (+1112 >> 12) >> 2) from the speed word +0x458, SE 116 when depth a5 > 25000 with pitch drop (a5 - 25000) * 0.02 up to 900 above 70000 (+ wobble for the local kart); on land the surface group 0 sound
+
+- sub_1FFDEE4: course KCL swept-sphere query; a6=-2 skips moving-object collision, a6=-1 queries nearby objects otherwise uses cached object index. Bowser terrain hit/no-hit, push and flags replay-exact in 96 controlled probes near 16 native fall positions (2026-10-10).

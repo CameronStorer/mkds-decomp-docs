@@ -19,8 +19,7 @@ wired up in `game/src/objects.rs`):
 | Monty Mole hit states 6/7 (star knock / run into, roll) | done (2026-10-09) |
 | Cheep Cheep star knock (shared knock-away routine `knock.rs`), hide, respawn | done (2026-10-09) |
 | loose Chomp hit state 2 (pops up, tumbles), rock star burst, Piranha Plant knock-away | done (2026-10-09) |
-| pinball iron balls (replay-exact, released by lap) and flippers (swing, kicks from balls, box contact + shove) | done, in game (2026-10-09); drums 0xD2 and decorative balls 0x1B3 left |
-| decoration model confirmation (16 fallback models) | agent stopped (rate limit); to redo |
+| pinball iron balls (replay-exact, released by lap) and flippers (swing, kicks from balls, box contact + shove) | done, in game (2026-10-09) |
 | star reactions: crab knocked flying, Pokey knocked apart + regrow, snowman head knocked off + rebuilt (now drawn as body + head), Bullet Bill knocked down, iron ball bounce | done (2026-10-09) |
 | chained Chomp hit state 2 | done (2026-10-09) |
 | pinball drums 0xD2 (replay-exact, with their manager's random speed order) | done (2026-10-09) |
@@ -28,15 +27,19 @@ wired up in `game/src/objects.rs`):
 | fallback decoration models checked against the game's loaders (fixed 0x13C bakubaku; spawners 0x13D/0x1A0 draw nothing) | done (2026-10-09) |
 | Tick-Tock Clock pendulum collision (bob disc; blows karts away; clock autopilot 1-2 falls) | done (2026-10-09) |
 | Rocky Wrench hatch collision (solid and knocking while the wrench is up) | done (2026-10-10) |
-| Boo swarm (0x13D spawner, 0x13B Boos) and bakubaku 0x13C | agent porting |
+| Boo swarms (0x13D spawners, pooled 0x13B Boos; own RNG; fade/flip) on Luigi's Mansion and Banshee Boardwalk, bakubaku 0x13C on Banshee Boardwalk (replay-tested, in game) | done (2026-10-10) |
+| black gears 0xCE and Bowser's Castle rotating bridge 0xD1 turn (about their own tilted y); only flat turntables carry karts | done (2026-10-10) |
 | Banshee Boardwalk bats (spawner 0x1A0 throws 0x19F bats; replay-tested, in game) | done (2026-10-09) |
 | turning platforms (gears, rotary room): speed-up / run / slow / reverse / rest | done (2026-10-09) |
+| texture-pattern animations (.nsbtp) on objects: looped a frame a tick; Boo faces held on slot & 1 | done (2026-10-10; per-object frame drivers, e.g. the crab's claw clock, approximated by the loop) |
+| left: bakubaku shadow, per-object .nsbtp frame drivers, Mansion 0xC9 path item boxes (Lane C) | left |
 
 ## Lane B: characters, effects, Rainbow Road (Codex)
 - Driver joint animations and face-pattern decoders are integrated; detailed drivers render with original clips. Details: `docs/CODEX_*` handoffs.
 - Original ROM particle textures/simulation now replace cube drift sparks: smoke, blue flares, red sparks and A+B pivot smoke. Draw math matches721 captured calls; rear contacts645; smoke attachment100; pivot gate3993. Native charge rendering and active-effects race restart checked.
 - CPU heading now matches3500 original calls (Figure-8 and Rainbow Road, including inverted track), replacing floating atan2 with the SDK integer pipeline. Native seed1 Rainbow Road sweep: five falls before/six after; spiral falls remain unresolved.
 - CPU wall-stall recovery is now wired: timer7000 calls, correction863 state1 probes, area selection218 controlled callbacks. Previous-node/AREA targets feed the route cursor; final callback uses existing native respawn. Forced-stall run passed all four stages at259/379/559/739 with immediate placement. Fixed-tick Rainbow Road sweep exited0 at6000 ticks/2995 render frames with10 falls; falls remain open. Respawn placement/spread and SDK reset yaw now match306 controlled original calls and are wired; steering resets on placement. Source-backed follow-up freezes every falling racer checkpoint and caches the respawn id at fall start. Supplied JGPT CPU route reset now matches306 original callback probes across37 nodes, including pacing reset; native wired. Fall/carry timing, absent-route/item-controller/full reset parity, other kart effects/child particles and GPU parity remain.
+- Bowser terrain isolation (2026-10-10):96 controlled original queries at16 logged native fall positions match Rust hit/no-hit, flags and push exactly (51 hits,45 misses). Original accepts the same lava contacts. Exact native swept queries and moving-block/CPU trajectory parity remain open. New replay and existing Rainbow backface regression both pass. Replay: `vm_model/tests/bowser_kcl.rs`.
 - Latest complete core check:171 passed,0 failed,1 existing CPU replay ignored; Windows release compiled and ran (fresh copy: `game/target/release/mkds_game_codex_cpu_respawn.exe`; supplied route reset native check passed at tick900/frame420). Detailed evidence/limitations: `analysis/CODEX_PARTICLE_MAP.md`, `docs/NEXT_GOALS.md`.
 
 - Note for Lane B (2026-10-09): Bowser's Castle autopilot now logs ~111 falls (lava, flags 0x800,

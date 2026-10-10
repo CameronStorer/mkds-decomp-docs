@@ -1,6 +1,6 @@
 # Next goals (resume here)
 
-- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery now wired: timer7000 calls, steering863 probes, AREA selection218 callbacks; forced-stall native stages259/379/559/739 and immediate placement pass. Fixed-tick seed1 Rainbow Road run:10 falls at6000 ticks; placement/spread and SDK reset yaw now match306 controlled original calls and are wired. Every falling racer now freezes checkpoint progress and caches its respawn id at fall start (source-backed). Supplied JGPT route reset matches306 original callbacks and is wired. Falls, fall/carry timing, fallback/item-controller reset parity remain open; Bowser native remains8 falls/6001 ticks after supplied-route reset. Valid original diagnostic:0 falls/6000 frames and39,844 CPU calls; unsynchronized starts/settings. Next: paired pose/target/KCL contacts near sliding block.
+- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery now wired: timer7000 calls, steering863 probes, AREA selection218 callbacks; forced-stall native stages259/379/559/739 and immediate placement pass. Fixed-tick seed1 Rainbow Road run:10 falls at6000 ticks; placement/spread and SDK reset yaw now match306 controlled original calls and are wired. Every falling racer now freezes checkpoint progress and caches its respawn id at fall start (source-backed). Supplied JGPT route reset matches306 original callbacks and is wired. Falls, fall/carry timing, fallback/item-controller reset parity remain open; Bowser native remains8 falls/6001 ticks after supplied-route reset. Valid original diagnostic:0 falls/6000 frames and39,844 CPU calls; unsynchronized starts/settings. 96 controlled Bowser terrain probes match original hit/no-hit, flags and push; original accepts lava there too. Next: capture exact native swept sphere queries, then paired pose/target/moving-block contacts near sliding block.
 
 - Lane B CPU heading now uses original quantized SDK atan2 and rounded integer degrees, replacing floats. Original Figure-8/Rainbow Road calls replay exactly; seed1 native Rainbow Road sweep changed five falls to six, so spiral falls remain open. See `analysis/CODEX_PARTICLE_MAP.md` and `analysis/cpu_heading_fall_comparison.csv`.
 
@@ -255,7 +255,8 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
    fallback decoration models (agent stopped).
    Bats: spawner 0x1A0 throws 0x19F bats (agent port `mapobj::bats`, in game).
    Drums 0xD2, chandeliers/paintings/sun (.nsbca on objects) done.
-   Left: Boos 0x13B/0x13D and bakubaku 0x13C (agent), Mansion 0xC9 path item
+   Boos (0x13D spawners) and bakubaku 0x13C done (agent port `mapobj::boo`).
+   Left: Mansion 0xC9 path item
    boxes (Lane C), objects' star reactions: all done (own table, chained Chomp, Monty, Cheep,
    Piranha, path Chomp, rocks, crab, Pokey, snowman, Bullet Bill, iron ball), Piranha bite anim, snowman 0x19D. Method:
    obj_trace.lua -> writer pc -> state
@@ -268,3 +269,5 @@ run with 0-1 falls per autopilot race (Rainbow Road a few).
 6. Battle fidelity: the game's battle CPU AI (tables set by `sub_2090354`, driver mode for
    cfg+8 == 2) so CPUs hunt; balloon models on karts; balloon stealing; verify the balloon
    rules in BizHawk. Shine Runners. Missions last.
+
+- Water (found from the engine-sound work, see docs/lane_c/sound.md 'Resolved'): `sub_206FE08` slows/sinks karts below the course water surface (`sub_20D3D48`, object `*0x217B4C4`) and drives the underwater engine pitch; none of it is ported. Needs the water object (map-object lane) and the kart step.

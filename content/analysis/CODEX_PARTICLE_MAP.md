@@ -762,3 +762,21 @@ RNG and object timing are not synchronized. Zero observed original falls versus
 Next comparison should capture CPU pose, target and KCL contact around the
 sliding block, where native karts reach the lava rather than keeping the original
 trajectory. Do not suppress valid type11 falls to conceal the divergence.
+
+
+### Bowser terrain isolation (2026-10-10)
+
+Controlled `sub_1FFDEE4` probes at the 16 logged native fall positions, with
+three nearby sphere heights and two previous-center choices each, match Rust
+exactly on all 96 queries: 51 hits, 45 misses; hit flags and push match.
+The original reports the same type11 lava flags at accepted contacts.
+a6=-2 excludes map objects; query flags=1, radius=45056, facing=null.
+This does not reproduce each native movement query: the sphere offset,
+previous center and facing were selected explicitly, not captured from that
+racer. No terrain or type11 fall suppression change is justified.
+
+Harness/limitations: `tools/bizhawk/codex_bowser_kcl/README.md`; numeric replay
+`vm_model/tests/bowser_kcl.rs`, fixture `data/bowser_kcl.csv`. Replay passed.
+Next isolate actual native swept queries, CPU trajectory and moving-block
+contact against the original; the controlled emulator trajectory is not an
+unmodified race reference.
