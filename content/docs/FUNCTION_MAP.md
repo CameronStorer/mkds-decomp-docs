@@ -268,7 +268,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/movement.rs:8](../vm_model/src/kart/movement.rs#L8) | [`collide`] | `sub_1FFCB58` (+ `sub_1FFA4B4` contact, `sub_1FF9E5C` surface, `sub_1FFA0C4`, `sub_1FF9F60` orientation) |
 - [vm_model/src/kart/movement.rs:550](../vm_model/src/kart/movement.rs#L550) Ground contact after moving (`sub_1FFCB58` / `sub_1FFA4B4`), wall reactions, then the
 - [vm_model/src/kart/movement.rs:610](../vm_model/src/kart/movement.rs#L610) landing ends a jump-pad flight (sub_1FFA4B4), before the floor's own effect
-- [game/src/respawn.rs:138](../game/src/respawn.rs#L138) sub_1FFA4B4 passes the movement query's accepted flags in r1 at
+- [game/src/respawn.rs:144](../game/src/respawn.rs#L144) sub_1FFA4B4 passes the movement query's accepted flags in r1 at
 - [docs/function_notes.md:122](../docs/function_notes.md#L122) movement terrain contact query; passes the same accepted swept sphere flags to sub_206FF50 at 0x01FFA868..0x01FFA894; suppresses type 10 while wall-contact flag is set unless type 11 also hit
 
 ## sub_1FFAD14
@@ -8762,18 +8762,19 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_203D9D4_0203D9D4.c`
 
 - [vm_model/src/race.rs:2](../vm_model/src/race.rs#L2) checkpoints, and race places (`sub_203D9D4` once per frame after the karts; per kart
-- [vm_model/src/race.rs:352](../vm_model/src/race.rs#L352) `sub_203D9D4` places: insertion sort from the previous order by laps, then race progress.
+- [vm_model/src/race.rs:353](../vm_model/src/race.rs#L353) `sub_203D9D4` places: insertion sort from the previous order by laps, then race progress.
 
 ## sub_203DF74
 `export/plan0/arm9_main/sub_203DF74_0203DF74.c`
 
 - [vm_model/src/race.rs:3](../vm_model/src/race.rs#L3) `sub_203DF74`).
-- [vm_model/src/race.rs:272](../vm_model/src/race.rs#L272) `sub_203DF74`: update from the kart's position (+0x80 x, z).
+- [vm_model/src/race.rs:273](../vm_model/src/race.rs#L273) `sub_203DF74`: update from the kart's position (+0x80 x, z).
+- [game/src/race.rs:122](../game/src/race.rs#L122) sub_203DF74 -> sub_207A5C4 checks kart+72 bit0x800 for every racer.
 
 ## sub_203E370
 `export/plan0/arm9_main/sub_203E370_0203E370.c`
 
-- [vm_model/src/race.rs:317](../vm_model/src/race.rs#L317) `sub_203E370`: move to checkpoint `to`, passing keys and the line.
+- [vm_model/src/race.rs:318](../vm_model/src/race.rs#L318) `sub_203E370`: move to checkpoint `to`, passing keys and the line.
 
 ## sub_203E4C4
 `export/plan0/arm9_main/sub_203E4C4_0203E4C4.c`
@@ -8783,7 +8784,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_203E550
 `export/plan0/arm9_main/sub_203E550_0203E550.c`
 
-- [vm_model/src/race.rs:335](../vm_model/src/race.rs#L335) sub_203E550: a new lap
+- [vm_model/src/race.rs:336](../vm_model/src/race.rs#L336) sub_203E550: a new lap
 
 ## sub_203E74C
 `export/plan0/arm9_main/sub_203E74C_0203E74C.c`
@@ -8863,29 +8864,29 @@ ports or explains it. Regenerate after porting something new.
 ## sub_203F7C0
 `export/plan0/arm9_main/sub_203F7C0_0203F7C0.c`
 
-- [vm_model/src/race.rs:19](../vm_model/src/race.rs#L19) Search depth around the last checkpoint (`sub_203F7C0` / `sub_203F91C`).
-- [vm_model/src/race.rs:219](../vm_model/src/race.rs#L219) `sub_203F7C0`: backwards from `cp`.
+- [vm_model/src/race.rs:20](../vm_model/src/race.rs#L20) Search depth around the last checkpoint (`sub_203F7C0` / `sub_203F91C`).
+- [vm_model/src/race.rs:220](../vm_model/src/race.rs#L220) `sub_203F7C0`: backwards from `cp`.
 
 ## sub_203F91C
 `export/plan0/arm9_main/sub_203F91C_0203F91C.c`
 
-- [vm_model/src/race.rs:19](../vm_model/src/race.rs#L19) Search depth around the last checkpoint (`sub_203F7C0` / `sub_203F91C`).
-- [vm_model/src/race.rs:243](../vm_model/src/race.rs#L243) `sub_203F91C`: forwards from `cp`.
+- [vm_model/src/race.rs:20](../vm_model/src/race.rs#L20) Search depth around the last checkpoint (`sub_203F7C0` / `sub_203F91C`).
+- [vm_model/src/race.rs:244](../vm_model/src/race.rs#L244) `sub_203F91C`: forwards from `cp`.
 
 ## sub_203FA60
 `export/plan0/arm9_main/sub_203FA60_0203FA60.c`
 
-- [vm_model/src/race.rs:183](../vm_model/src/race.rs#L183) `sub_203FA60`: is the kart in checkpoint `cp`'s quad (leaving group `group`)?
+- [vm_model/src/race.rs:184](../vm_model/src/race.rs#L184) `sub_203FA60`: is the kart in checkpoint `cp`'s quad (leaving group `group`)?
 
 ## sub_203FCAC
 `export/plan0/arm9_main/sub_203FCAC_0203FCAC.c`
 
-- [vm_model/src/race.rs:127](../vm_model/src/race.rs#L127) `sub_203FCAC`: fraction of the way from line `a` to line `b` (-4096 if outside the quad).
+- [vm_model/src/race.rs:128](../vm_model/src/race.rs#L128) `sub_203FCAC`: fraction of the way from line `a` to line `b` (-4096 if outside the quad).
 
 ## sub_203FDE0
 `export/plan0/arm9_main/sub_203FDE0_0203FDE0.c`
 
-- [vm_model/src/race.rs:115](../vm_model/src/race.rs#L115) `sub_203FDE0`: whether `pos` (x, z) is on the inner side of both quad edges.
+- [vm_model/src/race.rs:116](../vm_model/src/race.rs#L116) `sub_203FDE0`: whether `pos` (x, z) is on the inner side of both quad edges.
 
 ## sub_203FED4
 `export/plan0/arm9_main/sub_203FED4_0203FED4.c`
@@ -8896,12 +8897,12 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20401AC
 `export/plan0/arm9_main/sub_20401AC_020401AC.c`
 
-- [vm_model/src/race.rs:25](../vm_model/src/race.rs#L25) The course's checkpoints and the progress scales derived from them (`sub_20401AC`).
+- [vm_model/src/race.rs:26](../vm_model/src/race.rs#L26) The course's checkpoints and the progress scales derived from them (`sub_20401AC`).
 
 ## sub_2040750
 `export/plan0/arm9_main/sub_2040750_02040750.c`
 
-- [vm_model/src/race.rs:150](../vm_model/src/race.rs#L150) `sub_2040750`: at the start, on the checkpoint just before the line, no lap, no keys.
+- [vm_model/src/race.rs:151](../vm_model/src/race.rs#L151) `sub_2040750`: at the start, on the checkpoint just before the line, no lap, no keys.
 
 ## sub_20408F0
 `export/plan0/arm9_main/sub_20408F0_020408F0.c`
@@ -9519,6 +9520,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/mapobj/cheep.rs:74](../vm_model/src/mapobj/cheep.rs#L74) One tick of its state machine (`sub_2046B40`).
 - [vm_model/src/mapobj/chomp.rs:165](../vm_model/src/mapobj/chomp.rs#L165) +0x90 the state to switch to at the start of the next tick (`sub_2046B40`).
 - [vm_model/src/mapobj/chomp.rs:272](../vm_model/src/mapobj/chomp.rs#L272) `sub_2046B40`: a pending state starts, running its entry.
+- [vm_model/src/mapobj/drum.rs:64](../vm_model/src/mapobj/drum.rs#L64) One tick (`sub_2046B40` with the drum's states).
 - [vm_model/src/mapobj/goomba.rs:105](../vm_model/src/mapobj/goomba.rs#L105) sub_20DAF20 advances gait even while squashed. sub_2046B40 applies a
 - [docs/function_notes.md:130](../docs/function_notes.md#L130) object state machine tick: runs a pending state's enter, then the update
 - [docs/function_notes.md:239](../docs/function_notes.md#L239) shared state dispatcher: consume pending transition, reset elapsed ticks, run new entry and update in same call, then increment elapsed; Goomba timing matches all 600 captured updates
@@ -14204,7 +14206,9 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/mod.rs:325](../vm_model/src/kart/mod.rs#L325) passes this same result to sub_206FF50; a fresh unswept query can hit backfaces.
 - [game/src/respawn.rs:4](../game/src/respawn.rs#L4) one (0x8000) starts it (`sub_206FF50`); race progress is frozen meanwhile (kart +0x48 bit
 - [game/src/respawn.rs:19](../game/src/respawn.rs#L19) Fall surfaces (types 10, 11). Type 15 is a cannon (`sub_206FF50` -> `sub_20710B0`).
+- [game/src/respawn.rs:42](../game/src/respawn.rs#L42) sub_206FF50 snapshots checkpoint respawn id at fall start (kart+964).
 - [docs/function_notes.md:123](../docs/function_notes.md#L123) handles accepted fall/cannon terrain contact; flags 0xC00 begin fall state, signed type-15 flag routes cannon/off-course handling; caller's second argument omitted by C cast but retained in ARM r1
+- [docs/function_notes.md:456](../docs/function_notes.md#L456) fall start stores the checkpoint's respawn id in kart+964 immediately (or the battle cycling index) before the carry/placement phase. Native now caches the race checkpoint id at fall start rather than recomputing it after its placeholder delay; battle selection still needs porting
 
 ## sub_2070398
 `export/plan0/arm9_main/sub_2070398_02070398.c`
@@ -14332,7 +14336,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20720DC
 `export/plan0/arm9_main/sub_20720DC_020720DC.c`
 
-- [game/src/respawn.rs:126](../game/src/respawn.rs#L126) sub_20720DC (kart+528 reset callback) clears lean, air pitch
+- [game/src/respawn.rs:132](../game/src/respawn.rs#L132) sub_20720DC (kart+528 reset callback) clears lean, air pitch
 - [docs/function_notes.md:451](../docs/function_notes.md#L451) base kart reset callback (kart+528 resolves here in Figure-8 RAM): clears motion/status masks, velocity, drift, tilt, lean+724, air-pitch+564, target/eased turn+1004/+1008, restores default scale/friction/gravity, respawn-id+964=-1. Native respawn now also clears KartSteering while preserving host CPU classification; full item/controller reset audit remains open
 - [docs/function_notes/agent_03.md:253](../docs/function_notes/agent_03.md#L253) zeroes/initialises the whole kart struct (positions, matrices, scales, timers, speeds, flags) to defaults before spawn
 
@@ -15090,6 +15094,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_207A5C4
 `export/plan0/arm9_main/sub_207A5C4_0207A5C4.c`
 
+- [game/src/race.rs:122](../game/src/race.rs#L122) sub_203DF74 -> sub_207A5C4 checks kart+72 bit0x800 for every racer.
+- [docs/function_notes.md:455](../docs/function_notes.md#L455) per-racer checkpoint freeze predicate: reads kart+72 bit0x800 using the requested racer index, not just the player. sub_203DF74 returns before checkpoint lookup when true. Native race tracker now skips falling CPUs as well as the player
 - [docs/function_notes/hk_12.md:61](../docs/function_notes/hk_12.md#L61) returns bit 0x800 of word +72 of racer record a1 (stride dword_207A5EC); flag test
 
 ## sub_207A5F0
@@ -24912,7 +24918,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20D22D0
 `export/plan0/arm9_main/sub_20D22D0_020D22D0.c`
 
-- [vm_model/src/mapobj/mod.rs:23](../vm_model/src/mapobj/mod.rs#L23) The objects' random numbers (`sub_20D22D0`: NitroSDK `MATH_Rand32`,
+- [vm_model/src/mapobj/mod.rs:24](../vm_model/src/mapobj/mod.rs#L24) The objects' random numbers (`sub_20D22D0`: NitroSDK `MATH_Rand32`,
 - [game/src/objects.rs:458](../game/src/objects.rs#L458) What the objects share: their random numbers (`sub_20D22D0`) and the kart whose turn it is
 - [docs/function_notes.md:150](../docs/function_notes.md#L150) the objects' random context (NitroSDK MATH_Rand32 at *0x0217B49C)
 - [docs/function_notes.md:440](../docs/function_notes.md#L440) returns the objects' RNG state pointer (arg ignored); sub_2091F6C(rng, n) = (hi word after step * n) >> 32; sub_2046524 same truncated to u16
@@ -30297,6 +30303,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FFB1C
 `export/plan0/arm9_main/sub_20FFB1C_020FFB1C.c`
 
+- [vm_model/src/mapobj/drum.rs:1](../vm_model/src/mapobj/drum.rs#L1) Waluigi Pinball's slot drums (0xD2): init `sub_20FFB1C`, six states at `0x020FFBCC`'s table,
 - [docs/function_notes.md:426](../docs/function_notes.md#L426) pinball drum (0xD2) init: speeds s0lo*128/100, s2lo*128/100 and their mean, timings s0hi/s1lo/s1hi; 6 states (visual spinner)
 - [docs/function_notes/NEEDS_REVIEW.md:973](../docs/function_notes/NEEDS_REVIEW.md#L973) init speed/position controller at a1+128: state machine off_20FFBCC, a1+180/184/182 from a2[20]/[24] scaled, copies a2[21..23], state 1 at +144 [REVIEW]
 - [docs/function_notes/hk_25.md:90](../docs/function_notes/hk_25.md#L90) init speed/position controller at a1+128: state machine off_20FFBCC, a1+180/184/182 from a2[20]/[24] scaled, copies a2[21..23], state 1 at +144 [REVIEW]
@@ -30316,6 +30323,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FFC4C
 `export/plan0/arm9_main/sub_20FFC4C_020FFC4C.c`
 
+- [vm_model/src/mapobj/drum.rs:72](../vm_model/src/mapobj/drum.rs#L72) sub_20FFC4C: the way left to the next face
 - [docs/function_notes/NEEDS_REVIEW.md:976](../docs/function_notes/NEEDS_REVIEW.md#L976) sets +188 = dword_20FFC94 minus fixed-point modulo of +166 by dword_20FFC94 [REVIEW]
 - [docs/function_notes/hk_25.md:93](../docs/function_notes/hk_25.md#L93) sets +188 = dword_20FFC94 minus fixed-point modulo of +166 by dword_20FFC94 [REVIEW]
 
@@ -30361,12 +30369,15 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FFDD4
 `export/plan0/arm9_main/sub_20FFDD4_020FFDD4.c`
 
+- [vm_model/src/mapobj/drum.rs:2](../vm_model/src/mapobj/drum.rs#L2) the course-wide manager `sub_20FFDD4`, draw `sub_20FFEB8` (turned about x by -angle, the
+- [vm_model/src/mapobj/drum.rs:123](../vm_model/src/mapobj/drum.rs#L123) `sub_20FFDD4`, once a tick: when every drum is idle, a new round.
 - [docs/function_notes/NEEDS_REVIEW.md:981](../docs/function_notes/NEEDS_REVIEW.md#L981) for list of N objects, if none is in state 1 picks a random index (sub_20D22D0 LCG) from off_20FFEB4 table, assigns +84 and resets +72/+73 [REVIEW]
 - [docs/function_notes/hk_25.md:103](../docs/function_notes/hk_25.md#L103) for list of N objects, if none is in state 1 picks a random index (sub_20D22D0 LCG) from off_20FFEB4 table, assigns +84 and resets +72/+73 [REVIEW]
 
 ## sub_20FFEB8
 `export/plan0/arm9_main/sub_20FFEB8_020FFEB8.c`
 
+- [vm_model/src/mapobj/drum.rs:2](../vm_model/src/mapobj/drum.rs#L2) the course-wide manager `sub_20FFDD4`, draw `sub_20FFEB8` (turned about x by -angle, the
 - [docs/function_notes/NEEDS_REVIEW.md:982](../docs/function_notes/NEEDS_REVIEW.md#L982) computes offset from a2+166 via table off_20FFF44, sets a2+40 vector, calls sub_20EA8A8 with off_20FFF48 object [REVIEW]
 - [docs/function_notes/hk_25.md:104](../docs/function_notes/hk_25.md#L104) computes offset from a2+166 via table off_20FFF44, sets a2+40 vector, calls sub_20EA8A8 with off_20FFF48 object [REVIEW]
 

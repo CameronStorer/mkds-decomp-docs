@@ -668,3 +668,27 @@ release build passed. `tools/native/recovery_probe.ps1 -Ticks900` using
 before capture, exit0. Screenshot: `scratchpad/codex_respawn_native.png`.
 This native check exercises racer0 recovery, not seven-CPU spread; the spread
 and yaw proof is the original-function replay described above.
+
+
+Follow-up source audit: `sub_203DF74` early-returns through `sub_207A5C4`,
+which checks kart+72 bit0x800 for **each racer**. Native previously froze only
+the player; `game/src/race.rs` now skips checkpoint updates for falling CPUs
+also. `sub_206FF50` stores the checkpoint respawn id immediately when falling
+starts. Native now caches that id on `Falling`, instead of looking it up after
+the placeholder fall delay. These two corrections are source-backed, not new
+original-game timing captures.
+
+Bowser's Castle regression lead from the shared progress file: the placement
+build recorded8 falls at6000 ticks/frame2934, seed1, exit0, in
+`scratchpad/codex_respawn_bowser.stderr.log`. Falls were concentrated at the
+sliding block (around x7.0M/z-2.6M), flags88000800. The earlier report of111
+falls has no stated tick duration, so it is not a comparable baseline. This
+sweep preceded the checkpoint-freeze/id-cache corrections and does not show
+that those corrections fix the sliding-block falls. Keep this issue open.
+
+
+After the freeze/id-cache follow-up, the Windows release rebuilt successfully.
+The native forced-stall check again passed all four stages and placement,
+exit0,0 falls, capture tick900/frame446
+(`scratchpad/codex_respawn_freeze_native.png`). This checks integration;
+it is not an original-function replay for the new host checkpoint gate.

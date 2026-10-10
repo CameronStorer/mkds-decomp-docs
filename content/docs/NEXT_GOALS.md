@@ -1,6 +1,6 @@
 # Next goals (resume here)
 
-- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery now wired: timer7000 calls, steering863 probes, AREA selection218 callbacks; forced-stall native stages259/379/559/739 and immediate placement pass. Fixed-tick seed1 Rainbow Road run:10 falls at6000 ticks; placement/spread and SDK reset yaw now match306 controlled original calls and are wired. Falls, fall/carry timing and full reset parity remain open.
+- Shared multi-bot status: root `PROGRESS.md` (update your own lane). CPU recovery now wired: timer7000 calls, steering863 probes, AREA selection218 callbacks; forced-stall native stages259/379/559/739 and immediate placement pass. Fixed-tick seed1 Rainbow Road run:10 falls at6000 ticks; placement/spread and SDK reset yaw now match306 controlled original calls and are wired. Every falling racer now freezes checkpoint progress and caches its respawn id at fall start (source-backed). Falls, fall/carry timing and full reset parity remain open; Bowser sliding-block baseline8 falls/6000 ticks before this follow-up.
 
 - Lane B CPU heading now uses original quantized SDK atan2 and rounded integer degrees, replacing floats. Original Figure-8/Rainbow Road calls replay exactly; seed1 native Rainbow Road sweep changed five falls to six, so spiral falls remain open. See `analysis/CODEX_PARTICLE_MAP.md` and `analysis/cpu_heading_fall_comparison.csv`.
 
