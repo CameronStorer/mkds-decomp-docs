@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-10 11:06 UTC",
+  "updated": "2026-10-10 18:53 UTC",
   "documents": [
     {
       "path": "PROGRESS.md",
@@ -88,6 +88,12 @@
     {
       "path": "analysis/CODEX_PARTICLE_MAP.md",
       "title": "Particles and fall contacts",
+      "group": "Research",
+      "modified": "2026-10-10"
+    },
+    {
+      "path": "docs/CODEX_RAINBOW_WORK_LOG.md",
+      "title": "Rainbow Road movement fidelity",
       "group": "Research",
       "modified": "2026-10-10"
     },

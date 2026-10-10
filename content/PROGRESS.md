@@ -1,6 +1,6 @@
 # Progress (central status file)
 
-- Codex continuation (2026-10-10): child emitter simulation matches all 17 controlled original snapshots and the native wheel renderer now traverses child lists; existing wheel resources contain no child records, and full child visual parity awaits a child-bearing native emitter. Sound now handles slides, ties, bend/pan and modulation; remote wall/charge/mini-turbo cues are positioned by the camera. Full core (258 passed, one ignored) and sound-filter (14 passed) runs passed before remote cue wiring; the latest game cargo build passes. Hardware playback parity remains open. Logs: `docs/CODEX_CHILD_PARTICLE_WORK_LOG.md`, `docs/CODEX_SOUND_WORK_LOG.md`.
+- Codex continuation (2026-10-10): child emitter simulation matches all 17 controlled original snapshots and the native wheel renderer now traverses child lists; existing wheel resources contain no child records, and full child visual parity awaits a child-bearing native emitter. Sound now handles slides, ties, bend/pan and modulation; remote wall/charge/mini-turbo and CPU damage reaction cues use camera-relative positioning. Full core (258 passed, one ignored) and sound-filter (14 passed) runs passed before remote cue wiring; latest audio changes passed `cargo check` and `cargo build`. Hardware playback parity remains open. Logs: `docs/CODEX_CHILD_PARTICLE_WORK_LOG.md`, `docs/CODEX_SOUND_WORK_LOG.md`.
 
 One place to see where the port stands. Team memo: `docs/TEAM_MEMO.md`. Agents: start with `docs/AGENTS.md` and
 `python tools/coord.py start <name>`; the live task board is `docs/TASKS.md`, the running log
@@ -9,12 +9,28 @@ One place to see where the port stands. Team memo: `docs/TEAM_MEMO.md`. Agents: 
 
 ## Lane A: course objects (Claude)
 
+- Piranha cleanup follow-up (codex-audit): original natural path-end capture
+  confirms primary age14 -> lifetime20 while child age7 remains unchanged.
+  Native projectiles now expire primaries before stopping births, preserving
+  children and normal pool recycling. Six focused replay/regression tests pass;
+  private release build and native frame900 inspection pass (race tick918).
+  Evidence: `tools/bizhawk/codex_piranha_expiry/README.md`. Mouth/filter depth,
+  original close-up billboard comparison and emitter camera pause remain open.
+
 - Large Piranha audit (codex-audit): confirmed missing `0x1AA` behavior on
   Mario Circuit; its tick is `sub_20983C4`, separate from the existing small
   `0x1A6` plant. Added a scalar Rust translation and isolated capture/reducer.
-  Replay matches 169 complete original calls (states 0/1, including RNG).
-  Bite states 2..6 and native integration remain pending. See
-  `CODEX_FIDELITY_AUDIT.md`.
+  Replay now matches 2400 original plant calls across all seven states/RNG,
+  and 686 projectile calls including bounce/end. Constructor headings/clock
+  also verified against original fields. Native separate body/mouth animation,
+  0x1AB path projectile/collision, SPA51 and launch/bounce sound ids are wired.
+  Full isolated core suite:284 passed,0 failed,1 existing ignored. Native
+  release passes; native close-up shows stem/red head/animated mouth and SPA
+  activity, exits0. Original draw:235 calls each for all three parts (705 total);
+  PakkunZHead is concurrent, not LOD. Mouth/filter GPU masking, billboard and
+  emitter expiry remain open. Mario Circuit seed1 autopilot reached1500 ticks,
+  zero falls, successful exit. See
+  `CODEX_FIDELITY_AUDIT.md` and `tools/bizhawk/codex_piranha/README.md`.
 
 - Crab presentation follow-up (codex-audit, 2026-10-10): restored the separate
   claw sprite; body/claw use original walk/idle clocks and independent actor
@@ -44,6 +60,7 @@ wired up in `game/src/objects.rs`):
 | pinball drums 0xD2 (replay-exact, with their manager's random speed order) | done (2026-10-09) |
 | chandeliers, paintings, Desert sun: their .nsbca joint animations played on the objects | done (2026-10-09) |
 | fallback decoration models checked against the game's loaders (fixed 0x13C bakubaku; spawners 0x13D/0x1A0 draw nothing) | done (2026-10-09) |
+| Water (T002, claude-lead + claude-main): the course water models drawn (Cheep Cheep Beach, Palm Shore, Banshee Boardwalk, Yoshi Falls, Delfino); Cheep Cheep Beach / Palm Shore tide rises and falls; karts in that water slow with depth (replay-exact vs BizHawk) | done (2026-10-10) |
 | Tick-Tock Clock pendulum collision (bob disc; blows karts away; clock autopilot 1-2 falls) | done (2026-10-09) |
 | Rocky Wrench hatch collision (solid and knocking while the wrench is up) | done (2026-10-10) |
 | Boo swarms (0x13D spawners, pooled 0x13B Boos; own RNG; fade/flip) on Luigi's Mansion and Banshee Boardwalk, bakubaku 0x13C on Banshee Boardwalk (replay-tested, in game) | done (2026-10-10) |
@@ -59,7 +76,7 @@ wired up in `game/src/objects.rs`):
 - Child-particle birth `sub_201C74C` now ported in `vm_model/src/nitro_particle_child.rs` (2026-10-10): all 40 controlled original births match every modeled field and RNG; all four rotation modes exercised. ROM-independent replay and overflow/zero-parent-life/record checks pass. Child pool/cadence/update/render/native integration remains open; see `tools/bizhawk/codex_particle_child/README.md`.
 - Driver joint animations and face-pattern decoders are integrated; detailed drivers render with original clips. Details: `docs/CODEX_*` handoffs.
 - Original ROM particle textures/simulation now replace cube drift sparks: smoke, blue flares, red sparks and A+B pivot smoke. Draw math matches 721 captured calls; rear contacts 645; smoke attachment 100; pivot gate 3993. Native charge rendering and active-effects race restart checked.
-- CPU heading now matches 3500 original calls (Figure-8 and Rainbow Road, including inverted track), replacing floating atan2 with the SDK integer pipeline. Native seed1 Rainbow Road sweep: five falls before/six after; spiral falls remain unresolved.
+- CPU heading matches 3500 original calls; direct steering matches 14000 Rainbow calls. Route targets now advance before steering, as in the C. The regular Rainbow spiral falls are corrected by the original fixed local ramp pitch and matrix order: all 14731 facing calls match the ROM, including 854 inverted ramps. Final Rainbow seeds 1 and 2 each completed at least 6000 ticks with zero falls, all eight racers on lap two. Bowser and Airship checks also completed with zero falls. Full race/RNG parity and the broader 32-course sweep remain separate work.
 - CPU wall-stall recovery is now wired: timer 7000 calls, correction 863 state1 probes, area selection 218 controlled callbacks. Previous-node/AREA targets feed the route cursor; final callback uses existing native respawn. Forced-stall run passed all four stages at 259/379/559/739 with immediate placement. Fixed-tick Rainbow Road sweep exited0 at 6000 ticks/2995 render frames with 10 falls; falls remain open. Respawn placement/spread and SDK reset yaw now match306 controlled original calls and are wired; steering resets on placement. Source-backed follow-up freezes every falling racer checkpoint and caches the respawn id at fall start. Supplied JGPT CPU route reset now matches 306 original callback probes across 37 nodes, including pacing reset; native wired. Fall/carry timing, absent-route/item-controller/full reset parity, other kart effects/child particles and GPU parity remain.
 - Bowser terrain isolation (2026-10-10):96 controlled original queries at 16 logged native fall positions match Rust hit/no-hit, flags and push exactly (51 hits,45 misses). Original accepts the same lava contacts. Exact native swept queries and moving-block/CPU trajectory parity remain open. New replay and existing Rainbow backface regression both pass. Replay: `vm_model/tests/bowser_kcl.rs`.
 - Actual Bowser terrain replay (2026-10-10):6 captured native swept queries (real center/previous/radius32768/facing) match original flags/push/hit exactly. Fresh shared release capture exited0 at 6000 ticks/frame 4431 with2 falls, away from the historical block region; concurrent edits prevent attributing improvement. Three targeted regressions pass. Source mapped original moving-terrain dispatcher/box/face/motion helpers; native object tops remain approximations. Next: paired moving-box contact probes.
@@ -86,6 +103,8 @@ See `docs/NEXT_GOALS.md` item 4 onward.
 - 2026-10-10 Triple/trailing items belong to claude-lane-c (board T010); my recording attempt collided with another BizHawk run, no data written. T001 (Bowser's Castle object floors): consumer of flag 0x1000 found (`sub_1FFDEE4` -> `sub_20E1D10` -> box `sub_20E0BAC` / cylinder `sub_20E0764`), documented in `docs/function_notes.md`; exact cylinder port done (`vm_model/src/kart/moving_cylinder.rs`, 30-probe replay, 200 vm_model tests pass); box was ported by another agent. Still open: wire real object dims/attributes (+256/+260/+272/+276/+288) instead of the hard-coded constants in `game/src/objects.rs moving_floors`; platform motion (`sub_20E0680`). Task board: `python tools/coord.py list`.
 
 - 2026-10-10 Regression sweep T017: `tools/native/sweep.ps1`; all 32 courses exit 0, 18 falls (Rainbow Road 13, five others 1, rest 0). Details in `docs/NEXT_GOALS.md`.
+
+- 2026-10-10 Balloon Battle (T025): the real hold-to-pump balloon state machine (`vm_model/src/battle.rs`, from `sub_20A3FA8`/`sub_20A08EC`) replaces the instant 'one balloon a second'; 1 balloon up + 5 spare at the start, 76 ticks to pump the next. Source-derived (no BizHawk replay); steals, popped-balloon pickups and the real win rule still approximate. Details in `docs/function_notes.md`.
 
 ## Checks
 
@@ -115,3 +134,7 @@ See `docs/NEXT_GOALS.md` item 4 onward.
 - 2026-10-10 Codex particle validation: original child-emission guard now handles resources without SPA flag0x10000 using the primary-only pool path. New lifetime/list/RNG/polygon parity test and original child-particle replay pass. First Rainbow ramp-guard run exited101 before6000 capture because of this panic; discarded as a completed sweep. Private rebuild also exposed Piranha component visibility; three pub(crate) qualifiers unblock cross-module system ordering without behavior changes. Final native rerun remains pending.
 
 - 2026-10-10 Codex final ramp/particle verification: corrected private Windows release built; completed seed1 native6000-tick runs exit0. Bowser:0 falls, render2219. Rainbow:18 falls, render2232 (CPU6:7, CPU1:4, CPU4:3, CPU5:2, CPU2/7:1; player0 and CPU3:0); player0 and CPU3 reach lap2. Both screenshots reviewed. Compared with prior frozen19-fall Rainbow run, shared source changed concurrently; no isolated causal improvement claim. Spiral falls remain open. Numeric results/positions: scratchpad/codex_ramp_guards_results.json. Source-backed ramp guards and optional-child fix retained; focused release regressions and3500 original heading replay pass. Next: capture cursor targets, body up/facing and motion at the first spiral divergence, rather than changing the already89-query-exact fall detector.
+
+- 2026-10-10 Codex Rainbow root cause: ported fixed local ramp pitch and original ramp*drift matrix concatenation. All14731 original facing outputs match, including2004 ramp/854 inverted calls; old world-Y branch disagreed1129 times. CPU target-order fix also matches14000 original steering calls (65 old-target sign errors). Private release built; Rainbow seed1 completed6000ticks/frame1452 ZERO falls, all8 racers lap2. Traced upper-loop region has642 samples, all grounded,344 inverted (before pitch fix first falling CPU spent171 ticks airborne). Bowser completed6003ticks/frame1510 ZERO falls. Screenshots reviewed. Rainbow seed2/Airship validation pending; no full-game or paired-RNG parity claim.
+
+- 2026-10-10 Codex final Rainbow verification: two seeds completed6000/6001 ticks with ZERO falls, every racer lap2; Bowser/Airship completed6003 ticks with ZERO falls. Screenshots reviewed. Exact replays:14000 steering,14731 facing (2004 ramps/854 inverted), plus existing3500 headings and89 terrain queries. Fixed original local pitch/matrix order and route-before-steering; regular spiral falls addressed on tested seeds. Full32-course/full-three-lap/RNG parity remain. Details: docs/CODEX_RAINBOW_WORK_LOG.md; native summary scratchpad/codex_local_pitch_results.json.

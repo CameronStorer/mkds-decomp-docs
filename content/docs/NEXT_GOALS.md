@@ -6,9 +6,15 @@
   close-up and release pass. Full isolated core:206 passed,1 existing ignored.
   Source-backed draw mapping still needs original visible-draw capture; body
   wobble remains unported. Piranha definitions reconciled: complex bite tick
-  belongs to large 0x1AA, not small 0x1A6. Scalar Rust replay passes 169 original
-  calls in states 0/1 including RNG. Next: run the revised follow-kart capture
-  for states 2..6, then articulated model/path/contact/sound integration.
+  belongs to large 0x1AA, not small 0x1A6. Scalar replay now passes2400 original
+  calls/all7 states/RNG, projectile686 calls/bounce/end, constructor headings
+  and clock; native plugin and SPA51 bridge wired. Full core284 passed/1 ignored.
+  Native release close-up passed, red head sprite restored; original draw
+  callbacks235 each (705 total) confirm concurrent stem/head/mouth. Mario
+  autopilot reached1500 ticks with0 falls. Next:T052 mouth/filter depth masking,
+  original close-up billboard probes, crab body wobble and emitter culling. Primary
+  expiry now matches an original natural path end; children remain alive. Positioned
+  launch369/bounce431 sound and particle-child rendering belong to T012/T009.
 
 - Codex continuation (2026-10-10): shared child emission/pool/update matches all 17 controlled original emitter snapshots, including RNG/list order/newborn ticking; children now pass through the native wheel-effect update/cancel/draw path. Existing wheel resources have no child records, so new visuals await an emitter that uses them. The sound sequencer handles portamento, signed sweeps, tied-note retuning, live bend/pan and modulation; engine/item sounds are spatialized and remote wall/charge/mini-turbo cues now use camera-relative falloff/pan. Full core: 258 passed, 1 ignored. The latest `cargo build --manifest-path game/Cargo.toml` passes. Hardware sound parity remains unmeasured. Logs: `docs/CODEX_CHILD_PARTICLE_WORK_LOG.md`, `docs/CODEX_SOUND_WORK_LOG.md`.
 
@@ -300,3 +306,7 @@ All 32 courses exit 0, no panics. 18 falls in all: Rainbow Road 13 (baseline abo
 - 2026-10-10 Codex particle validation: original child-emission guard now handles resources without SPA flag0x10000 using the primary-only pool path. New lifetime/list/RNG/polygon parity test and original child-particle replay pass. First Rainbow ramp-guard run exited101 before6000 capture because of this panic; discarded as a completed sweep. Private rebuild also exposed Piranha component visibility; three pub(crate) qualifiers unblock cross-module system ordering without behavior changes. Final native rerun remains pending.
 
 - 2026-10-10 Codex final ramp/particle verification: corrected private Windows release built; completed seed1 native6000-tick runs exit0. Bowser:0 falls, render2219. Rainbow:18 falls, render2232 (CPU6:7, CPU1:4, CPU4:3, CPU5:2, CPU2/7:1; player0 and CPU3:0); player0 and CPU3 reach lap2. Both screenshots reviewed. Compared with prior frozen19-fall Rainbow run, shared source changed concurrently; no isolated causal improvement claim. Spiral falls remain open. Numeric results/positions: scratchpad/codex_ramp_guards_results.json. Source-backed ramp guards and optional-child fix retained; focused release regressions and3500 original heading replay pass. Next: capture cursor targets, body up/facing and motion at the first spiral divergence, rather than changing the already89-query-exact fall detector.
+
+- 2026-10-10 Codex Rainbow root cause: ported fixed local ramp pitch and original ramp*drift matrix concatenation. All14731 original facing outputs match, including2004 ramp/854 inverted calls; old world-Y branch disagreed1129 times. CPU target-order fix also matches14000 original steering calls (65 old-target sign errors). Private release built; Rainbow seed1 completed6000ticks/frame1452 ZERO falls, all8 racers lap2. Traced upper-loop region has642 samples, all grounded,344 inverted (before pitch fix first falling CPU spent171 ticks airborne). Bowser completed6003ticks/frame1510 ZERO falls. Screenshots reviewed. Rainbow seed2/Airship validation pending; no full-game or paired-RNG parity claim.
+
+- 2026-10-10 Codex final Rainbow verification: two seeds completed6000/6001 ticks with ZERO falls, every racer lap2; Bowser/Airship completed6003 ticks with ZERO falls. Screenshots reviewed. Exact replays:14000 steering,14731 facing (2004 ramps/854 inverted), plus existing3500 headings and89 terrain queries. Fixed original local pitch/matrix order and route-before-steering; regular spiral falls addressed on tested seeds. Full32-course/full-three-lap/RNG parity remain. Details: docs/CODEX_RAINBOW_WORK_LOG.md; native summary scratchpad/codex_local_pitch_results.json.
