@@ -631,3 +631,40 @@ trajectory/contact comparison remains open. Numeric record:
 `analysis/cpu_recovery_sweep.csv`. A scan of local extracted course maps
 finds20 recovery AREA kind4 records, all box-shaped; the source-derived
 cylinder branch is not used by those local recovery records.
+
+
+## Respawn placement and reset yaw (2026-10-09)
+
+Ported `sub_2072EB8` into `vm_model/src/kart/respawn.rs` and wired it into
+`game/src/respawn.rs`. Racers now use the original 30-unit lateral/longitudinal
+spread, except time trial (mode1). Pitch and roll adjust height before the
+40-unit lift. The original direction uses the SDK sine table, and
+`sub_2072B94` derives reset yaw with SDK atan2 and a truncated conversion;
+using the point's unquantized yaw directly misses this second quantization.
+The native bridge also clears steering lean, pitch and eased turn on respawn,
+matching those fields in the base reset callback `sub_20720DC`.
+
+Evidence: isolated BizHawk `tools/bizhawk/codex_respawn/capture.lua` forces the
+final CPU recovery callback every16 driver calls. After the original JGPT lookup,
+it varies pitch/yaw/roll and switches only the placement phase between mode1
+and mode4, then restores mode before reset. These are **controlled probes**,
+not a recording of natural falls or a genuine time-trial race. All306 calls
+match final position, input forward vector and post-reset yaw (102 mode1,
+204 mode4, all seven CPU racer indices). Racer0's zero spread is source-backed.
+Battle uses the same spread branch, but battle point selection was not captured.
+Fixtures contain numerical inputs/outputs only, not ROM or extracted assets.
+
+Still open: original fall/carry delays, Lakitu rendering, battle point selection,
+complete reset effects/items/camera/controller parity, and native pre/post-physics
+callback ordering. This placement port does not fix or explain Rainbow Road's
+remaining spiral falls. Previous measured result remains10 falls/6000 ticks.
+
+
+Validation after placement integration: complete core suite167 passed,0 failed,
+1 existing CPU replay ignored (includes concurrent object additions). Windows
+release build passed. `tools/native/recovery_probe.ps1 -Ticks900` using
+`game/target/release/mkds_game_codex_respawn.exe` passed all four stages at
+259/379/559/739 and immediate placement; capture at tick901/frame444,0 falls
+before capture, exit0. Screenshot: `scratchpad/codex_respawn_native.png`.
+This native check exercises racer0 recovery, not seven-CPU spread; the spread
+and yaw proof is the original-function replay described above.

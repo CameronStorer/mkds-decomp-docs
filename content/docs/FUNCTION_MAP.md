@@ -205,7 +205,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FF9D18_01FF9D18.c`
 
 - [vm_model/src/kart/mod.rs:15](../vm_model/src/kart/mod.rs#L15) | [`MiniTurbo::tick`] | `sub_1FF9D18` (head) | mini-turbo countdown |
-- [vm_model/src/kart/mod.rs:536](../vm_model/src/kart/mod.rs#L536) `sub_1FF9D18` head: counts down; the trigger tick itself counts.
+- [vm_model/src/kart/mod.rs:537](../vm_model/src/kart/mod.rs#L537) `sub_1FF9D18` head: counts down; the trigger tick itself counts.
 - [vm_model/src/kart/speed.rs:175](../vm_model/src/kart/speed.rs#L175) `sub_1FF9D18`: the shove counts down with the mini-turbo.
 
 ## sub_1FF9E5C
@@ -268,7 +268,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/movement.rs:8](../vm_model/src/kart/movement.rs#L8) | [`collide`] | `sub_1FFCB58` (+ `sub_1FFA4B4` contact, `sub_1FF9E5C` surface, `sub_1FFA0C4`, `sub_1FF9F60` orientation) |
 - [vm_model/src/kart/movement.rs:550](../vm_model/src/kart/movement.rs#L550) Ground contact after moving (`sub_1FFCB58` / `sub_1FFA4B4`), wall reactions, then the
 - [vm_model/src/kart/movement.rs:610](../vm_model/src/kart/movement.rs#L610) landing ends a jump-pad flight (sub_1FFA4B4), before the floor's own effect
-- [game/src/respawn.rs:135](../game/src/respawn.rs#L135) sub_1FFA4B4 passes the movement query's accepted flags in r1 at
+- [game/src/respawn.rs:138](../game/src/respawn.rs#L138) sub_1FFA4B4 passes the movement query's accepted flags in r1 at
 - [docs/function_notes.md:122](../docs/function_notes.md#L122) movement terrain contact query; passes the same accepted swept sphere flags to sub_206FF50 at 0x01FFA868..0x01FFA894; suppresses type 10 while wall-contact flag is set unless type 11 also hit
 
 ## sub_1FFAD14
@@ -301,7 +301,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFB130_01FFB130.c`
 
 - [vm_model/src/kart/mod.rs:16](../vm_model/src/kart/mod.rs#L16) | [`movement`] | `sub_1FFB130`, `sub_1FFCB58` | facing/travel direction, velocity, position, ground contact, orientation |
-- [vm_model/src/kart/mod.rs:601](../vm_model/src/kart/mod.rs#L601) sub_1FFB130 (top): a flattened kart is held still at first
+- [vm_model/src/kart/mod.rs:602](../vm_model/src/kart/mod.rs#L602) sub_1FFB130 (top): a flattened kart is held still at first
 - [vm_model/src/kart/movement.rs:7](../vm_model/src/kart/movement.rs#L7) | [`integrate`] | `sub_1FFB130` (+ `sub_1FFB9E0`, `sub_1FFB9CC`, `sub_1FFAF18`, `sub_1FFB930`, `sub_1FF9C40`, `sub_1FFAE14`) |
 - [vm_model/src/kart/movement.rs:22](../vm_model/src/kart/movement.rs#L22) After this many airborne ticks the fall speed is capped at [`MAX_FALL_SPEED`] (`sub_1FFB130`).
 - [vm_model/src/kart/movement.rs:429](../vm_model/src/kart/movement.rs#L429) `sub_1FFB130` for a kart on ordinary ground: friction, gravity, facing, speed cap, lean
@@ -333,7 +333,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_1FFBA68
 `export/plan0/arm9_autoload1_itcm/sub_1FFBA68_01FFBA68.c`
 
-- [vm_model/src/kart/mod.rs:631](../vm_model/src/kart/mod.rs#L631) `sub_1FFBA68` (tail): a wall's yaw kick turns the kart away, decaying ×0.9 per tick.
+- [vm_model/src/kart/mod.rs:632](../vm_model/src/kart/mod.rs#L632) `sub_1FFBA68` (tail): a wall's yaw kick turns the kart away, decaying ×0.9 per tick.
 - [vm_model/src/kart/speed.rs:7](../vm_model/src/kart/speed.rs#L7) | [`accelerate`] | `sub_1FFBA68`, `sub_206CEB4` | per-tick acceleration, boost countdown, coasting |
 - [vm_model/src/kart/speed.rs:23](../vm_model/src/kart/speed.rs#L23) Acceleration in a jump-pad flight (`sub_1FFBA68`).
 - [vm_model/src/kart/speed.rs:31](../vm_model/src/kart/speed.rs#L31) Extra acceleration per unit of reverse speed when accelerating out of reverse (`sub_1FFBA68`).
@@ -360,7 +360,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/mod.rs:11](../vm_model/src/kart/mod.rs#L11) | [`speed`] | `sub_1FFBE70` … `sub_1FFAF18` | limit, acceleration, boost, friction, cap |
 - [vm_model/src/kart/speed.rs:5](../vm_model/src/kart/speed.rs#L5) | [`SpeedLimit::update`] | `sub_1FFBE70`, `sub_1FFBE04` | target limit from stats/terrain/boost; eased limit |
 - [vm_model/src/kart/speed.rs:96](../vm_model/src/kart/speed.rs#L96) (`sub_207DE84`, between `sub_1FFBE70` and `sub_1FFBE04`).
-- [game/src/items.rs:262](../game/src/items.rs#L262) `sub_1FFBE70`; measured on a CPU's star: 451 frames).
+- [game/src/items.rs:264](../game/src/items.rs#L264) `sub_1FFBE70`; measured on a CPU's star: 451 frames).
 
 ## sub_1FFBFE4
 `export/plan0/arm9_autoload1_itcm/sub_1FFBFE4_01FFBFE4.c`
@@ -396,7 +396,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFC27C_01FFC27C.c`
 
 - [vm_model/src/kart/mod.rs:12](../vm_model/src/kart/mod.rs#L12) | [`steer`] | `sub_1FFC27C`, `sub_1FFC158`, `sub_1FFC090`, `sub_206C494` | steering, turn rate, yaw, pivot |
-- [vm_model/src/kart/mod.rs:181](../vm_model/src/kart/mod.rs#L181) Held steering; left wins if both are held (`sub_1FFC27C` tests Left first, and the
+- [vm_model/src/kart/mod.rs:182](../vm_model/src/kart/mod.rs#L182) Held steering; left wins if both are held (`sub_1FFC27C` tests Left first, and the
 - [vm_model/src/kart/steer.rs:6](../vm_model/src/kart/steer.rs#L6) | [`steer`] | `sub_1FFC27C` + `sub_1FFC158` |
 - [vm_model/src/kart/steer.rs:15](../vm_model/src/kart/steer.rs#L15) Yaw per tick during a hop, toward the drift side (literal in `sub_1FFC27C`).
 - [vm_model/src/kart/steer.rs:21](../vm_model/src/kart/steer.rs#L21) Below this |forward speed| the turn rate is reduced (literal in `sub_1FFC27C`).
@@ -417,7 +417,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_1FFC5A0
 `export/plan0/arm9_autoload1_itcm/sub_1FFC5A0_01FFC5A0.c`
 
-- [vm_model/src/kart/mod.rs:204](../vm_model/src/kart/mod.rs#L204) Pedal intents for one tick (`sub_1FFC5A0`, kart +0x48 bits 0x2 / 0x4 / 0x80).
+- [vm_model/src/kart/mod.rs:205](../vm_model/src/kart/mod.rs#L205) Pedal intents for one tick (`sub_1FFC5A0`, kart +0x48 bits 0x2 / 0x4 / 0x80).
 
 ## sub_1FFC67C
 `export/plan0/arm9_autoload1_itcm/sub_1FFC67C_01FFC67C.c`
@@ -430,7 +430,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/kart/damage.rs:11](../vm_model/src/kart/damage.rs#L11) | [`KartDamage::begin_control`] | `sub_1FFC6C0` (head), `sub_1FFC67C` |
 - [vm_model/src/kart/damage.rs:282](../vm_model/src/kart/damage.rs#L282) `sub_1FFC6C0` (head): the post-spin lock counts down, then decides whether the next
-- [vm_model/src/kart/mod.rs:605](../vm_model/src/kart/mod.rs#L605) sub_1FFC6C0: a damaged kart is not driven at all
+- [vm_model/src/kart/mod.rs:606](../vm_model/src/kart/mod.rs#L606) sub_1FFC6C0: a damaged kart is not driven at all
 - [game/src/effects.rs:292](../game/src/effects.rs#L292) sub_1FFC6C0 calls sub_206C494 only for undamaged, non-drifting karts.
 - [docs/function_notes.md:358](../docs/function_notes.md#L358) kart control dispatcher invokes sub_206C494 only when damage state+384 is zero and drift bit0x08 is clear, then steering/sub_206C5E4/acceleration. Native pivot-smoke gate now runs after input but before control and uses the same undamaged/non-drift guards
 
@@ -476,7 +476,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_autoload1_itcm/sub_1FFCC50_01FFCC50.c`
 
 - [vm_model/src/kart/mod.rs:10](../vm_model/src/kart/mod.rs#L10) | [`step`] | `sub_1FFCC50` | per-kart tick, in the original's order |
-- [vm_model/src/kart/mod.rs:578](../vm_model/src/kart/mod.rs#L578) (`sub_1FFCC50`): speed limit -> speed ratio and heading -> pedals -> pivot -> steering ->
+- [vm_model/src/kart/mod.rs:579](../vm_model/src/kart/mod.rs#L579) (`sub_1FFCC50`): speed limit -> speed ratio and heading -> pedals -> pivot -> steering ->
 
 ## sub_1FFCCD0
 `export/plan0/arm9_autoload1_itcm/sub_1FFCCD0_01FFCCD0.c`
@@ -8695,7 +8695,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_203C8C0_0203C8C0.c`
 
 - [vm_model/src/mapobj/pinball.rs:184](../vm_model/src/mapobj/pinball.rs#L184) (`sub_203C8C0`, record +0x4E) for the waiting state.
-- [game/src/objects.rs:713](../game/src/objects.rs#L713) the racers' highest lap counter (`sub_203C8C0`) releases the later balls
+- [game/src/objects.rs:737](../game/src/objects.rs#L737) the racers' highest lap counter (`sub_203C8C0`) releases the later balls
 - [docs/function_notes/agent_02.md:38](../docs/function_notes/agent_02.md#L38) getter: racer a1 record +0x4E (u16)
 
 ## sub_203C8DC
@@ -8890,6 +8890,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_203FED4
 `export/plan0/arm9_main/sub_203FED4_0203FED4.c`
 
+- [game/src/items.rs:412](../game/src/items.rs#L412) the race manager (`sub_203FED4`) draws once from the race RNG every frame (found with tools/bizhawk/rng_pc.lua)
 - [docs/function_notes/agent_02.md:69](../docs/function_notes/agent_02.md#L69) per-frame race clock tick: advances frame counter, per-racer counters, handles time limit and updates displayed time
 
 ## sub_20401AC
@@ -13223,7 +13224,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_2061FA4_02061FA4.c`
 
 - [vm_model/src/mapobj/chomp.rs:351](../vm_model/src/mapobj/chomp.rs#L351) one kart a tick, in turn (sub_2061FA4)
-- [game/src/objects.rs:441](../game/src/objects.rs#L441) to be looked at this tick (`sub_2061FA4`, one kart a tick in slot order).
+- [game/src/objects.rs:459](../game/src/objects.rs#L459) to be looked at this tick (`sub_2061FA4`, one kart a tick in slot order).
 - [docs/function_notes.md:151](../docs/function_notes.md#L151) kart slot whose turn it is this tick (round robin)
 
 ## sub_2061FB8
@@ -13380,7 +13381,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2063A68
 `export/plan0/arm9_main/sub_2063A68_02063A68.c`
 
-- [docs/function_notes.md:432](../docs/function_notes.md#L432) final CPU recovery callback invokes kart+548; local Figure-8 race-start RAM resolves this pointer to sub_2072EB8 for player and CPU karts. Native requests immediate placement through its existing respawn bridge, without the fall-animation delay; original per-racer spread and exact placement/hold timing remain unported
+- [docs/function_notes.md:432](../docs/function_notes.md#L432) final CPU recovery callback invokes kart+548; local Figure-8 race-start RAM resolves this pointer to sub_2072EB8 for player and CPU karts. Native requests immediate placement through its existing respawn bridge, without the fall-animation delay; original placement/spread now replay-tested in kart/respawn.rs; fall/carry timing remains unported
 - [docs/function_notes/agent_03.md:155](../docs/function_notes/agent_03.md#L155) calls kart hook +548 unless flag 0x400; toggles bit 0x10000 of kart sub-struct flags when flag 0x200 is set; clears kart flag 0x200 in mode 2
 
 ## sub_2063AD0
@@ -13675,10 +13676,10 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20681F0_020681F0.c`
 
 - [vm_model/src/kart/mod.rs:14](../vm_model/src/kart/mod.rs#L14) | [`KartDrift::count_counter_steer`] | `sub_20681F0` | counter-steer presses -> charge |
-- [vm_model/src/kart/mod.rs:67](../vm_model/src/kart/mod.rs#L67) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
-- [vm_model/src/kart/mod.rs:78](../vm_model/src/kart/mod.rs#L78) Ticks between counted counter-steer presses (literal in `sub_20681F0`).
-- [vm_model/src/kart/mod.rs:192](../vm_model/src/kart/mod.rs#L192) Newly pressed steering; left wins if both are pressed (`sub_20681F0` tests Left first).
-- [vm_model/src/kart/mod.rs:461](../vm_model/src/kart/mod.rs#L461) `sub_20681F0`: counts alternating counter-steer presses. A press away from the drift must
+- [vm_model/src/kart/mod.rs:68](../vm_model/src/kart/mod.rs#L68) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
+- [vm_model/src/kart/mod.rs:79](../vm_model/src/kart/mod.rs#L79) Ticks between counted counter-steer presses (literal in `sub_20681F0`).
+- [vm_model/src/kart/mod.rs:193](../vm_model/src/kart/mod.rs#L193) Newly pressed steering; left wins if both are pressed (`sub_20681F0` tests Left first).
+- [vm_model/src/kart/mod.rs:462](../vm_model/src/kart/mod.rs#L462) `sub_20681F0`: counts alternating counter-steer presses. A press away from the drift must
 - [docs/function_notes.md:100](../docs/function_notes.md#L100) mini-turbo countersteer charge transitions: stage 2 blue flare 126 and SE 210; stage 3 switches wheel effects and starts red flares 22/23 when drift contact allows
 
 ## sub_2068440
@@ -13775,7 +13776,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206988C
 `export/plan0/arm9_main/sub_206988C_0206988C.c`
 
-- [game/src/items.rs:799](../game/src/items.rs#L799) Boo ghost state length (`sub_206988C`: ends when its counter exceeds 450).
+- [game/src/items.rs:819](../game/src/items.rs#L819) Boo ghost state length (`sub_206988C`: ends when its counter exceeds 450).
 - [docs/function_notes/agent_03.md:209](../docs/function_notes/agent_03.md#L209) kart item/boost timer tick: counts 80-step ramp, toggles flag 0x8000, ends effect after limit, plays sound 249 and notifies HUD
 
 ## sub_2069AA0
@@ -13787,7 +13788,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2069C38
 `export/plan0/arm9_main/sub_2069C38_02069C38.c`
 
-- [game/src/items.rs:707](../game/src/items.rs#L707) (refused under a Bullet Bill: `sub_2069C38`)
+- [game/src/items.rs:716](../game/src/items.rs#L716) (refused under a Bullet Bill: `sub_2069C38`)
 - [docs/function_notes.md:52](../docs/function_notes.md#L52) star on (kart +0x29C = 1, +0x4C bit 0x40)
 - [docs/function_notes.md:281](../docs/function_notes.md#L281) star on (skipped if kart +76 bit 0x10000000, i.e. a kart under Bullet Bill cannot start a star): ends a running Boo (clears +124 bits 0x2000/0xC000, +668, +76 bits 0x08000000/0x20000; SE 249 for the local player or stops mega particles via sub_208C5B8/sub_208C4E8; sub_210FA40(0,..)), sets +76 bit 0x40, +668 = 1, star timer = 0, sub_207B284, sub_2081A40, starts the star jingle (sub_2106E78, local player, once) and sub_2068A64(kart, 2, 1) (driver star pose)
 
@@ -13991,7 +13992,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/red_shell.rs:61](../vm_model/src/kart/red_shell.rs#L61) `sub_206C0E0`.
 - [vm_model/src/kart/shell.rs:54](../vm_model/src/kart/shell.rs#L54) whether it is already damaged (`sub_206C0E0`, halves the pull).
 - [vm_model/src/mapobj/chomp.rs:200](../vm_model/src/mapobj/chomp.rs#L200) Damaged, invisible or respawning (`sub_206C0E0`): not a target.
-- [game/src/items.rs:897](../game/src/items.rs#L897) a Boo ghost cannot be targeted (+0x7C bit 0x2000: `sub_206C0E0`, `sub_20F1258`)
+- [game/src/items.rs:939](../game/src/items.rs#L939) a Boo ghost cannot be targeted (+0x7C bit 0x2000: `sub_206C0E0`, `sub_20F1258`)
 - [docs/function_notes.md:153](../docs/function_notes.md#L153) kart cannot be targeted (damaged / invisible / respawning)
 
 ## sub_206C11C
@@ -14051,20 +14052,20 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_206C5E4_0206C5E4.c`
 
 - [vm_model/src/kart/mod.rs:13](../vm_model/src/kart/mod.rs#L13) | (in [`step`]) | `sub_206C5E4` | hop, drift direction, drift start/continue/end, landing alignment |
-- [vm_model/src/kart/mod.rs:67](../vm_model/src/kart/mod.rs#L67) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
-- [vm_model/src/kart/mod.rs:84](../vm_model/src/kart/mod.rs#L84) Airborne ticks (not counting hops) after which holding drift picks a direction. `sub_206C5E4`.
-- [vm_model/src/kart/mod.rs:89](../vm_model/src/kart/mod.rs#L89) Slide bonus on landing into a drift: `|velocity| * 26 / 4096` (`sub_206C5E4`).
-- [vm_model/src/kart/mod.rs:749](../vm_model/src/kart/mod.rs#L749) First grounded tick after a hop (`sub_206C5E4`, tail): the yaw turned during the hop becomes
+- [vm_model/src/kart/mod.rs:68](../vm_model/src/kart/mod.rs#L68) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
+- [vm_model/src/kart/mod.rs:85](../vm_model/src/kart/mod.rs#L85) Airborne ticks (not counting hops) after which holding drift picks a direction. `sub_206C5E4`.
+- [vm_model/src/kart/mod.rs:90](../vm_model/src/kart/mod.rs#L90) Slide bonus on landing into a drift: `|velocity| * 26 / 4096` (`sub_206C5E4`).
+- [vm_model/src/kart/mod.rs:750](../vm_model/src/kart/mod.rs#L750) First grounded tick after a hop (`sub_206C5E4`, tail): the yaw turned during the hop becomes
 - [docs/function_notes.md:355](../docs/function_notes.md#L355) successful grounded drift activation resets continuous-wheel controller via sub_208CCF0 before starting smoke via sub_208D6B0; native DriftStarted now preserves this cleanup order, including a new drift during delayed red-effect shutdown (source-derived wiring)
 
 ## sub_206CC60
 `export/plan0/arm9_main/sub_206CC60_0206CC60.c`
 
-- [vm_model/src/kart/mod.rs:67](../vm_model/src/kart/mod.rs#L67) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
-- [vm_model/src/kart/mod.rs:76](../vm_model/src/kart/mod.rs#L76) Per-tick step back when the angle is beyond the limit (literal in `sub_206CC60`).
-- [vm_model/src/kart/mod.rs:86](../vm_model/src/kart/mod.rs#L86) Slide bonus floor and per-tick decay while drifting (`sub_206CC60`, `0x0206CDD0`).
-- [vm_model/src/kart/mod.rs:495](../vm_model/src/kart/mod.rs#L495) `sub_206CC60` (first half): move the drift angle toward the limit on the drift side.
-- [vm_model/src/kart/mod.rs:510](../vm_model/src/kart/mod.rs#L510) `sub_206CC60` (second half, while drifting): the slide bonus decays toward its floor.
+- [vm_model/src/kart/mod.rs:68](../vm_model/src/kart/mod.rs#L68) Constants (literal pools of sub_206C5E4 / sub_206CC60 / sub_20681F0)
+- [vm_model/src/kart/mod.rs:77](../vm_model/src/kart/mod.rs#L77) Per-tick step back when the angle is beyond the limit (literal in `sub_206CC60`).
+- [vm_model/src/kart/mod.rs:87](../vm_model/src/kart/mod.rs#L87) Slide bonus floor and per-tick decay while drifting (`sub_206CC60`, `0x0206CDD0`).
+- [vm_model/src/kart/mod.rs:496](../vm_model/src/kart/mod.rs#L496) `sub_206CC60` (first half): move the drift angle toward the limit on the drift side.
+- [vm_model/src/kart/mod.rs:511](../vm_model/src/kart/mod.rs#L511) `sub_206CC60` (second half, while drifting): the slide bonus decays toward its floor.
 
 ## sub_206CDD4
 `export/plan0/arm9_main/sub_206CDD4_0206CDD4.c`
@@ -14085,7 +14086,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/items.rs:98](../vm_model/src/kart/items.rs#L98) `sub_206D18C` case 3: a boost that ignores terrain (refused while damaged, `sub_206D020`),
 - [vm_model/src/kart/speed.rs:163](../vm_model/src/kart/speed.rs#L163) mini-turbos (`sub_206D020`), so a mini-turbo on grass stays slowed by the grass.
 - [vm_model/src/kart/speed.rs:180](../vm_model/src/kart/speed.rs#L180) `sub_206D020`: extends the boost to at least `ticks`.
-- [game/src/items.rs:682](../game/src/items.rs#L682) (a Bullet Bill rider cannot start a boost: `sub_206D020`)
+- [game/src/items.rs:691](../game/src/items.rs#L691) (a Bullet Bill rider cannot start a boost: `sub_206D020`)
 
 ## sub_206D138
 `export/plan0/arm9_main/sub_206D138_0206D138.c`
@@ -14102,8 +14103,8 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/kart/items.rs:24](../vm_model/src/kart/items.rs#L24) Item object kinds (+0x44), as `sub_206D18C` dispatches them.
 - [vm_model/src/kart/items.rs:57](../vm_model/src/kart/items.rs#L57) What touching it does to a kart (`sub_206D18C`). Blue-shell blasts and bombs are not
 - [vm_model/src/kart/items.rs:98](../vm_model/src/kart/items.rs#L98) `sub_206D18C` case 3: a boost that ignores terrain (refused while damaged, `sub_206D020`),
-- [game/src/items.rs:434](../game/src/items.rs#L434) a star or Bullet Bill deflects the item (`sub_206D18C`: SE 233)
-- [game/src/items.rs:536](../game/src/items.rs#L536) a Boo ghost goes through item boxes (`sub_206D18C` returns early for +0x7C & 0x402020)
+- [game/src/items.rs:443](../game/src/items.rs#L443) a star or Bullet Bill deflects the item (`sub_206D18C`: SE 233)
+- [game/src/items.rs:545](../game/src/items.rs#L545) a Boo ghost goes through item boxes (`sub_206D18C` returns early for +0x7C & 0x402020)
 - [docs/function_notes.md:287](../docs/function_notes.md#L287) touching an item object: dispatches on object type (v2[17]): 0,1,7 tumble, 2 spin(1), 3 mushroom (boost 90, shove 0x100000), 4 star on (sub_2069C38), 6 lightning, 5/9 spin(2) or sub_206BAB8; plays SE 233 once per kart when the target is star/bullet (deflected)
 
 ## sub_206D578
@@ -14130,7 +14131,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206DE18
 `export/plan0/arm9_main/sub_206DE18_0206DE18.c`
 
-- [game/src/items.rs:517](../game/src/items.rs#L517) a star blows the other kart away from it (sub_206DE18)
+- [game/src/items.rs:526](../game/src/items.rs#L526) a star blows the other kart away from it (sub_206DE18)
 - [game/src/sfx.rs:29](../game/src/sfx.rs#L29) Crash (blown away, `sub_206DE18`).
 - [docs/function_notes.md:284](../docs/function_notes.md#L284) star touch (a1 = star kart, a2 = victim, a3 = direction): victim is blown away (sub_206ADD0 mode 1, SE 232) unless victim +76 has 0x400000 or mask 0x10000040 (star/bullet); local player victims also need +384 == 0 and +72 & 0x1800 == 0; other karts +384 in 0..2; sets item-HUD bits (+1300 -> +44) per victim index
 
@@ -14147,10 +14148,10 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/obj_collision.rs:1](../vm_model/src/obj_collision.rs#L1) Karts against course objects (`sub_206E874`): each collidable object carries a collision
 - [vm_model/src/kart/items.rs:5](../vm_model/src/kart/items.rs#L5) contact `sub_206E874` reports no push, wall or slow-down flags for them). Which item objects
-- [vm_model/src/kart/mod.rs:373](../vm_model/src/kart/mod.rs#L373) Bumped into a solid object this tick (+0x44 bit 0x40, `sub_206E874`).
+- [vm_model/src/kart/mod.rs:374](../vm_model/src/kart/mod.rs#L374) Bumped into a solid object this tick (+0x44 bit 0x40, `sub_206E874`).
 - [vm_model/src/kart/movement.rs:710](../vm_model/src/kart/movement.rs#L710) `sub_206F04C` from the object check (`sub_206E874`, flag 8 handlers): bumping into a solid
 - [game/src/objects.rs:8](../game/src/objects.rs#L8) Collision is the game's (`vm_model::obj_collision`, `sub_206E874`): objects with a collision
-- [game/src/objects.rs:942](../game/src/objects.rs#L942) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
+- [game/src/objects.rs:1007](../game/src/objects.rs#L1007) `sub_206E874`: karts against course objects. The kart's sphere is tested against every
 - [docs/function_notes.md:39](../docs/function_notes.md#L39) kart vs course objects: handler, wall bump (flag 8), speed scale (2), moving-object shove (1), push out
 
 ## sub_206EDAC
@@ -14163,7 +14164,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_206F04C_0206F04C.c`
 
 - [vm_model/src/obj_collision.rs:216](../vm_model/src/obj_collision.rs#L216) The handler's result flags: 8 wall bump (`sub_206F04C` with full speed kept), 2 speed
-- [vm_model/src/kart/mod.rs:351](../vm_model/src/kart/mod.rs#L351) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
+- [vm_model/src/kart/mod.rs:352](../vm_model/src/kart/mod.rs#L352) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
 - [vm_model/src/kart/movement.rs:690](../vm_model/src/kart/movement.rs#L690) `sub_206F574` + `sub_206F04C`: hitting a wall. Returns whether this was a fresh hit.
 - [vm_model/src/kart/movement.rs:710](../vm_model/src/kart/movement.rs#L710) `sub_206F04C` from the object check (`sub_206E874`, flag 8 handlers): bumping into a solid
 - [vm_model/src/kart/movement.rs:728](../vm_model/src/kart/movement.rs#L728) The body of `sub_206F04C`: `a4` caps the speed (times how head-on the hit is), `fresh`
@@ -14172,13 +14173,13 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206F574
 `export/plan0/arm9_main/sub_206F574_0206F574.c`
 
-- [vm_model/src/kart/mod.rs:351](../vm_model/src/kart/mod.rs#L351) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
+- [vm_model/src/kart/mod.rs:352](../vm_model/src/kart/mod.rs#L352) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
 - [vm_model/src/kart/movement.rs:690](../vm_model/src/kart/movement.rs#L690) `sub_206F574` + `sub_206F04C`: hitting a wall. Returns whether this was a fresh hit.
 
 ## sub_206F694
 `export/plan0/arm9_main/sub_206F694_0206F694.c`
 
-- [vm_model/src/kart/mod.rs:351](../vm_model/src/kart/mod.rs#L351) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
+- [vm_model/src/kart/mod.rs:352](../vm_model/src/kart/mod.rs#L352) Wall reaction state (`sub_206F574`, `sub_206F04C`, `sub_206F694`).
 - [vm_model/src/kart/movement.rs:666](../vm_model/src/kart/movement.rs#L666) `sub_206F694`: the sphere test's slide vector becomes a velocity impulse along the wall;
 
 ## sub_206F824
@@ -14200,9 +14201,9 @@ ports or explains it. Regenerate after porting something new.
 ## sub_206FF50
 `export/plan0/arm9_main/sub_206FF50_0206FF50.c`
 
-- [vm_model/src/kart/mod.rs:324](../vm_model/src/kart/mod.rs#L324) passes this same result to sub_206FF50; a fresh unswept query can hit backfaces.
+- [vm_model/src/kart/mod.rs:325](../vm_model/src/kart/mod.rs#L325) passes this same result to sub_206FF50; a fresh unswept query can hit backfaces.
 - [game/src/respawn.rs:4](../game/src/respawn.rs#L4) one (0x8000) starts it (`sub_206FF50`); race progress is frozen meanwhile (kart +0x48 bit
-- [game/src/respawn.rs:20](../game/src/respawn.rs#L20) Fall surfaces (types 10, 11). Type 15 is a cannon (`sub_206FF50` -> `sub_20710B0`).
+- [game/src/respawn.rs:19](../game/src/respawn.rs#L19) Fall surfaces (types 10, 11). Type 15 is a cannon (`sub_206FF50` -> `sub_20710B0`).
 - [docs/function_notes.md:123](../docs/function_notes.md#L123) handles accepted fall/cannon terrain contact; flags 0xC00 begin fall state, signed type-15 flag routes cannon/off-course handling; caller's second argument omitted by C cast but retained in ARM r1
 
 ## sub_2070398
@@ -14213,7 +14214,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2070484
 `export/plan0/arm9_main/sub_2070484_02070484.c`
 
-- [vm_model/src/kart/mod.rs:313](../vm_model/src/kart/mod.rs#L313) points along it (+0x3F8, `sub_2070484`; `None` = 1.0).
+- [vm_model/src/kart/mod.rs:314](../vm_model/src/kart/mod.rs#L314) points along it (+0x3F8, `sub_2070484`; `None` = 1.0).
 - [vm_model/src/kart/movement.rs:817](../vm_model/src/kart/movement.rs#L817) `sub_2070484`: in the air (moving, not upside down) the tilt target is the attitude given by
 
 ## sub_20705FC
@@ -14236,7 +14237,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20710B0_020710B0.c`
 
 - [vm_model/src/kart/cannon.rs:1](../vm_model/src/kart/cannon.rs#L1) Cannons (`sub_20710B0` on touching collision type 15, then `sub_20708A4` in place of the usual
-- [game/src/respawn.rs:20](../game/src/respawn.rs#L20) Fall surfaces (types 10, 11). Type 15 is a cannon (`sub_206FF50` -> `sub_20710B0`).
+- [game/src/respawn.rs:19](../game/src/respawn.rs#L19) Fall surfaces (types 10, 11). Type 15 is a cannon (`sub_206FF50` -> `sub_20710B0`).
 
 ## sub_2071318
 `export/plan0/arm9_main/sub_2071318_02071318.c`
@@ -14331,6 +14332,8 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20720DC
 `export/plan0/arm9_main/sub_20720DC_020720DC.c`
 
+- [game/src/respawn.rs:126](../game/src/respawn.rs#L126) sub_20720DC (kart+528 reset callback) clears lean, air pitch
+- [docs/function_notes.md:451](../docs/function_notes.md#L451) base kart reset callback (kart+528 resolves here in Figure-8 RAM): clears motion/status masks, velocity, drift, tilt, lean+724, air-pitch+564, target/eased turn+1004/+1008, restores default scale/friction/gravity, respawn-id+964=-1. Native respawn now also clears KartSteering while preserving host CPU classification; full item/controller reset audit remains open
 - [docs/function_notes/agent_03.md:253](../docs/function_notes/agent_03.md#L253) zeroes/initialises the whole kart struct (positions, matrices, scales, timers, speeds, flags) to defaults before spawn
 
 ## sub_2072600
@@ -14352,11 +14355,14 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_2072930_02072930.c`
 
 - [docs/function_notes.md:290](../docs/function_notes.md#L290) full effect reset (respawn/finish): ends star, Boo and Bullet states
+- [docs/function_notes.md:452](../docs/function_notes.md#L452) respawn/reset cleanup: stops per-kart effect controllers, resets driver controller and audio state, ends status-specific transforms, cleans bullet/shrink state and emits original disappearance effects/sounds where flagged; called before the base kart reset
 - [docs/function_notes/agent_03.md:256](../docs/function_notes/agent_03.md#L256) kart full effect reset: clears damage/boost/star states, particles, sounds, HUD item state, visuals back to 1.0 scale, plays reset sound 253
 
 ## sub_2072B94
 `export/plan0/arm9_main/sub_2072B94_02072B94.c`
 
+- [vm_model/src/kart/respawn.rs:22](../vm_model/src/kart/respawn.rs#L22) sub_2072B94 derives yaw again from the quantized direction using FX_Atan2,
+- [docs/function_notes.md:450](../docs/function_notes.md#L450) reset-and-place kart: cleanup2072930, controller2079C0C, invokes kart+528 reset callback, sets position, derives yaw from FX_Atan2(forward.x,forward.z) with truncated constant0x28BE60D >>24, rebuilds basis/facing/travel and position histories, resets CPU cursor to supplied route point or racer route; player camera reset. Captured306 reset-yaw results match Rust; this does not establish all reset fields/camera parity
 - [docs/function_notes/agent_03.md:257](../docs/function_notes/agent_03.md#L257) places kart at position a2 with orientation a3 (reset/respawn core): resets effects, copies position into all history slots, updates network struct, camera
 
 ## sub_2072D84
@@ -14367,10 +14373,10 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2072EB8
 `export/plan0/arm9_main/sub_2072EB8_02072EB8.c`
 
+- [vm_model/src/kart/respawn.rs:1](../vm_model/src/kart/respawn.rs#L1) Respawn placement from `sub_2072EB8`. Timing and the kart-reset callback are separate.
 - [game/src/racers.rs:303](../game/src/racers.rs#L303) Original kart+548 resolves to sub_2072EB8: put back immediately,
 - [game/src/respawn.rs:7](../game/src/respawn.rs#L7) (`sub_2072EB8`). Not measured yet: the timing of the fall and of the carry, so the delays
-- [game/src/respawn.rs:8](../game/src/respawn.rs#L8) below are placeholders; the per-kart sideways spread of `sub_2072EB8` is not applied and
-- [game/src/respawn.rs:26](../game/src/respawn.rs#L26) Respawn height above the point (`sub_2072EB8`: +163840).
+- [docs/function_notes.md:449](../docs/function_notes.md#L449) respawn placement: checkpoint JGPT (battle cycles the respawn index; helper returns the battle route pointer), SDK quantized yaw, per-racer 30-unit side/forward grid offsets except mode1 time trial, pitch (-along*sinX) and roll (side*sinZ) height adjustments, then +40 units. Placement and reset yaw match306 controlled original calls (102 time-trial /204 spread) in vm_model/src/kart/respawn.rs; native bridge wired. Rescue timing/visuals and full reset parity remain open
 
 ## sub_20732D8
 `export/plan0/arm9_main/sub_20732D8_020732D8.c`
@@ -17956,6 +17962,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/mapobj/bats.rs:20](../vm_model/src/mapobj/bats.rs#L20) [`Bat::hit`] (`sub_209297C`) follows the code; the push (+0x10) it sets was not seen in a
 - [vm_model/src/mapobj/bats.rs:53](../vm_model/src/mapobj/bats.rs#L53) +0x10: the shove a kart gave it (`sub_209297C`); the generic object mover uses it.
 - [vm_model/src/mapobj/bats.rs:153](../vm_model/src/mapobj/bats.rs#L153) `sub_209297C`: kart number `kart_index` touched it (once per kart): its push becomes 1.2
+- [game/src/objects.rs:1102](../game/src/objects.rs#L1102) `sub_209297C`: pushed aside by each kart once
 - [docs/function_notes.md:437](../docs/function_notes.md#L437) bat kart callback (handler 12 for mode 0 karts): once per kart (mask +0xD0), sets the object push +0x10 to 1.2 units along the kart-bat vector minus its part along the bat facing (y kept), or along the facing if that is shorter than 4 units
 - [docs/function_notes/agent_04.md:83](../docs/function_notes/agent_04.md#L83) object vs kart overlap callback: pushes object velocity away from kart (sideways), marks kart bit as touched
 
@@ -17970,6 +17977,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_2092B3C_02092B3C.c`
 
 - [vm_model/src/mapobj/bats.rs:2](../vm_model/src/mapobj/bats.rs#L2) `sub_2092B3C`) and the bats it throws (0x19F, def `0x2166664`, factory `sub_20924A8`, tick
+- [game/src/objects.rs:511](../game/src/objects.rs#L511) the spawner itself is not drawn (`sub_2092B3C` registers the bats' draw)
 - [docs/function_notes/agent_04.md:85](../docs/function_notes/agent_04.md#L85) registers a decoration draw descriptor (sub_209BEF0) via function pointer
 
 ## sub_2092B5C
@@ -17977,6 +17985,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/mapobj/bats.rs:1](../vm_model/src/mapobj/bats.rs#L1) Banshee Boardwalk bats (`basabasa`): the spawner (NKM object 0x1A0, tick `sub_2092B5C`, init
 - [vm_model/src/mapobj/bats.rs:176](../vm_model/src/mapobj/bats.rs#L176) The spawner (`sub_2092B5C`).
+- [game/src/objects.rs:659](../game/src/objects.rs#L659) the karts a bat spawner watches (`sub_2092B5C`: racer types 0, 2, 3 and the player)
 - [docs/function_notes.md:434](../docs/function_notes.md#L434) bat spawner (NKM 0x1A0, Banshee Boardwalk old_hyudoro_64) tick, state +0xAC: 0 waits for a counted kart within sqrt(5625)*256=1200 units and atan2 minus yaw (+0x7E) in +-8000 (flag 0x800: timed, +0xA4 counts down), or sub_2061818()==2; 1 runs a 50 tick cycle (+0xA0), at tick 20 throws 2 bats (6 RNG draws each: x+-5, y+35+-5, z+-40 units, speed 2..3 units, angle yaw-3000+rnd(6000), vy -0.625..-0.375), +0xA8 burst counter 0..2, after 5 cycles (+0xA4 from 4) back to 0. Ported in vm_model/src/mapobj/bats.rs, replay-tested
 - [docs/function_notes/agent_04.md:86](../docs/function_notes/agent_04.md#L86) uncertain: similar to sub_20919E8: object tick that spawns 2 debris objects in a burst and plays a sound
 
@@ -18104,7 +18113,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/mapobj/airship.rs:16](../vm_model/src/mapobj/airship.rs#L16) public numbers below), and the karts' contact handlers (`sub_2093754`, `sub_2093B7C`: the
 - [vm_model/src/mapobj/airship.rs:55](../vm_model/src/mapobj/airship.rs#L55) `sub_2093B7C` (a kart hits it): 120 ticks of falling, velocity / 4, thrown up at 4 units.
-- [game/src/objects.rs:1052](../game/src/objects.rs#L1052) a star kart knocks a Bullet Bill down (`sub_2093B7C`) and bounces an iron
+- [game/src/objects.rs:1119](../game/src/objects.rs#L1119) a star kart knocks a Bullet Bill down (`sub_2093B7C`) and bounces an iron
 - [docs/function_notes.md:319](../docs/function_notes.md#L319) Bullet Bill kart-hit handler: life 120, state 1, velocity / 4, y velocity 0x4000
 - [docs/function_notes.md:412](../docs/function_notes.md#L412) Bullet Bill kart callback: code 1 (star) -> knocked down: 120 ticks falling, velocity / 4, up 4, no contact
 - [docs/function_notes/agent_04.md:108](../docs/function_notes/agent_04.md#L108) object hit callback: sets timer 120, scales velocity, sets upward speed, plays hit effect
@@ -18394,7 +18403,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/mapobj/pinball.rs:24](../vm_model/src/mapobj/pinball.rs#L24) 200..299 the flipper launch (`sub_209753C(code - 200)` when the next point has the same
 - [vm_model/src/mapobj/pinball.rs:47](../vm_model/src/mapobj/pinball.rs#L47) A flipper is kicked (`sub_209753C(n)`): call `Flipper::kick` on flipper n.
 - [vm_model/src/mapobj/pinball.rs:507](../vm_model/src/mapobj/pinball.rs#L507) `sub_209753C(n)`: an iron ball launches the flipper.
-- [game/src/objects.rs:446](../game/src/objects.rs#L446) Flippers kicked by iron balls (`sub_209753C(n)`), applied when they tick.
+- [game/src/objects.rs:464](../game/src/objects.rs#L464) Flippers kicked by iron balls (`sub_209753C(n)`), applied when they tick.
 - [docs/function_notes/agent_04.md:164](../docs/function_notes/agent_04.md#L164) spawns a flipper-class child from a parent, setting a countdown of 170 at +0xEBC
 
 ## sub_209758C
@@ -18423,7 +18432,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2097D80
 `export/plan0/arm9_main/sub_2097D80_02097D80.c`
 
-- [game/src/objects.rs:731](../game/src/objects.rs#L731) drawn with the swing's orientation for this phase (`sub_2097D80`)
+- [game/src/objects.rs:755](../game/src/objects.rs#L755) drawn with the swing's orientation for this phase (`sub_2097D80`)
 - [docs/function_notes/agent_04.md:169](../docs/function_notes/agent_04.md#L169) flipper draw: matrix for current frame, position/16, scale, texture-SRT animation values, model draw
 
 ## sub_2097E84
@@ -18438,7 +18447,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/mapobj/pinball.rs:583](../vm_model/src/mapobj/pinball.rs#L583) `sub_2097ED0`'s shapes: does a sphere at `p` of radius `r` touch the flipper?  The push-out
 - [vm_model/src/mapobj/pinball.rs:619](../vm_model/src/mapobj/pinball.rs#L619) `sub_2097ED0` itself: as `touches`, and remembers the spin side (`spin` is reset to 0 first).
 - [vm_model/src/mapobj/pinball.rs:806](../vm_model/src/mapobj/pinball.rs#L806) Recorded calls of `sub_2097ED0` (collision) and `sub_20980EC` (shove) on the first flipper
-- [game/src/objects.rs:1003](../game/src/objects.rs#L1003) pinball flippers test their swinging boxes themselves (`sub_2097ED0`), then shove the
+- [game/src/objects.rs:1068](../game/src/objects.rs#L1068) pinball flippers test their swinging boxes themselves (`sub_2097ED0`), then shove the
 - [docs/function_notes/agent_04.md:171](../docs/function_notes/agent_04.md#L171) flipper collision: oriented-box tests (sub_20EAFC4) on several boxes, cylinder fallback (sub_20EAD80); sets spin direction +0xA0
 
 ## sub_20980EC
@@ -18447,7 +18456,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/mapobj/pinball.rs:433](../vm_model/src/mapobj/pinball.rs#L433) A flipper (`sub_20975EC` tick, `sub_20979C8` init, `sub_2097ED0` collision, `sub_20980EC`
 - [vm_model/src/mapobj/pinball.rs:626](../vm_model/src/mapobj/pinball.rs#L626) `sub_20980EC`: the shove a swinging flipper gives a racer (`kart_pos` the racer's position,
 - [vm_model/src/mapobj/pinball.rs:806](../vm_model/src/mapobj/pinball.rs#L806) Recorded calls of `sub_2097ED0` (collision) and `sub_20980EC` (shove) on the first flipper
-- [game/src/objects.rs:1004](../game/src/objects.rs#L1004) kart while swinging (`sub_20980EC`: handler 12 / 14), else stop it (the table's 2)
+- [game/src/objects.rs:1069](../game/src/objects.rs#L1069) kart while swinging (`sub_20980EC`: handler 12 / 14), else stop it (the table's 2)
 - [docs/function_notes/agent_04.md:172](../docs/function_notes/agent_04.md#L172) flipper hit reaction: pushes kart along flipper direction by speed scaled -410/+410, plays sound 465
 
 ## sub_209828C
@@ -19364,7 +19373,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_209C9FC
 `export/plan0/arm9_main/sub_209C9FC_0209C9FC.c`
 
-- [game/src/objects.rs:1104](../game/src/objects.rs#L1104) a pinball bumper struck by a kart (`sub_209C9FC`, own-table kind 3 or 4) throws it
+- [game/src/objects.rs:1171](../game/src/objects.rs#L1171) a pinball bumper struck by a kart (`sub_209C9FC`, own-table kind 3 or 4) throws it
 - [docs/function_notes/agent_04.md:352](../docs/function_notes/agent_04.md#L352) object vs kart collision handler: computes push direction from kart velocity, sets bounce, plays sounds 341/342/437/463
 
 ## sub_209CEBC
@@ -19478,7 +19487,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/mapobj/fire_ring.rs:2](../vm_model/src/mapobj/fire_ring.rs#L2) hit test `sub_209E988`.
 - [vm_model/src/mapobj/fire_ring.rs:76](../vm_model/src/mapobj/fire_ring.rs#L76) `sub_209E988`: does a sphere touch an outer-layer fireball?
-- [game/src/objects.rs:979](../game/src/objects.rs#L979) fire rings test their outer fireballs themselves (`sub_209E988`)
+- [game/src/objects.rs:1044](../game/src/objects.rs#L1044) fire rings test their outer fireballs themselves (`sub_209E988`)
 - [docs/function_notes/agent_04.md:374](../docs/function_notes/agent_04.md#L374) fireball collision test: true if a point is within (radius+60 units) of any of the fireballs (320-byte records)
 
 ## sub_209EA10
@@ -20364,7 +20373,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20A9DE4
 `export/plan0/arm9_main/sub_20A9DE4_020A9DE4.c`
 
-- [game/src/objects.rs:1053](../game/src/objects.rs#L1053) ball up 10 units a tick (`sub_20A9DE4`)
+- [game/src/objects.rs:1120](../game/src/objects.rs#L1120) ball up 10 units a tick (`sub_20A9DE4`)
 - [docs/function_notes.md:413](../docs/function_notes.md#L413) iron ball kart callback: code 1 (star) -> vertical speed 40960 (+0xC0), kart reaction 0
 - [docs/function_notes/hk_16.md:7](../docs/function_notes/hk_16.md#L7) callback: if *a3 != 1 returns *a4; otherwise sets a1+192 = 0xA000 and returns 0.
 
@@ -24904,7 +24913,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20D22D0_020D22D0.c`
 
 - [vm_model/src/mapobj/mod.rs:23](../vm_model/src/mapobj/mod.rs#L23) The objects' random numbers (`sub_20D22D0`: NitroSDK `MATH_Rand32`,
-- [game/src/objects.rs:440](../game/src/objects.rs#L440) What the objects share: their random numbers (`sub_20D22D0`) and the kart whose turn it is
+- [game/src/objects.rs:458](../game/src/objects.rs#L458) What the objects share: their random numbers (`sub_20D22D0`) and the kart whose turn it is
 - [docs/function_notes.md:150](../docs/function_notes.md#L150) the objects' random context (NitroSDK MATH_Rand32 at *0x0217B49C)
 - [docs/function_notes.md:440](../docs/function_notes.md#L440) returns the objects' RNG state pointer (arg ignored); sub_2091F6C(rng, n) = (hi word after step * n) >> 32; sub_2046524 same truncated to u16
 
@@ -25545,7 +25554,7 @@ ports or explains it. Regenerate after porting something new.
 - [vm_model/src/obj_collision.rs:141](../vm_model/src/obj_collision.rs#L141) The object's own reaction to a kart touching it (`sub_20D6BE0`'s table at `0x0216B9AC`),
 - [vm_model/src/obj_collision.rs:152](../vm_model/src/obj_collision.rs#L152) `sub_20D6BE0` (own part): the reaction code the object's kart callback gets; objects flagged
 - [vm_model/src/obj_collision.rs:160](../vm_model/src/obj_collision.rs#L160) `sub_20D6BE0` (table part): the handler for an object id when the kart is in `mode`;
-- [game/src/objects.rs:945](../game/src/objects.rs#L945) solid ones. Traffic's own reaction is dispatched separately by sub_20D6BE0.
+- [game/src/objects.rs:1010](../game/src/objects.rs#L1010) solid ones. Traffic's own reaction is dispatched separately by sub_20D6BE0.
 - [docs/function_notes.md:17](../docs/function_notes.md#L17) picks the kart-vs-object hit handler from tables at 0x0216B94C (id/100 group, kart +0x29C mode, id%100)
 - [docs/function_notes.md:231](../docs/function_notes.md#L231) separate own-object reaction table 0216B9AC and kart response table 0216B94C; traffic own modes [normal,Star,mega,shrunk]=[0,1,0,1]; object flag 0800 suppresses own responses other than 2/4, flag 0080 bypasses dynamic callback; decompiler omits callback args holding response-byte pointers
 - [docs/function_notes.md:383](../docs/function_notes.md#L383) kart-object dispatch; own-reaction table 0x0216B9AC (now ported as obj_collision::own_reaction), kart handler table 0x0216B94C; flag 0x800 keeps only own codes 2/4
@@ -25565,7 +25574,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20D6DC0
 `export/plan0/arm9_main/sub_20D6DC0_020D6DC0.c`
 
-- [game/src/objects.rs:1082](../game/src/objects.rs#L1082) sub_20D6DC0(.., 4, 4): the handler table's group 4, entry 4
+- [game/src/objects.rs:1149](../game/src/objects.rs#L1149) sub_20D6DC0(.., 4, 4): the handler table's group 4, entry 4
 - [docs/function_notes.md:160](../docs/function_notes.md#L160) handler table lookup for an explicit id group/index
 
 ## sub_20D6DF0
@@ -25657,7 +25666,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20D7B34
 `export/plan0/arm9_main/sub_20D7B34_020D7B34.c`
 
-- [game/src/objects.rs:843](../game/src/objects.rs#L843) facing its travel (sub_20D7B34 from the walk's direction)
+- [game/src/objects.rs:889](../game/src/objects.rs#L889) facing its travel (sub_20D7B34 from the walk's direction)
 
 ## sub_20D7B88
 `export/plan0/arm9_main/sub_20D7B88_020D7B88.c`
@@ -26142,7 +26151,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20DB548_020DB548.c`
 
 - [vm_model/src/mapobj/thwomp.rs:10](../vm_model/src/mapobj/thwomp.rs#L10) Not ported: being knocked about by a star / mega kart (`sub_20DB548`, +0xB4 modes 1 and 2),
-- [game/src/objects.rs:971](../game/src/objects.rs#L971) a Thwomp slamming down or just landed crushes karts in the cone under it (`sub_20DB548`)
+- [game/src/objects.rs:1036](../game/src/objects.rs#L1036) a Thwomp slamming down or just landed crushes karts in the cone under it (`sub_20DB548`)
 - [docs/function_notes.md:159](../docs/function_notes.md#L159) Thwomp class callback (star knock, crush handler 11 for karts below)
 
 ## sub_20DB760
@@ -26446,7 +26455,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20DE6A8
 `export/plan0/arm9_main/sub_20DE6A8_020DE6A8.c`
 
-- [game/src/items.rs:314](../game/src/items.rs#L314) the box sits 12 units above its placement (`sub_20DE6A8`: y += 49152)
+- [game/src/items.rs:316](../game/src/items.rs#L316) the box sits 12 units above its placement (`sub_20DE6A8`: y += 49152)
 
 ## sub_20DE84C
 `export/plan0/arm9_main/sub_20DE84C_020DE84C.c`
@@ -27582,7 +27591,7 @@ ports or explains it. Regenerate after porting something new.
 `export/plan0/arm9_main/sub_20E66E4_020E66E4.c`
 
 - [vm_model/src/mapobj/monty.rs:23](../vm_model/src/mapobj/monty.rs#L23) +0xB8 roll about the model's z (drawn by `sub_20E66E4`), +0xB4 its direction.
-- [game/src/objects.rs:688](../game/src/objects.rs#L688) knocked away: it rolls about its own z (`sub_20E66E4`)
+- [game/src/objects.rs:712](../game/src/objects.rs#L712) knocked away: it rolls about its own z (`sub_20E66E4`)
 - [docs/function_notes.md:389](../docs/function_notes.md#L389) object draw with a roll about the model's z (MTX_RotZ from the u16 angle)
 - [docs/function_notes/hk_22.md:43](../docs/function_notes/hk_22.md#L43) draw submit: sends GX FIFO commands via sub_1FF9048 (cmd 20 mode, 25 matrix, 26 texture matrix from off_20E67C0 if a3, 27 color), then sub_20E6854.
 
@@ -28253,7 +28262,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20ED5C0
 `export/plan0/arm9_main/sub_20ED5C0_020ED5C0.c`
 
-- [game/src/items.rs:1089](../game/src/items.rs#L1089) sub_20ED5C0: full camera billboard on level ground; the sloped
+- [game/src/items.rs:1131](../game/src/items.rs#L1131) sub_20ED5C0: full camera billboard on level ground; the sloped
 - [docs/function_notes.md:255](../docs/function_notes.md#L255) shared item draw with alpha +216 and animated scale +104..112; floor normal Y <4014 or actor flag 0x80 selects normal/camera cross-product billboard basis, otherwise shared camera billboard with translated position
 - [docs/function_notes/NEEDS_REVIEW.md:767](../docs/function_notes/NEEDS_REVIEW.md#L767) per-object draw/update: sets bits 16-20 of a2+20 from a1+216, updates a1+172 velocity and a1+184..192, then sub_20E67C4 draw [REVIEW]
 - [docs/function_notes/hk_23.md:31](../docs/function_notes/hk_23.md#L31) per-object draw/update: sets bits 16-20 of a2+20 from a1+216, updates a1+172 velocity and a1+184..192, then sub_20E67C4 draw [REVIEW]
@@ -28598,7 +28607,7 @@ ports or explains it. Regenerate after porting something new.
 
 - [vm_model/src/kart/red_shell.rs:37](../vm_model/src/kart/red_shell.rs#L37) Targeting (`sub_20F1258`): range (400 units, squared, in units), height window (50 units).
 - [vm_model/src/kart/red_shell.rs:172](../vm_model/src/kart/red_shell.rs#L172) `sub_20F1258`: whether kart `k` can be targeted (ahead of the thrower, in range, in front
-- [game/src/items.rs:897](../game/src/items.rs#L897) a Boo ghost cannot be targeted (+0x7C bit 0x2000: `sub_206C0E0`, `sub_20F1258`)
+- [game/src/items.rs:939](../game/src/items.rs#L939) a Boo ghost cannot be targeted (+0x7C bit 0x2000: `sub_206C0E0`, `sub_20F1258`)
 
 ## sub_20F14A0
 `export/plan0/arm9_main/sub_20F14A0_020F14A0.c`
@@ -29825,7 +29834,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_20FC94C
 `export/plan0/arm9_main/sub_20FC94C_020FC94C.c`
 
-- [game/src/items.rs:906](../game/src/items.rs#L906) the blue shell's target: the leader that has not finished (`sub_20FC94C`)
+- [game/src/items.rs:948](../game/src/items.rs#L948) the blue shell's target: the leader that has not finished (`sub_20FC94C`)
 - [docs/function_notes/NEEDS_REVIEW.md:912](../docs/function_notes/NEEDS_REVIEW.md#L912) racer/object reset: sub_210B850, vtable off_20FCAB4 at +48, zeroes +352, copies pos to +196..204, sub_20F9C40, start slot from off_20FCAB8, sub_208ADC8 [REVIEW]
 - [docs/function_notes/hk_25.md:11](../docs/function_notes/hk_25.md#L11) racer/object reset: sub_210B850, vtable off_20FCAB4 at +48, zeroes +352, copies pos to +196..204, sub_20F9C40, start slot from off_20FCAB8, sub_208ADC8 [REVIEW]
 
@@ -30583,7 +30592,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2101F7C
 `export/plan0/arm9_main/sub_2101F7C_02101F7C.c`
 
-- [game/src/items.rs:805](../game/src/items.rs#L805) Boo (`sub_2101F7C`): walk outward from the user's place, one ahead then one behind, giving
+- [game/src/items.rs:825](../game/src/items.rs#L825) Boo (`sub_2101F7C`): walk outward from the user's place, one ahead then one behind, giving
 - [docs/function_notes/NEEDS_REVIEW.md:1012](../docs/function_notes/NEEDS_REVIEW.md#L1012) builds candidate list of eligible karts around the racer's rank (sub_203C8DC) and picks one by weighted random threshold into +320 [REVIEW]
 - [docs/function_notes/hk_26.md:27](../docs/function_notes/hk_26.md#L27) builds candidate list of eligible karts around the racer's rank (sub_203C8DC) and picks one by weighted random threshold into +320 [REVIEW]
 
@@ -31516,7 +31525,7 @@ ports or explains it. Regenerate after porting something new.
 ## sub_210BAFC
 `export/plan0/arm9_main/sub_210BAFC_0210BAFC.c`
 
-- [vm_model/src/kart/mod.rs:371](../vm_model/src/kart/mod.rs#L371) Collision type and variant of the wall last touched (picks its sound, `sub_210BAFC`).
+- [vm_model/src/kart/mod.rs:372](../vm_model/src/kart/mod.rs#L372) Collision type and variant of the wall last touched (picks its sound, `sub_210BAFC`).
 - [game/src/sfx.rs:2](../game/src/sfx.rs#L2) the entry being the id the kart code passes to `sub_21090C4` (e.g. 129..141 walls by material (`sub_210BAFC`), 232 crash,
 - [game/src/sfx.rs:135](../game/src/sfx.rs#L135) Wall sounds by the wall's collision type and variant (`sub_210B234` -> `sub_210BAFC`:
 
@@ -37456,7 +37465,9 @@ ports or explains it. Regenerate after porting something new.
 ## sub_2147FD8
 `export/plan0/arm9_main/sub_2147FD8_02147FD8.c`
 
+- [vm_model/src/kart/respawn.rs:39](../vm_model/src/kart/respawn.rs#L39) sub_2147FD8 truncates each scaled component (unlike FX_Mul).
 - [vm_model/src/mapobj/pinball.rs:168](../vm_model/src/mapobj/pinball.rs#L168) `sub_2147FD8`: the centre = base + up x radius, plus the height above the base.
+- [docs/function_notes.md:453](../docs/function_notes.md#L453) SDK vector scale-add: out=base+((scalar*vector)>>12) independently per signed component, truncating rather than adding an FX_Mul rounding bias; used for respawn side/forward offsets
 
 ## sub_2148078
 `(not in export)`
